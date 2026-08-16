@@ -151,7 +151,7 @@ class TableRegistryDefinition implements \JsonSerializable
             'primaryKey' => $columns->primaryKey()->key(),
             'columns' => \array_map(
                 static fn (ColumnRegistryDefinition $column): array => $column->jsonSerialize(),
-                $columns->all()
+                $columns->exposedInDefinition()
             ),
             'query' => [
                 'search' => $this->search->jsonSerialize(),

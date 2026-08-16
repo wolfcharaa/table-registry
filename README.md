@@ -13,6 +13,7 @@ backend должен знать о таблице: источник данных
 - явные sortable/filterable/searchable правила на уровне колонок;
 - сериализация definition в стабильный JSON-контракт для frontend;
 - компиляция rows/count/export SQL для PostgreSQL;
+- payload-only/action-only колонки для служебных значений строк без попадания в настройки отображения;
 - runtime constraints через callback или invokable class;
 - value object нормализация значений строк;
 - label/hydration resolvers для человекочитаемого payload;
@@ -101,6 +102,10 @@ $definition = (new TableRegistryDefinition(
                     ['value' => 'blocked', 'label' => 'Заблокирован'],
                 ]
             )),
+
+        (new ColumnRegistryDefinition('actionToken', 'Action token'))
+            ->withSelect(ColumnSelectDefinition::sqlExpression('actionToken', 'u.action_token'))
+            ->withPayloadOnly(),
     ]
 ))->withDefaultSort(RegistryDefaultSortDefinition::desc('id'));
 ```
@@ -160,6 +165,11 @@ $payload = $definition->jsonSerialize();
 В JSON не попадают backend-only детали: `source`, joins, SQL expressions, runtime constraints, hydration callbacks и
 label resolvers.
 
+Колонки, помеченные `withPayloadOnly()`, также не попадают в `columns` JSON definition. При этом они остаются частью
+backend definition: SQL compiler выбирает их в rows-запросе, `RegistryRowsProjector` отдаёт их в `row.values`, а
+frontend может использовать эти значения для row actions, detail modal или других feature-specific сценариев без
+появления таких полей в настройках отображения таблицы.
+
 ## Source
 
 `RegistrySourceDefinition` описывает SQL-фрагмент после `FROM` и optional joins.
@@ -209,6 +219,16 @@ Primary key обязателен:
 ```php
 new PrimaryKeyColumnRegistryDefinition('id');
 ```
+
+Служебная колонка только для payload/action:
+
+```php
+(new ColumnRegistryDefinition('actionToken', 'Action token'))
+    ->withSelect(ColumnSelectDefinition::sqlExpression('actionToken', 'u.action_token'))
+    ->withPayloadOnly();
+```
+
+Primary key нельзя сделать payload-only: он всегда остаётся частью публичного contract как `primaryKey`.
 
 ## Фильтры
 

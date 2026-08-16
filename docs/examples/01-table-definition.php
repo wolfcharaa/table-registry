@@ -48,8 +48,11 @@ $definition = (new TableRegistryDefinition(
                     ['value' => 'blocked', 'label' => 'Заблокирован'],
                 ]
             )),
+
+        (new ColumnRegistryDefinition('actionToken', 'Action token'))
+            ->withSelect(ColumnSelectDefinition::sqlExpression('actionToken', 'u.action_token'))
+            ->withPayloadOnly(),
     ]
 ))->withDefaultSort(RegistryDefaultSortDefinition::desc('id'));
 
 echo json_encode($definition, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . PHP_EOL;
-

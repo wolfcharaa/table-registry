@@ -50,5 +50,30 @@ final class RegistryRowsProjectorTest extends RegistryTestCase
         self::assertSame('ready', $rows[0]['values']['state']['value']);
         self::assertSame('Готово', $rows[0]['values']['state']['label']);
     }
-}
 
+    public function testKeepsPayloadOnlyColumnsInRowsPayload(): void
+    {
+        $definition = new TableRegistryDefinition(
+            registryKey: 'devices',
+            title: 'Устройства',
+            source: RegistrySourceDefinition::from('public.devices'),
+            columns: [
+                new PrimaryKeyColumnRegistryDefinition('id'),
+                new ColumnRegistryDefinition('title', 'Название'),
+                (new ColumnRegistryDefinition('actionToken', 'Action token'))
+                    ->withPayloadOnly(),
+            ]
+        );
+
+        $rows = (new RegistryRowsProjector())->project($definition, [
+            [
+                'id' => 15,
+                'title' => 'Планшет',
+                'actionToken' => 'token-15',
+            ],
+        ]);
+
+        self::assertSame('token-15', $rows[0]['values']['actionToken']['value']);
+        self::assertSame('token-15', $rows[0]['values']['actionToken']['label']);
+    }
+}

@@ -26,6 +26,25 @@ final class ColumnRegistryDefinitionCollection
         return $this->columns;
     }
 
+    /**
+     * @return list<ColumnRegistryDefinition>
+     */
+    public function exposedInDefinition(): array
+    {
+        return \array_values(\array_filter(
+            $this->columns,
+            static fn (ColumnRegistryDefinition $column): bool => $column->exposedInDefinition()
+        ));
+    }
+
+    /**
+     * @return list<ColumnRegistryDefinition>
+     */
+    public function payload(): array
+    {
+        return $this->columns;
+    }
+
     public function primaryKey(): ColumnRegistryDefinition
     {
         foreach ($this->columns as $column) {

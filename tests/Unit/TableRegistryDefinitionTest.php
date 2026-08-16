@@ -66,6 +66,41 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         );
     }
 
+    public function testHidesPayloadOnlyColumnsFromFrontendContract(): void
+    {
+        $payload = (new TableRegistryDefinition(
+            registryKey: 'devices',
+            title: 'Устройства',
+            source: RegistrySourceDefinition::from('public.devices'),
+            columns: [
+                new PrimaryKeyColumnRegistryDefinition('id'),
+                new ColumnRegistryDefinition('title', 'Название'),
+                (new ColumnRegistryDefinition('actionToken', 'Action token'))
+                    ->withPayloadOnly(),
+            ]
+        ))->jsonSerialize();
+
+        self::assertSame(['id', 'title'], \array_map(
+            static fn (array $column): string => $column['key'],
+            $payload['columns']
+        ));
+    }
+
+    public function testRejectsPayloadOnlyPrimaryKey(): void
+    {
+        $this->expectException(InvalidRegistryDefinitionException::class);
+
+        new TableRegistryDefinition(
+            registryKey: 'invalid',
+            title: 'Некорректный реестр',
+            source: RegistrySourceDefinition::from('public.invalid'),
+            columns: [
+                (new PrimaryKeyColumnRegistryDefinition('id'))->withPayloadOnly(),
+                new ColumnRegistryDefinition('title', 'Название'),
+            ]
+        );
+    }
+
     public function testRejectsDefaultSortByUnknownColumn(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -73,4 +108,3 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         $this->usersDefinition()->withDefaultSort(RegistryDefaultSortDefinition::asc('missing'));
     }
 }
-

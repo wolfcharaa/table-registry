@@ -35,6 +35,10 @@ final class ColumnRegistryDefinitionValidator
             $keys[$column->key()] = true;
 
             if ($column->isPrimaryKey()) {
+                if ($column->payloadOnly()) {
+                    throw InvalidRegistryDefinitionException::because('Registry primary key column cannot be payload-only.');
+                }
+
                 ++$primaryKeys;
             }
         }
