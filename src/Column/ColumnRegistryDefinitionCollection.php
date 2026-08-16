@@ -45,6 +45,28 @@ final class ColumnRegistryDefinitionCollection
         return $this->columns;
     }
 
+    /**
+     * @return list<ColumnRegistryDefinition>
+     */
+    public function exportable(): array
+    {
+        return \array_values(\array_filter(
+            $this->columns,
+            static fn (ColumnRegistryDefinition $column): bool => $column->exportable()
+        ));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function exportableKeys(): array
+    {
+        return \array_values(\array_map(
+            static fn (ColumnRegistryDefinition $column): string => $column->key(),
+            $this->exportable()
+        ));
+    }
+
     public function primaryKey(): ColumnRegistryDefinition
     {
         foreach ($this->columns as $column) {

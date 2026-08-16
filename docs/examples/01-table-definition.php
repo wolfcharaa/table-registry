@@ -52,6 +52,16 @@ $definition = (new TableRegistryDefinition(
         (new ColumnRegistryDefinition('actionToken', 'Action token'))
             ->withSelect(ColumnSelectDefinition::sqlExpression('actionToken', 'u.action_token'))
             ->withPayloadOnly(),
+
+        (new ColumnRegistryDefinition('roleId', 'ID роли'))
+            ->withSelect(ColumnSelectDefinition::sqlExpression('roleId', 'u.role_id'))
+            ->withFilter(SelectFilterRegistryDefinition::static(
+                queryKey: 'filter_roleId',
+                columnKey: 'roleId',
+                title: 'Роль',
+                options: []
+            ))
+            ->withExportable(false),
     ]
 ))->withDefaultSort(RegistryDefaultSortDefinition::desc('id'));
 

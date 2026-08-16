@@ -14,6 +14,7 @@ backend должен знать о таблице: источник данных
 - сериализация definition в стабильный JSON-контракт для frontend;
 - компиляция rows/count/export SQL для PostgreSQL;
 - payload-only/action-only колонки для служебных значений строк без попадания в настройки отображения;
+- export policy на уровне колонок для безопасного выбора XLSX-полей;
 - runtime constraints через callback или invokable class;
 - value object нормализация значений строк;
 - label/hydration resolvers для человекочитаемого payload;
@@ -106,6 +107,16 @@ $definition = (new TableRegistryDefinition(
         (new ColumnRegistryDefinition('actionToken', 'Action token'))
             ->withSelect(ColumnSelectDefinition::sqlExpression('actionToken', 'u.action_token'))
             ->withPayloadOnly(),
+
+        (new ColumnRegistryDefinition('roleId', 'ID роли'))
+            ->withSelect(ColumnSelectDefinition::sqlExpression('roleId', 'u.role_id'))
+            ->withFilter(SelectFilterRegistryDefinition::static(
+                queryKey: 'filter_roleId',
+                columnKey: 'roleId',
+                title: 'Роль',
+                options: []
+            ))
+            ->withExportable(false),
     ]
 ))->withDefaultSort(RegistryDefaultSortDefinition::desc('id'));
 ```
@@ -169,6 +180,10 @@ label resolvers.
 backend definition: SQL compiler выбирает их в rows-запросе, `RegistryRowsProjector` отдаёт их в `row.values`, а
 frontend может использовать эти значения для row actions, detail modal или других feature-specific сценариев без
 появления таких полей в настройках отображения таблицы.
+
+Колонки, помеченные `withExportable(false)`, остаются в JSON definition, rows payload, сортировках и фильтрах, но не
+попадают в набор колонок, доступных для XLSX export. Это удобно для технических id-полей, которые нужны frontend для
+фильтра или перехода, но не должны попадать в файл выгрузки. `withPayloadOnly()` колонки также считаются неэкспортируемыми.
 
 ## Source
 
@@ -407,17 +422,18 @@ $column = $column->withLabel(
 
 ## Export
 
-Сначала выберите разрешённые и запрошенные колонки:
+Сначала выберите запрошенные колонки. Resolver сам ограничит их export policy из `TableRegistryDefinition`:
 
 ```php
 use Wolfcharaa\TableRegistry\Export\RegistryExportColumnResolver;
 
 $columns = (new RegistryExportColumnResolver())->resolve(
     definition: $definition,
-    allowedColumnKeys: ['id', 'fullName', 'status'],
     requestedColumnKeys: ['fullName', 'status']
 );
 ```
+
+Если `requestedColumnKeys` пустой, resolver вернёт все колонки, для которых `exportable() === true`.
 
 Для плоских строк из projected rows:
 

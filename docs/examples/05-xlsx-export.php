@@ -20,6 +20,7 @@ $definition = new TableRegistryDefinition(
         new PrimaryKeyColumnRegistryDefinition('id'),
         new ColumnRegistryDefinition('fullName', 'ФИО'),
         new ColumnRegistryDefinition('status', 'Статус'),
+        (new ColumnRegistryDefinition('roleId', 'ID роли'))->withExportable(false),
     ]
 );
 
@@ -30,14 +31,14 @@ $projectedRows = [
             'id' => ['value' => 1, 'label' => '1'],
             'fullName' => ['value' => 'Иванов Иван', 'label' => 'Иванов Иван'],
             'status' => ['value' => 'active', 'label' => 'Активен'],
+            'roleId' => ['value' => 10, 'label' => '10'],
         ],
     ],
 ];
 
 $columns = (new RegistryExportColumnResolver())->resolve(
     definition: $definition,
-    allowedColumnKeys: ['fullName', 'status'],
-    requestedColumnKeys: ['status', 'fullName']
+    requestedColumnKeys: ['roleId', 'status', 'fullName']
 );
 
 $flatRows = RegistryProjectedRowsFlattener::flattenLabels($projectedRows);
@@ -51,4 +52,3 @@ $result = (new RegistryXlsxExporter())->export(
 
 echo 'File path: ' . $result->filePath() . PHP_EOL;
 echo 'File name: ' . $result->fileName() . PHP_EOL;
-

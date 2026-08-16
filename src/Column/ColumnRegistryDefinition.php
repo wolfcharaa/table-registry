@@ -23,6 +23,7 @@ class ColumnRegistryDefinition implements \JsonSerializable
     private bool $searchable = false;
     private ?string $hint = null;
     private bool $payloadOnly = false;
+    private bool $exportable = true;
 
     /** @var array<string, ColumnSelectDefinition> */
     private array $auxiliarySelects = [];
@@ -162,6 +163,14 @@ class ColumnRegistryDefinition implements \JsonSerializable
         return $this->withPayloadOnly($actionOnly);
     }
 
+    public function withExportable(bool $exportable = true): static
+    {
+        $clone = clone $this;
+        $clone->exportable = $exportable;
+
+        return $clone;
+    }
+
     public function filter(): ?RegistryFilterDefinitionInterface
     {
         return $this->filter;
@@ -208,6 +217,11 @@ class ColumnRegistryDefinition implements \JsonSerializable
     public function payloadOnly(): bool
     {
         return $this->payloadOnly;
+    }
+
+    public function exportable(): bool
+    {
+        return !$this->payloadOnly && $this->exportable;
     }
 
     public function exposedInDefinition(): bool
