@@ -27,6 +27,7 @@ CRUD-командами и HTTP-роутингом. Эти решения дол
 - PHP 8.1 или выше;
 - `ext-json`;
 - `ext-mbstring`;
+- `psr/container`;
 - `openspout/openspout` для XLSX export;
 - `phpunit/phpunit` только для разработки и тестов.
 
@@ -49,6 +50,7 @@ composer test
 - сборка PostgreSQL SQL;
 - projection rows;
 - runtime constraints;
+- PSR-container invoker;
 - XLSX export.
 
 ## Быстрый Старт
@@ -320,7 +322,16 @@ $definition = $definition->withRuntimeConstraint(
 );
 ```
 
-Для интеграции с DI можно передать свой `RegistryResolverInvokerInterface`, который умеет создавать invokable classes.
+Для интеграции с DI используйте `PsrContainerRegistryResolverInvoker`. Он получает class-string resolver из
+`Psr\Container\ContainerInterface`, а для callable и обычных invokable classes использует native fallback.
+
+```php
+use TableRegistry\Runtime\PsrContainerRegistryResolverInvoker;
+
+$projector = new RegistryRowsProjector(
+    new PsrContainerRegistryResolverInvoker($container)
+);
+```
 
 ## Rows Payload
 
