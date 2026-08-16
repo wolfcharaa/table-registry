@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Column;
+namespace Wolfcharaa\TableRegistry\Column;
 
-use TableRegistry\Exception\InvalidRegistryDefinitionException;
+use Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException;
 
 final class ColumnRegistryDefinitionValidator
 {

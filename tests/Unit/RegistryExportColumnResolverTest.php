@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Tests\Unit;
+namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
-use TableRegistry\Export\RegistryExportColumnResolver;
+use Wolfcharaa\TableRegistry\Export\RegistryExportColumnResolver;
 
 final class RegistryExportColumnResolverTest extends RegistryTestCase
 {

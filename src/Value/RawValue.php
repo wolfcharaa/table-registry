@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Value;
+namespace Wolfcharaa\TableRegistry\Value;
 
 final class RawValue implements PrimitiveValueObjectInterface
 {

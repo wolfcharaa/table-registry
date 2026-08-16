@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Export;
+namespace Wolfcharaa\TableRegistry\Export;
 
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Border;
@@ -11,8 +11,8 @@ use OpenSpout\Common\Entity\Style\CellAlignment;
 use OpenSpout\Common\Entity\Style\Color;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\XLSX\Writer;
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 
 final class RegistryXlsxExporter
 {

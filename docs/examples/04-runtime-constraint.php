@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Column\ColumnSelectDefinition;
-use TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
-use TableRegistry\Definition\TableRegistryDefinition;
-use TableRegistry\Source\RegistrySourceDefinition;
-use TableRegistry\Sql\PostgresRegistrySqlCompiler;
-use TableRegistry\Sql\RegistrySqlCondition;
-use TableRegistry\Sql\RegistrySqlQueryInput;
-use TableRegistry\Sql\RegistrySqlRuntimeContext;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnSelectDefinition;
+use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
+use Wolfcharaa\TableRegistry\Sql\PostgresRegistrySqlCompiler;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlCondition;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeContext;
 
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 

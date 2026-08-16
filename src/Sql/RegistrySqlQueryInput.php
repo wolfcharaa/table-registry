@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Sql;
+namespace Wolfcharaa\TableRegistry\Sql;
 
-use TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 
 final class RegistrySqlQueryInput
 {

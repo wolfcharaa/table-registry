@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 use Psr\Container\ContainerInterface;
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Column\ColumnValueLabelResolverInterface;
-use TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
-use TableRegistry\Definition\TableRegistryDefinition;
-use TableRegistry\Row\RegistryRowData;
-use TableRegistry\Row\RegistryRowsProjector;
-use TableRegistry\Runtime\PsrContainerRegistryResolverInvoker;
-use TableRegistry\Source\RegistrySourceDefinition;
-use TableRegistry\Value\PrimitiveValueObjectInterface;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnValueLabelResolverInterface;
+use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Row\RegistryRowData;
+use Wolfcharaa\TableRegistry\Row\RegistryRowsProjector;
+use Wolfcharaa\TableRegistry\Runtime\PsrContainerRegistryResolverInvoker;
+use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
+use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
 
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 

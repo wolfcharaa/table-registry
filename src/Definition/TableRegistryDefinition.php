@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Definition;
+namespace Wolfcharaa\TableRegistry\Definition;
 
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Column\ColumnRegistryDefinitionCollection;
-use TableRegistry\Column\ColumnRegistryDefinitionValidator;
-use TableRegistry\Exception\InvalidRegistryDefinitionException;
-use TableRegistry\Query\RegistryPaginationDefinition;
-use TableRegistry\Search\RegistrySearchDefinitionInterface;
-use TableRegistry\Search\SearchBySearchableColumnsDefinition;
-use TableRegistry\Sql\RegistrySqlRuntimeConstraintInterface;
-use TableRegistry\Sort\RegistryDefaultSortDefinition;
-use TableRegistry\Source\RegistrySourceDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinitionCollection;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinitionValidator;
+use Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException;
+use Wolfcharaa\TableRegistry\Query\RegistryPaginationDefinition;
+use Wolfcharaa\TableRegistry\Search\RegistrySearchDefinitionInterface;
+use Wolfcharaa\TableRegistry\Search\SearchBySearchableColumnsDefinition;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeConstraintInterface;
+use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
+use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
 class TableRegistryDefinition implements \JsonSerializable
 {

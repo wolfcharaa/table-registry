@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Export;
+namespace Wolfcharaa\TableRegistry\Export;
 
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 
 final class RegistryExportColumnResolver
 {

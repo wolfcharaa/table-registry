@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Column;
+namespace Wolfcharaa\TableRegistry\Column;
 
-use TableRegistry\Exception\InvalidRegistryDefinitionException;
-use TableRegistry\Filter\RegistryFilterDefinitionInterface;
-use TableRegistry\Row\RegistryRowData;
-use TableRegistry\Runtime\RegistryResolverInvokerInterface;
-use TableRegistry\Sort\RegistrySortDefinition;
-use TableRegistry\Value\DateTimeValue;
-use TableRegistry\Value\PrimitiveValueObjectInterface;
-use TableRegistry\Value\RawValue;
+use Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException;
+use Wolfcharaa\TableRegistry\Filter\RegistryFilterDefinitionInterface;
+use Wolfcharaa\TableRegistry\Row\RegistryRowData;
+use Wolfcharaa\TableRegistry\Runtime\RegistryResolverInvokerInterface;
+use Wolfcharaa\TableRegistry\Sort\RegistrySortDefinition;
+use Wolfcharaa\TableRegistry\Value\DateTimeValue;
+use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
+use Wolfcharaa\TableRegistry\Value\RawValue;
 
 class ColumnRegistryDefinition implements \JsonSerializable
 {

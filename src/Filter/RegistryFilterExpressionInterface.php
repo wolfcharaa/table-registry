@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Filter;
+namespace Wolfcharaa\TableRegistry\Filter;
 
 interface RegistryFilterExpressionInterface
 {

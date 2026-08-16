@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Sql;
+namespace Wolfcharaa\TableRegistry\Sql;
 
 final class PostgresIdentifier implements \Stringable
 {

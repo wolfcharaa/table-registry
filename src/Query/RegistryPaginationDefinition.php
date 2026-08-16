@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Query;
+namespace Wolfcharaa\TableRegistry\Query;
 
 final class RegistryPaginationDefinition implements \JsonSerializable
 {

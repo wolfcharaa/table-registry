@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Runtime;
+namespace Wolfcharaa\TableRegistry\Runtime;
 
 use Psr\Container\ContainerInterface;
 

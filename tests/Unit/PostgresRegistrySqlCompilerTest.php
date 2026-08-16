@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Tests\Unit;
+namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
-use TableRegistry\Definition\TableRegistryDefinition;
-use TableRegistry\Sql\PostgresRegistrySqlCompiler;
-use TableRegistry\Sql\RegistrySqlCondition;
-use TableRegistry\Sql\RegistrySqlQueryInput;
-use TableRegistry\Sql\RegistrySqlRuntimeContext;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Sql\PostgresRegistrySqlCompiler;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlCondition;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeContext;
 
 final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Sort;
+namespace Wolfcharaa\TableRegistry\Sort;
 
 final class RegistryDefaultSortDefinition implements \JsonSerializable
 {

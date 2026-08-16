@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Value;
+namespace Wolfcharaa\TableRegistry\Value;
 
 interface PrimitiveValueObjectInterface extends \Stringable
 {

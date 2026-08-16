@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Exception;
+namespace Wolfcharaa\TableRegistry\Exception;
 
 final class InvalidRegistryDefinitionException extends \LogicException
 {

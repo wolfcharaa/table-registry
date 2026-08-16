@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Tests\Unit;
+namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
-use TableRegistry\Row\RegistryProjectedRowsFlattener;
+use Wolfcharaa\TableRegistry\Row\RegistryProjectedRowsFlattener;
 
 final class RegistryProjectedRowsFlattenerTest extends RegistryTestCase
 {

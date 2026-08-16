@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Row;
+namespace Wolfcharaa\TableRegistry\Row;
 
 final class RegistryProjectedRowsFlattener
 {

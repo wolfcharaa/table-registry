@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Column\ColumnSelectDefinition;
-use TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
-use TableRegistry\Definition\TableRegistryDefinition;
-use TableRegistry\Filter\SelectFilterRegistryDefinition;
-use TableRegistry\Filter\TextFilterRegistryDefinition;
-use TableRegistry\Sort\RegistryDefaultSortDefinition;
-use TableRegistry\Sort\RegistrySortDefinition;
-use TableRegistry\Source\RegistrySourceDefinition;
-use TableRegistry\Sql\PostgresRegistrySqlCompiler;
-use TableRegistry\Sql\RegistrySqlQueryInput;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnSelectDefinition;
+use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Filter\SelectFilterRegistryDefinition;
+use Wolfcharaa\TableRegistry\Filter\TextFilterRegistryDefinition;
+use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
+use Wolfcharaa\TableRegistry\Sort\RegistrySortDefinition;
+use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
+use Wolfcharaa\TableRegistry\Sql\PostgresRegistrySqlCompiler;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 

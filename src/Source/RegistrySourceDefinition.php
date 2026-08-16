@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Source;
+namespace Wolfcharaa\TableRegistry\Source;
 
 final class RegistrySourceDefinition
 {

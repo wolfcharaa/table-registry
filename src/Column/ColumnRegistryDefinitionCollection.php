@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Column;
+namespace Wolfcharaa\TableRegistry\Column;
 
 final class ColumnRegistryDefinitionCollection
 {

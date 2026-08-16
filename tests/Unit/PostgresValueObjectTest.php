@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Tests\Unit;
+namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
-use TableRegistry\Sql\PostgresIdentifier;
-use TableRegistry\Sql\PostgresLiteral;
+use Wolfcharaa\TableRegistry\Sql\PostgresIdentifier;
+use Wolfcharaa\TableRegistry\Sql\PostgresLiteral;
 
 final class PostgresValueObjectTest extends RegistryTestCase
 {

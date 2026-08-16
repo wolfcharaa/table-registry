@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Sql;
+namespace Wolfcharaa\TableRegistry\Sql;
 
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Definition\TableRegistryDefinition;
-use TableRegistry\Filter\DateRangeFilterRegistryDefinition;
-use TableRegistry\Filter\RegistryFilterExpressionInterface;
-use TableRegistry\Filter\TimeRangeFilterRegistryDefinition;
-use TableRegistry\Runtime\NativeRegistryResolverInvoker;
-use TableRegistry\Runtime\RegistryResolverInvokerInterface;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Filter\DateRangeFilterRegistryDefinition;
+use Wolfcharaa\TableRegistry\Filter\RegistryFilterExpressionInterface;
+use Wolfcharaa\TableRegistry\Filter\TimeRangeFilterRegistryDefinition;
+use Wolfcharaa\TableRegistry\Runtime\NativeRegistryResolverInvoker;
+use Wolfcharaa\TableRegistry\Runtime\RegistryResolverInvokerInterface;
 
 final class PostgresRegistrySqlCompiler
 {

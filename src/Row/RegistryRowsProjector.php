@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Row;
+namespace Wolfcharaa\TableRegistry\Row;
 
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Definition\TableRegistryDefinition;
-use TableRegistry\Runtime\NativeRegistryResolverInvoker;
-use TableRegistry\Runtime\RegistryResolverInvokerInterface;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Runtime\NativeRegistryResolverInvoker;
+use Wolfcharaa\TableRegistry\Runtime\RegistryResolverInvokerInterface;
 
 final class RegistryRowsProjector
 {

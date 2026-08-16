@@ -58,15 +58,15 @@ composer test
 ```php
 <?php
 
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Column\ColumnSelectDefinition;
-use TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
-use TableRegistry\Definition\TableRegistryDefinition;
-use TableRegistry\Filter\SelectFilterRegistryDefinition;
-use TableRegistry\Filter\TextFilterRegistryDefinition;
-use TableRegistry\Sort\RegistryDefaultSortDefinition;
-use TableRegistry\Sort\RegistrySortDefinition;
-use TableRegistry\Source\RegistrySourceDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnSelectDefinition;
+use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Filter\SelectFilterRegistryDefinition;
+use Wolfcharaa\TableRegistry\Filter\TextFilterRegistryDefinition;
+use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
+use Wolfcharaa\TableRegistry\Sort\RegistrySortDefinition;
+use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
 $definition = (new TableRegistryDefinition(
     registryKey: 'users',
@@ -281,7 +281,7 @@ $definition = $definition->withDefaultSort(RegistryDefaultSortDefinition::desc('
 `PostgresRegistrySqlCompiler` собирает SQL и params, но не выполняет запрос.
 
 ```php
-use TableRegistry\Sql\PostgresRegistrySqlCompiler;
+use Wolfcharaa\TableRegistry\Sql\PostgresRegistrySqlCompiler;
 
 $compiled = (new PostgresRegistrySqlCompiler())->compileRows($definition, [
     'search' => 'иван',
@@ -310,8 +310,8 @@ Runtime constraints позволяют добавить условия, зави
 контекста приложения.
 
 ```php
-use TableRegistry\Sql\RegistrySqlCondition;
-use TableRegistry\Sql\RegistrySqlRuntimeContext;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlCondition;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeContext;
 
 $definition = $definition->withRuntimeConstraint(
     static function (RegistrySqlRuntimeContext $context): RegistrySqlCondition {
@@ -326,7 +326,7 @@ $definition = $definition->withRuntimeConstraint(
 `Psr\Container\ContainerInterface`, а для callable и обычных invokable classes использует native fallback.
 
 ```php
-use TableRegistry\Runtime\PsrContainerRegistryResolverInvoker;
+use Wolfcharaa\TableRegistry\Runtime\PsrContainerRegistryResolverInvoker;
 
 $projector = new RegistryRowsProjector(
     new PsrContainerRegistryResolverInvoker($container)
@@ -338,7 +338,7 @@ $projector = new RegistryRowsProjector(
 `RegistryRowsProjector` преобразует строки из БД в стабильный payload:
 
 ```php
-use TableRegistry\Row\RegistryRowsProjector;
+use Wolfcharaa\TableRegistry\Row\RegistryRowsProjector;
 
 $rows = (new RegistryRowsProjector())->project($definition, [
     ['id' => 1, 'status' => 'active'],
@@ -369,7 +369,7 @@ $rows = (new RegistryRowsProjector())->project($definition, [
 Колонка может нормализовать raw value через `PrimitiveValueObjectInterface`:
 
 ```php
-use TableRegistry\Value\DateTimeValue;
+use Wolfcharaa\TableRegistry\Value\DateTimeValue;
 
 $column = (new ColumnRegistryDefinition('createdAt', 'Дата создания'))
     ->withRowTypeObject(DateTimeValue::class);
@@ -390,7 +390,7 @@ $column = $column->withLabel(
 Сначала выберите разрешённые и запрошенные колонки:
 
 ```php
-use TableRegistry\Export\RegistryExportColumnResolver;
+use Wolfcharaa\TableRegistry\Export\RegistryExportColumnResolver;
 
 $columns = (new RegistryExportColumnResolver())->resolve(
     definition: $definition,
@@ -402,7 +402,7 @@ $columns = (new RegistryExportColumnResolver())->resolve(
 Для плоских строк из projected rows:
 
 ```php
-use TableRegistry\Row\RegistryProjectedRowsFlattener;
+use Wolfcharaa\TableRegistry\Row\RegistryProjectedRowsFlattener;
 
 $flatRows = RegistryProjectedRowsFlattener::flattenLabels($projectedRows);
 ```
@@ -410,7 +410,7 @@ $flatRows = RegistryProjectedRowsFlattener::flattenLabels($projectedRows);
 XLSX:
 
 ```php
-use TableRegistry\Export\RegistryXlsxExporter;
+use Wolfcharaa\TableRegistry\Export\RegistryXlsxExporter;
 
 $result = (new RegistryXlsxExporter())->export(
     definition: $definition,

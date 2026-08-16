@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Export;
+namespace Wolfcharaa\TableRegistry\Export;
 
 final class RegistryXlsxExportResult
 {

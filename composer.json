@@ -3,6 +3,13 @@
     "description": "PHP-first table registry core for explicit column contracts, PostgreSQL query compilation, row projection and XLSX export.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "table-registry",
+        "registry",
+        "postgresql",
+        "xlsx",
+        "query-builder"
+    ],
     "authors": [
         {
             "name": "Roman Fedorskij"
@@ -20,12 +27,12 @@
     },
     "autoload": {
         "psr-4": {
-            "TableRegistry\\": "src/"
+            "Wolfcharaa\\TableRegistry\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "TableRegistry\\Tests\\": "tests/"
+            "Wolfcharaa\\TableRegistry\\Tests\\": "tests/"
         }
     },
     "scripts": {

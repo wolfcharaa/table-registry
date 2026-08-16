@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Column;
+namespace Wolfcharaa\TableRegistry\Column;
 
-use TableRegistry\Row\RegistryRowData;
-use TableRegistry\Value\DateTimeValue;
-use TableRegistry\Value\PrimitiveValueObjectInterface;
+use Wolfcharaa\TableRegistry\Row\RegistryRowData;
+use Wolfcharaa\TableRegistry\Value\DateTimeValue;
+use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
 
 final class DateTimeValueLabelResolver implements ColumnValueLabelResolverInterface
 {

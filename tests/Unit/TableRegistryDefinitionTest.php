@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace TableRegistry\Tests\Unit;
+namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
-use TableRegistry\Column\ColumnRegistryDefinition;
-use TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
-use TableRegistry\Definition\TableRegistryDefinition;
-use TableRegistry\Exception\InvalidRegistryDefinitionException;
-use TableRegistry\Sort\RegistryDefaultSortDefinition;
-use TableRegistry\Source\RegistrySourceDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException;
+use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
+use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
 final class TableRegistryDefinitionTest extends RegistryTestCase
 {
