@@ -13,11 +13,14 @@ backend должен знать о таблице: источник данных
 - явные sortable/filterable/searchable правила на уровне колонок;
 - сериализация definition в стабильный JSON-контракт для frontend;
 - компиляция rows/count/export SQL для PostgreSQL;
+- validation query параметров относительно definition без привязки к HTTP;
 - payload-only/action-only колонки для служебных значений строк без попадания в настройки отображения;
+- output-only/computed колонки для значений, добавленных приложением до projection;
 - export policy на уровне колонок для безопасного выбора XLSX-полей;
 - runtime constraints через callback или invokable class;
 - value object нормализация значений строк;
 - label/hydration resolvers для человекочитаемого payload;
+- serializable rows result contract для страницы таблицы;
 - flatten projected rows для export/print;
 - XLSX export через OpenSpout.
 
@@ -185,6 +188,17 @@ frontend может использовать эти значения для row 
 попадают в набор колонок, доступных для XLSX export. Это удобно для технических id-полей, которые нужны frontend для
 фильтра или перехода, но не должны попадать в файл выгрузки. `withPayloadOnly()` колонки также считаются неэкспортируемыми.
 
+Output-only колонка описывает значение, которое приложение добавляет в raw row после SQL и до projection:
+
+```php
+(new ColumnRegistryDefinition('personLabel', 'ФИО'))
+    ->withOutputOnly();
+```
+
+Такая колонка попадает в JSON definition и rows payload, но `PostgresRegistrySqlCompiler` не добавляет её в `SELECT`.
+По умолчанию она не участвует в search/sort/filter/export. Если приложению нужно выгружать уже подготовленное
+output-only значение, export можно включить явно через `withExportable(true)`.
+
 ## Source
 
 `RegistrySourceDefinition` описывает SQL-фрагмент после `FROM` и optional joins.
@@ -193,14 +207,22 @@ frontend может использовать эти значения для row 
 $source = RegistrySourceDefinition::from('public.orders o')
     ->withLeftJoin('public.users u', 'u.id = o.user_id')
     ->withConnection('default')
-    ->withCountSource('orders');
+    ->withCountSource('public.orders o');
 ```
+
+`withConnection()` хранит opaque logical scope источника данных. Библиотека не открывает connection и не проверяет
+доступность scope; приложение само решает, как сопоставить строку `default`, `warehouse` или другое имя с реальным
+PDO/DBAL connection.
 
 `from()` может быть таблицей, view, materialized view или читаемым SQL-фрагментом:
 
 ```php
 RegistrySourceDefinition::from('(SELECT * FROM public.users WHERE deleted_at IS NULL) u');
 ```
+
+`withCountSource()` задаёт отдельный `FROM` только для `compileCount()`. Joins, filters, search expressions и runtime
+constraints остаются теми же, поэтому count source должен сохранять alias и SQL-поля, на которые ссылается definition.
+Это полезно, когда rows читаются из view или тяжелого source, а count можно безопасно считать по более простому source.
 
 Не подставляйте пользовательский ввод в `source` и joins. Пользовательские значения должны проходить через filters,
 query input и параметры SQL compiler-а.
@@ -339,6 +361,44 @@ $params = $compiled->params();
 
 Выполнение SQL остаётся ответственностью приложения.
 
+## Query Validation
+
+`RegistryQueryValidator` проверяет raw query параметры относительно `TableRegistryDefinition`, но не меняет поведение
+compiler-а сам по себе. Это позволяет приложению включить strict validation перед выполнением SQL и самостоятельно
+решить, как превратить ошибки в HTTP response.
+
+```php
+use Wolfcharaa\TableRegistry\Query\RegistryQueryValidator;
+
+$validation = (new RegistryQueryValidator())->validate($definition, [
+    'sort_col' => 'fullName',
+    'sort_dir' => 'desc',
+    'filter_status' => ['active', 'blocked'],
+    'page' => '1',
+    'per_page' => '25',
+]);
+
+if (!$validation->isValid()) {
+    $issues = $validation->jsonSerialize()['issues'];
+}
+```
+
+Проверяются:
+
+- неизвестные query keys;
+- неизвестные или несортируемые sort columns;
+- sort direction;
+- page/per-page значения и max per-page;
+- filter values после нормализации;
+- date/time range format;
+- отключенный search или search без searchable columns.
+
+Можно использовать `assertValid()`, если приложению удобнее работать с exception:
+
+```php
+$validation->assertValid();
+```
+
 ## Runtime Constraints
 
 Runtime constraints позволяют добавить условия, зависящие от пользователя, tenant, подразделения или другого
@@ -398,6 +458,44 @@ $rows = (new RegistryRowsProjector())->project($definition, [
 
 `label` всегда строка. Если label resolver не задан, label строится из hydrated value. Для `DateTimeValue`
 используется формат `d.m.Y H:i`.
+
+Если приложению нужен стабильный wrapper для страницы таблицы, используйте `RegistryRowsResult`. Он не выполняет SQL,
+а только сериализует уже спроецированные rows, total и нормализованный query input:
+
+```php
+use Wolfcharaa\TableRegistry\Row\RegistryRowsResult;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
+
+$query = RegistrySqlQueryInput::fromArray($definition, $_GET);
+$projectedRows = (new RegistryRowsProjector())->project($definition, $sqlRows);
+
+$payload = new RegistryRowsResult(
+    definition: $definition,
+    query: $query,
+    total: $total,
+    rows: $projectedRows
+);
+```
+
+JSON contract:
+
+```json
+{
+  "schemaVersion": 2,
+  "registryKey": "users",
+  "rows": [],
+  "total": 123,
+  "query": {
+    "page": 1,
+    "perPage": 25,
+    "search": "",
+    "sort": {
+      "column": "",
+      "direction": "asc"
+    }
+  }
+}
+```
 
 ## Value Objects И Labels
 

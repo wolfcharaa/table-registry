@@ -39,6 +39,10 @@ final class ColumnRegistryDefinitionValidator
                     throw InvalidRegistryDefinitionException::because('Registry primary key column cannot be payload-only.');
                 }
 
+                if ($column->outputOnly()) {
+                    throw InvalidRegistryDefinitionException::because('Registry primary key column cannot be output-only.');
+                }
+
                 ++$primaryKeys;
             }
         }

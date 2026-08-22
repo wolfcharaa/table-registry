@@ -76,4 +76,30 @@ final class RegistryRowsProjectorTest extends RegistryTestCase
         self::assertSame('token-15', $rows[0]['values']['actionToken']['value']);
         self::assertSame('token-15', $rows[0]['values']['actionToken']['label']);
     }
+
+    public function testProjectsOutputOnlyColumnsFromPreparedRows(): void
+    {
+        $definition = new TableRegistryDefinition(
+            registryKey: 'people',
+            title: 'Люди',
+            source: RegistrySourceDefinition::from('public.people'),
+            columns: [
+                new PrimaryKeyColumnRegistryDefinition('id'),
+                new ColumnRegistryDefinition('firstName', 'Имя'),
+                (new ColumnRegistryDefinition('displayName', 'ФИО'))
+                    ->withOutputOnly(),
+            ]
+        );
+
+        $rows = (new RegistryRowsProjector())->project($definition, [
+            [
+                'id' => 15,
+                'firstName' => 'Иван',
+                'displayName' => 'Иван Петров',
+            ],
+        ]);
+
+        self::assertSame('Иван Петров', $rows[0]['values']['displayName']['value']);
+        self::assertSame('Иван Петров', $rows[0]['values']['displayName']['label']);
+    }
 }

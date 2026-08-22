@@ -46,12 +46,13 @@ final class RegistryExportColumnResolverTest extends RegistryTestCase
                 new ColumnRegistryDefinition('fullName', 'ФИО'),
                 (new ColumnRegistryDefinition('userId', 'ID пользователя'))->withExportable(false),
                 (new ColumnRegistryDefinition('actionToken', 'Action token'))->withPayloadOnly(),
+                (new ColumnRegistryDefinition('computedLabel', 'Computed label'))->withOutputOnly(),
             ]
         );
 
         $columns = (new RegistryExportColumnResolver())->resolve(
             $definition,
-            ['actionToken', 'userId', 'fullName']
+            ['actionToken', 'userId', 'computedLabel', 'fullName']
         );
 
         self::assertSame(['fullName'], \array_map(

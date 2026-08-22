@@ -84,7 +84,7 @@ final class PostgresRegistrySqlCompiler
 
         $sql = \sprintf(
             "SELECT COUNT(*)::bigint AS \"total\"\nFROM %s\n%s%s",
-            $definition->source()->fromSql(),
+            $definition->source()->countSource() ?? $definition->source()->fromSql(),
             $this->joinsSql($definition),
             $where
         );
@@ -97,6 +97,10 @@ final class PostgresRegistrySqlCompiler
         $parts = [];
 
         foreach ($definition->columns()->all() as $column) {
+            if ($column->outputOnly()) {
+                continue;
+            }
+
             $parts[] = \sprintf(
                 '    %s AS %s',
                 $this->columnExpression($column),
@@ -192,6 +196,10 @@ final class PostgresRegistrySqlCompiler
         array &$params
     ): void {
         foreach ($definition->columns()->all() as $column) {
+            if ($column->outputOnly()) {
+                continue;
+            }
+
             $filter = $column->filter();
             if ($filter === null) {
                 continue;
@@ -418,8 +426,11 @@ final class PostgresRegistrySqlCompiler
         }
 
         if ($column === null && $definition->defaultSort() !== null) {
-            $column = $definition->columns()->get($definition->defaultSort()->columnKey());
-            $direction = \strtoupper($definition->defaultSort()->direction());
+            $candidate = $definition->columns()->get($definition->defaultSort()->columnKey());
+            if ($candidate !== null && !$candidate->outputOnly()) {
+                $column = $candidate;
+                $direction = \strtoupper($definition->defaultSort()->direction());
+            }
         }
 
         if ($column === null) {

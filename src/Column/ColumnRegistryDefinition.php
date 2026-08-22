@@ -23,7 +23,8 @@ class ColumnRegistryDefinition implements \JsonSerializable
     private bool $searchable = false;
     private ?string $hint = null;
     private bool $payloadOnly = false;
-    private bool $exportable = true;
+    private bool $outputOnly = false;
+    private ?bool $exportable = null;
 
     /** @var array<string, ColumnSelectDefinition> */
     private array $auxiliarySelects = [];
@@ -163,6 +164,14 @@ class ColumnRegistryDefinition implements \JsonSerializable
         return $this->withPayloadOnly($actionOnly);
     }
 
+    public function withOutputOnly(bool $outputOnly = true): static
+    {
+        $clone = clone $this;
+        $clone->outputOnly = $outputOnly;
+
+        return $clone;
+    }
+
     public function withExportable(bool $exportable = true): static
     {
         $clone = clone $this;
@@ -196,17 +205,17 @@ class ColumnRegistryDefinition implements \JsonSerializable
 
     public function searchable(): bool
     {
-        return $this->searchable;
+        return !$this->outputOnly && $this->searchable;
     }
 
     public function sortable(): bool
     {
-        return $this->sort !== null;
+        return !$this->outputOnly && $this->sort !== null;
     }
 
     public function filterable(): bool
     {
-        return $this->filter !== null;
+        return !$this->outputOnly && $this->filter !== null;
     }
 
     public function isPrimaryKey(): bool
@@ -219,9 +228,14 @@ class ColumnRegistryDefinition implements \JsonSerializable
         return $this->payloadOnly;
     }
 
+    public function outputOnly(): bool
+    {
+        return $this->outputOnly;
+    }
+
     public function exportable(): bool
     {
-        return !$this->payloadOnly && $this->exportable;
+        return !$this->payloadOnly && ($this->exportable ?? !$this->outputOnly);
     }
 
     public function exposedInDefinition(): bool
@@ -299,7 +313,7 @@ class ColumnRegistryDefinition implements \JsonSerializable
             'sortable' => $this->sortable(),
         ];
 
-        if ($this->filter !== null) {
+        if ($this->filterable()) {
             $payload['filterable'] = true;
             $payload['filter'] = $this->filter->jsonSerialize();
         } else {

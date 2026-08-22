@@ -101,6 +101,44 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         );
     }
 
+    public function testKeepsOutputOnlyColumnsInFrontendContract(): void
+    {
+        $payload = (new TableRegistryDefinition(
+            registryKey: 'people',
+            title: 'Люди',
+            source: RegistrySourceDefinition::from('public.people'),
+            columns: [
+                new PrimaryKeyColumnRegistryDefinition('id'),
+                (new ColumnRegistryDefinition('displayName', 'ФИО'))
+                    ->withOutputOnly(),
+            ]
+        ))->jsonSerialize();
+
+        self::assertSame(['id', 'displayName'], \array_map(
+            static fn (array $column): string => $column['key'],
+            $payload['columns']
+        ));
+
+        self::assertFalse($payload['columns'][1]['searchable']);
+        self::assertFalse($payload['columns'][1]['sortable']);
+        self::assertFalse($payload['columns'][1]['filterable']);
+    }
+
+    public function testRejectsOutputOnlyPrimaryKey(): void
+    {
+        $this->expectException(InvalidRegistryDefinitionException::class);
+
+        new TableRegistryDefinition(
+            registryKey: 'invalid',
+            title: 'Некорректный реестр',
+            source: RegistrySourceDefinition::from('public.invalid'),
+            columns: [
+                (new PrimaryKeyColumnRegistryDefinition('id'))->withOutputOnly(),
+                new ColumnRegistryDefinition('title', 'Название'),
+            ]
+        );
+    }
+
     public function testRejectsDefaultSortByUnknownColumn(): void
     {
         $this->expectException(\InvalidArgumentException::class);

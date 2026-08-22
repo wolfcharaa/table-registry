@@ -9,6 +9,9 @@ use Wolfcharaa\TableRegistry\Sql\PostgresRegistrySqlCompiler;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlCondition;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeContext;
+use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 
 final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
 {
@@ -84,5 +87,45 @@ final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
         self::assertStringContainsString('u.status = :p0', $compiled->sql());
         self::assertSame(['p0' => 'active'], $compiled->params());
     }
-}
 
+    public function testCompileCountUsesCountSourceWhenDefined(): void
+    {
+        $definition = new TableRegistryDefinition(
+            registryKey: 'users',
+            title: 'Пользователи',
+            source: RegistrySourceDefinition::from('public.users_view u')
+                ->withCountSource('public.users u'),
+            columns: $this->usersDefinition()->columns()->all()
+        );
+
+        $compiler = new PostgresRegistrySqlCompiler();
+
+        $rows = $compiler->compileRows($definition);
+        $count = $compiler->compileCount($definition);
+
+        self::assertStringContainsString('FROM public.users_view u', $rows->sql());
+        self::assertStringContainsString('FROM public.users u', $count->sql());
+        self::assertStringNotContainsString('FROM public.users_view u', $count->sql());
+    }
+
+    public function testDoesNotSelectOutputOnlyColumns(): void
+    {
+        $definition = new TableRegistryDefinition(
+            registryKey: 'people',
+            title: 'Люди',
+            source: RegistrySourceDefinition::from('public.people p'),
+            columns: [
+                new PrimaryKeyColumnRegistryDefinition('id'),
+                new ColumnRegistryDefinition('firstName', 'Имя'),
+                (new ColumnRegistryDefinition('displayName', 'ФИО'))
+                    ->withOutputOnly(),
+            ]
+        );
+
+        $compiled = (new PostgresRegistrySqlCompiler())->compileRows($definition);
+
+        self::assertStringContainsString('"id" AS "id"', $compiled->sql());
+        self::assertStringContainsString('"firstName" AS "firstName"', $compiled->sql());
+        self::assertStringNotContainsString('"displayName" AS "displayName"', $compiled->sql());
+    }
+}

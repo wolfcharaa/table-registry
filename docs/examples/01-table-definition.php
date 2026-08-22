@@ -19,7 +19,7 @@ $definition = (new TableRegistryDefinition(
     title: 'Пользователи',
     source: RegistrySourceDefinition::from('public.users u')
         ->withLeftJoin('public.user_profiles p', 'p.user_id = u.id')
-        ->withCountSource('users'),
+        ->withCountSource('public.users u'),
     columns: [
         (new PrimaryKeyColumnRegistryDefinition('id'))
             ->withSelect(ColumnSelectDefinition::sqlExpression('id', 'u.id')),
