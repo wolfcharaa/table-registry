@@ -32,9 +32,11 @@ CRUD-командами и HTTP-роутингом. Эти решения дол
 - PHP 8.1 или выше;
 - `ext-json`;
 - `ext-mbstring`;
-- `psr/container`;
-- `openspout/openspout` для XLSX export;
+- `psr/container` `^1.1 || ^2.0`;
+- `openspout/openspout` `^4.28 || ^5.0` для XLSX export;
 - `phpunit/phpunit` только для разработки и тестов.
+
+Конкретная major/minor версия OpenSpout выбирается Composer-ом с учетом PHP версии окружения.
 
 ## Установка
 
