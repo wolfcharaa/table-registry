@@ -225,6 +225,8 @@ RegistrySourceDefinition::from('(SELECT * FROM public.users WHERE deleted_at IS 
 `withCountSource()` задаёт отдельный `FROM` только для `compileCount()`. Joins, filters, search expressions и runtime
 constraints остаются теми же, поэтому count source должен сохранять alias и SQL-поля, на которые ссылается definition.
 Это полезно, когда rows читаются из view или тяжелого source, а count можно безопасно считать по более простому source.
+Если приложение исторически хранит в `countSource` opaque key для собственного snapshot/cache-счётчика, например
+`fis_export_package:active`, compiler не использует такой key как SQL `FROM` и вернётся к обычному `from()`.
 
 Не подставляйте пользовательский ввод в `source` и joins. Пользовательские значения должны проходить через filters,
 query input и параметры SQL compiler-а.

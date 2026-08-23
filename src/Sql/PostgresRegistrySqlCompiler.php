@@ -11,6 +11,7 @@ use Wolfcharaa\TableRegistry\Filter\RegistryFilterExpressionInterface;
 use Wolfcharaa\TableRegistry\Filter\TimeRangeFilterRegistryDefinition;
 use Wolfcharaa\TableRegistry\Runtime\NativeRegistryResolverInvoker;
 use Wolfcharaa\TableRegistry\Runtime\RegistryResolverInvokerInterface;
+use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
 final class PostgresRegistrySqlCompiler
 {
@@ -84,12 +85,31 @@ final class PostgresRegistrySqlCompiler
 
         $sql = \sprintf(
             "SELECT COUNT(*)::bigint AS \"total\"\nFROM %s\n%s%s",
-            $definition->source()->countSource() ?? $definition->source()->fromSql(),
+            $this->countFromSql($definition->source()),
             $this->joinsSql($definition),
             $where
         );
 
         return new CompiledRegistrySql($sql, $params);
+    }
+
+    private function countFromSql(RegistrySourceDefinition $source): string
+    {
+        $countSource = $source->countSource();
+        if ($countSource === null || !$this->isSqlFromSource($countSource)) {
+            return $source->fromSql();
+        }
+
+        return $countSource;
+    }
+
+    private function isSqlFromSource(string $source): bool
+    {
+        if (\str_contains($source, ':')) {
+            return false;
+        }
+
+        return true;
     }
 
     private function selectSql(TableRegistryDefinition $definition): string

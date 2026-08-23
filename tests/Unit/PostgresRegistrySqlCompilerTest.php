@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnSelectDefinition;
+use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Filter\DateRangeFilterRegistryDefinition;
 use Wolfcharaa\TableRegistry\Sql\PostgresRegistrySqlCompiler;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlCondition;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeContext;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
-use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
-use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 
 final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
 {
@@ -106,6 +108,40 @@ final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
         self::assertStringContainsString('FROM public.users_view u', $rows->sql());
         self::assertStringContainsString('FROM public.users u', $count->sql());
         self::assertStringNotContainsString('FROM public.users_view u', $count->sql());
+    }
+
+    public function testCompileCountIgnoresOpaqueCountSourceKey(): void
+    {
+        $definition = new TableRegistryDefinition(
+            registryKey: 'packages',
+            title: 'Пакеты',
+            source: RegistrySourceDefinition::from('(SELECT * FROM public.fis_export_package WHERE deleted_at IS NULL) p')
+                ->withCountSource('fis_export_package:active'),
+            columns: [
+                (new PrimaryKeyColumnRegistryDefinition('id'))
+                    ->withSelect(ColumnSelectDefinition::sqlExpression('id', 'p.id')),
+                (new ColumnRegistryDefinition('createdAt', 'Дата создания'))
+                    ->withSelect(ColumnSelectDefinition::sqlExpression('createdAt', 'p.created_at'))
+                    ->withFilter(DateRangeFilterRegistryDefinition::forColumn('createdAt', 'Дата создания')),
+            ]
+        );
+
+        $count = (new PostgresRegistrySqlCompiler())->compileCount($definition, [
+            'createdAt_from' => '2026-07-24',
+            'createdAt_to' => '2026-08-23',
+        ]);
+
+        self::assertStringContainsString(
+            'FROM (SELECT * FROM public.fis_export_package WHERE deleted_at IS NULL) p',
+            $count->sql()
+        );
+        self::assertStringNotContainsString('fis_export_package:active', $count->sql());
+        self::assertStringContainsString('WHERE p.created_at >= :p0', $count->sql());
+        self::assertStringContainsString('AND p.created_at < :p1', $count->sql());
+        self::assertSame([
+            'p0' => '2026-07-24 00:00:00',
+            'p1' => '2026-08-24 00:00:00',
+        ], $count->params());
     }
 
     public function testDoesNotSelectOutputOnlyColumns(): void
