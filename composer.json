@@ -23,6 +23,7 @@
         "psr/container": "^1.1 || ^2.0"
     },
     "require-dev": {
+        "phpstan/phpstan": "2.2.16",
         "testo/testo": "0.10.54"
     },
     "suggest": {
@@ -42,7 +43,8 @@
         "test": "vendor/bin/testo",
         "test:unit": "vendor/bin/testo --suite=Unit",
         "test:contract": "vendor/bin/testo --suite=Contract",
-        "test:characterization": "vendor/bin/testo --suite=Characterization"
+        "test:characterization": "vendor/bin/testo --suite=Characterization",
+        "analyse": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --no-progress --debug"
     },
     "config": {
         "sort-packages": true,

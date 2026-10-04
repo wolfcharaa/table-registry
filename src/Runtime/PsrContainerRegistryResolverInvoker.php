@@ -20,7 +20,15 @@ final class PsrContainerRegistryResolverInvoker implements RegistryResolverInvok
     public function invoke(callable|string $resolver, array $arguments): mixed
     {
         if (\is_string($resolver) && \class_exists($resolver) && $this->container->has($resolver)) {
-            $resolver = $this->container->get($resolver);
+            $resolved = $this->container->get($resolver);
+            if (!\is_callable($resolved)) {
+                throw new \UnexpectedValueException(\sprintf(
+                    'Container entry "%s" must be callable.',
+                    $resolver
+                ));
+            }
+
+            $resolver = $resolved;
         }
 
         return $this->fallback->invoke($resolver, $arguments);

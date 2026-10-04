@@ -12,7 +12,8 @@ use Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException;
 final class ColumnRegistryDefinitionValidator
 {
     /**
-     * @param list<ColumnRegistryDefinition> $columns
+     * @param array<array-key, mixed> $columns
+     * @phpstan-assert non-empty-array<array-key, ColumnRegistryDefinition> $columns
      */
     public static function assertValid(array $columns): void
     {

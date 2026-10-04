@@ -305,7 +305,15 @@ class ColumnRegistryDefinition implements \JsonSerializable
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *     key:string,
+     *     title:string,
+     *     searchable:bool,
+     *     sortable:bool,
+     *     filterable:bool,
+     *     filter?:mixed,
+     *     hint?:string
+     * }
      */
     public function jsonSerialize(): array
     {
@@ -316,9 +324,10 @@ class ColumnRegistryDefinition implements \JsonSerializable
             'sortable' => $this->sortable(),
         ];
 
-        if ($this->filterable()) {
+        $filter = $this->filter;
+        if (!$this->outputOnly && $filter !== null) {
             $payload['filterable'] = true;
-            $payload['filter'] = $this->filter->jsonSerialize();
+            $payload['filter'] = $filter->jsonSerialize();
         } else {
             $payload['filterable'] = false;
         }

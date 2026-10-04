@@ -10,7 +10,7 @@ namespace Wolfcharaa\TableRegistry\Source;
 final class RegistryDataScopeDefinition
 {
     /**
-     * @param array<string, mixed> $options
+     * @param array<array-key, mixed> $options
      */
     public function __construct(
         private readonly string $name,
@@ -32,7 +32,7 @@ final class RegistryDataScopeDefinition
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     public function options(): array
     {

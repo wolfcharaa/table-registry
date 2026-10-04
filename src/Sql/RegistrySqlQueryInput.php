@@ -15,7 +15,8 @@ final class RegistrySqlQueryInput
     public const SORT_DIRECTION_KEY = 'sort_dir';
 
     /**
-     * @param array<string, mixed> $filters
+     * @param array<array-key, mixed> $filters
+     * @param list<string> $selectedPrimaryKeys
      */
     public function __construct(
         private readonly string $search = '',
@@ -29,7 +30,7 @@ final class RegistrySqlQueryInput
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      */
     public static function fromArray(TableRegistryDefinition $definition, array $query): self
     {
@@ -94,7 +95,7 @@ final class RegistrySqlQueryInput
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     public function filters(): array
     {
@@ -111,16 +112,12 @@ final class RegistrySqlQueryInput
 
     private static function stringValue(mixed $value): string
     {
-        if (\is_array($value)) {
-            return '';
-        }
-
-        return \trim((string)($value ?? ''));
+        return \trim(self::scalarString($value) ?? '');
     }
 
     private static function normalizeSortDirection(mixed $direction): string
     {
-        return \strtolower((string)$direction) === 'desc' ? 'desc' : 'asc';
+        return \strtolower(self::scalarString($direction) ?? '') === 'desc' ? 'desc' : 'asc';
     }
 
     /**
@@ -134,13 +131,15 @@ final class RegistrySqlQueryInput
 
         $values = \is_array($value) ? $value : [$value];
 
-        return \array_values(\array_filter(
-            \array_map(
-                static fn ($item): string => \trim((string)$item),
-                $values
-            ),
-            static fn (string $item): bool => $item !== ''
-        ));
+        $normalized = [];
+        foreach ($values as $item) {
+            $item = \trim(self::scalarString($item) ?? '');
+            if ($item !== '') {
+                $normalized[] = $item;
+            }
+        }
+
+        return $normalized;
     }
 
     private static function positiveInt(mixed $value, int $default): int
@@ -154,5 +153,18 @@ final class RegistrySqlQueryInput
         }
 
         return $default;
+    }
+
+    private static function scalarString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if (\is_scalar($value) || $value instanceof \Stringable) {
+            return (string)$value;
+        }
+
+        return null;
     }
 }

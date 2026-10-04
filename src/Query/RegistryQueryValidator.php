@@ -16,7 +16,7 @@ use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 final class RegistryQueryValidator
 {
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      */
     public function validate(TableRegistryDefinition $definition, array $query): RegistryQueryValidationResult
     {
@@ -32,7 +32,7 @@ final class RegistryQueryValidator
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      * @param list<RegistryQueryValidationIssue> $issues
      */
     private function validateKnownQueryKeys(
@@ -58,7 +58,7 @@ final class RegistryQueryValidator
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      * @param list<RegistryQueryValidationIssue> $issues
      */
     private function validateSort(TableRegistryDefinition $definition, array $query, array &$issues): void
@@ -92,7 +92,7 @@ final class RegistryQueryValidator
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      * @param list<RegistryQueryValidationIssue> $issues
      */
     private function validatePagination(TableRegistryDefinition $definition, array $query, array &$issues): void
@@ -101,7 +101,7 @@ final class RegistryQueryValidator
 
         if (\array_key_exists($pagination->pageKey(), $query)
             && !$this->isEmptyQueryValue($query[$pagination->pageKey()])
-            && !$this->isPositiveInt($query[$pagination->pageKey()])
+            && $this->positiveIntValue($query[$pagination->pageKey()]) === null
         ) {
             $issues[] = $this->issue(
                 'invalid_page',
@@ -116,7 +116,8 @@ final class RegistryQueryValidator
             return;
         }
 
-        if (!$this->isPositiveInt($query[$pagination->perPageKey()])) {
+        $perPage = $this->positiveIntValue($query[$pagination->perPageKey()]);
+        if ($perPage === null) {
             $issues[] = $this->issue(
                 'invalid_per_page',
                 $pagination->perPageKey(),
@@ -125,7 +126,7 @@ final class RegistryQueryValidator
             return;
         }
 
-        if ((int)$query[$pagination->perPageKey()] > $pagination->maxPerPage()) {
+        if ($perPage > $pagination->maxPerPage()) {
             $issues[] = $this->issue(
                 'per_page_exceeds_max',
                 $pagination->perPageKey(),
@@ -135,7 +136,7 @@ final class RegistryQueryValidator
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      * @param list<RegistryQueryValidationIssue> $issues
      */
     private function validateSearch(TableRegistryDefinition $definition, array $query, array &$issues): void
@@ -164,7 +165,7 @@ final class RegistryQueryValidator
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      * @param list<RegistryQueryValidationIssue> $issues
      */
     private function validateFilters(TableRegistryDefinition $definition, array $query, array &$issues): void
@@ -194,7 +195,7 @@ final class RegistryQueryValidator
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      * @param list<RegistryQueryValidationIssue> $issues
      */
     private function validateFilterValue(
@@ -217,7 +218,7 @@ final class RegistryQueryValidator
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      * @param list<RegistryQueryValidationIssue> $issues
      */
     private function validateDateRangeFilter(
@@ -240,7 +241,7 @@ final class RegistryQueryValidator
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param array<array-key, mixed> $query
      * @param list<RegistryQueryValidationIssue> $issues
      */
     private function validateTimeRangeFilter(
@@ -318,22 +319,27 @@ final class RegistryQueryValidator
         return $value === [];
     }
 
-    private function isPositiveInt(mixed $value): bool
+    private function positiveIntValue(mixed $value): ?int
     {
         if (\is_int($value)) {
-            return $value > 0;
+            return $value > 0 ? $value : null;
         }
 
-        return \is_string($value) && \preg_match('/^[1-9]\d*$/', $value) === 1;
+        if (\is_string($value) && \preg_match('/^[1-9]\d*$/', $value) === 1) {
+            return (int)$value;
+        }
+
+        return null;
     }
 
     private function isDateValue(mixed $value): bool
     {
-        if (\is_array($value)) {
+        $value = $this->scalarString($value);
+        if ($value === null) {
             return false;
         }
 
-        $value = \trim((string)$value);
+        $value = \trim($value);
         $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
         $errors = \DateTimeImmutable::getLastErrors();
 
@@ -344,19 +350,29 @@ final class RegistryQueryValidator
 
     private function isTimeValue(mixed $value): bool
     {
-        if (\is_array($value)) {
+        $value = $this->scalarString($value);
+        if ($value === null) {
             return false;
         }
 
-        return \preg_match('/^([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/', \trim((string)$value)) === 1;
+        return \preg_match('/^([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/', \trim($value)) === 1;
     }
 
     private function stringValue(mixed $value): string
     {
-        if (\is_array($value)) {
+        return \trim($this->scalarString($value) ?? '');
+    }
+
+    private function scalarString(mixed $value): ?string
+    {
+        if ($value === null) {
             return '';
         }
 
-        return \trim((string)($value ?? ''));
+        if (\is_scalar($value) || $value instanceof \Stringable) {
+            return (string)$value;
+        }
+
+        return null;
     }
 }

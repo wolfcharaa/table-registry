@@ -26,14 +26,14 @@ $definition = new TableRegistryDefinition(
     ]
 );
 
-$availableDepartmentIds = [10, 20, 30];
+$availableDepartmentIds = getenv('NO_DEPARTMENTS') === '1' ? [] : [10, 20, 30];
 
 $definition = $definition->withRuntimeConstraint(
     static function (
         RegistrySqlRuntimeContext $context,
         TableRegistryDefinition $definition,
         RegistrySqlQueryInput $query
-    ) use ($availableDepartmentIds): ?RegistrySqlCondition {
+    ) use ($availableDepartmentIds): RegistrySqlCondition {
         if ($availableDepartmentIds === []) {
             return RegistrySqlCondition::impossible();
         }
@@ -54,4 +54,3 @@ $compiled = (new PostgresRegistrySqlCompiler())->compileRows($definition, [
 
 echo $compiled->sql() . PHP_EOL;
 echo json_encode($compiled->params(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . PHP_EOL;
-

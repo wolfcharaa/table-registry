@@ -13,7 +13,7 @@ final class RegistryProjectedRowsFlattener
     private const CELL_LABEL = 'label';
 
     /**
-     * @param list<array{primaryKey?:string,values?:array<string,array{value?:mixed,label?:string}>}> $rows
+     * @param list<array{primaryKey?:string,values?:array<string,mixed>}> $rows
      * @return list<array<string, mixed>>
      */
     public static function flatten(array $rows, bool $withPrimaryKey = false, string $cellKey = self::CELL_VALUE): array
@@ -25,7 +25,7 @@ final class RegistryProjectedRowsFlattener
     }
 
     /**
-     * @param list<array{primaryKey?:string,values?:array<string,array{value?:mixed,label?:string}>}> $rows
+     * @param list<array{primaryKey?:string,values?:array<string,mixed>}> $rows
      * @return list<array<string, mixed>>
      */
     public static function flattenLabels(array $rows, bool $withPrimaryKey = false): array
@@ -34,7 +34,7 @@ final class RegistryProjectedRowsFlattener
     }
 
     /**
-     * @param array{primaryKey?:string,values?:array<string,array{value?:mixed,label?:string}>} $row
+     * @param array{primaryKey?:string,values?:array<string,mixed>} $row
      * @return array<string, mixed>
      */
     public static function flattenRow(array $row, bool $withPrimaryKey = false, string $cellKey = self::CELL_VALUE): array

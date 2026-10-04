@@ -29,7 +29,7 @@ class TableRegistryDefinition implements \JsonSerializable
     private ?RegistryDefaultSortDefinition $defaultSort = null;
 
     /**
-     * @param list<ColumnRegistryDefinition> $columns
+     * @param array<array-key, mixed> $columns
      */
     public function __construct(
         private readonly string $registryKey,
@@ -141,7 +141,18 @@ class TableRegistryDefinition implements \JsonSerializable
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *     schemaVersion:int,
+     *     registryKey:string,
+     *     title:string,
+     *     primaryKey:string,
+     *     columns:list<array<string, mixed>>,
+     *     query:array{
+     *         search:mixed,
+     *         pagination:array<string, mixed>,
+     *         defaultSort?:array<string, mixed>
+     *     }
+     * }
      */
     public function jsonSerialize(): array
     {

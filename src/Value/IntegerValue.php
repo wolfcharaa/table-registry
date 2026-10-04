@@ -19,7 +19,15 @@ final class IntegerValue implements PrimitiveValueObjectInterface
             return new self(null);
         }
 
-        return new self((int)$value);
+        if (\is_scalar($value)) {
+            return new self((int)$value);
+        }
+
+        if ($value instanceof \Stringable) {
+            return new self((int)(string)$value);
+        }
+
+        return new self(null);
     }
 
     public function getValue(): ?int

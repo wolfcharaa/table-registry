@@ -49,7 +49,7 @@ final class RegistryRowsResultTest extends RegistryTestCase
         ]);
     }
 
-    public function rejectsInvalidRowsResultTotal(): never
+    public function rejectsInvalidRowsResultTotal(): void
     {
         Expect::exception(\InvalidArgumentException::class);
 
@@ -61,7 +61,7 @@ final class RegistryRowsResultTest extends RegistryTestCase
         );
     }
 
-    public function rejectsRawRows(): never
+    public function rejectsRawRows(): void
     {
         Expect::exception(\InvalidArgumentException::class);
 

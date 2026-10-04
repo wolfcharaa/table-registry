@@ -336,7 +336,7 @@ final class PostgresRegistrySqlCompiler
         }
 
         if ($operator === 'contains') {
-            $param = $this->nextParam($params, '%' . (string)$value . '%');
+            $param = $this->nextParam($params, '%' . $this->scalarString($value) . '%');
             $conditions[] = \sprintf('CAST(%s AS text) ILIKE :%s', $expression, $param);
             return;
         }
@@ -473,25 +473,30 @@ final class PostgresRegistrySqlCompiler
 
     private function stringQueryValue(mixed $value): string
     {
-        if (\is_array($value)) {
-            return '';
-        }
-
-        return \trim((string)($value ?? ''));
+        return \trim($this->scalarString($value));
     }
 
     private function timeQueryValue(mixed $value): string
     {
-        if (\is_array($value)) {
-            return '';
-        }
-
-        $value = \trim((string)($value ?? ''));
+        $value = \trim($this->scalarString($value));
         if ($value === '' || \preg_match('/^([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/', $value, $matches) !== 1) {
             return '';
         }
 
         return \sprintf('%02d:%02d:%02d', (int)$matches[1], (int)$matches[2], (int)($matches[3] ?? 0));
+    }
+
+    private function scalarString(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if (\is_scalar($value) || $value instanceof \Stringable) {
+            return (string)$value;
+        }
+
+        return '';
     }
 
     /**

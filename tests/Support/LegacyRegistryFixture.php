@@ -74,8 +74,8 @@ final class LegacyRegistryFixture
                         'integer'
                     ))
                     ->withRowTypeObject(IntegerValue::class)
-                    ->withHydration(static fn (PrimitiveValueObjectInterface $value): string => 'organization:' . $value->getValue())
-                    ->withLabel(static fn (PrimitiveValueObjectInterface $value): string => 'Организация ' . $value->getValue()),
+                    ->withHydration(static fn (IntegerValue $value): string => 'organization:' . ($value->getValue() ?? ''))
+                    ->withLabel(static fn (IntegerValue $value): string => 'Организация ' . ($value->getValue() ?? '')),
                 (new ColumnRegistryDefinition('areaId', 'Территория'))
                     ->withSelect(ColumnSelectDefinition::sqlExpression('areaId', 'p.area_id'))
                     ->withFilter(SelectFilterRegistryDefinition::async(

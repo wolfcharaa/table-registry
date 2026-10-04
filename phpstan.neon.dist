@@ -1,0 +1,13 @@
+parameters:
+    level: max
+    phpVersion: 80200
+    paths:
+        - src
+        - tests
+        - docs/examples
+        - tools
+        - testo.php
+    tmpDir: build/phpstan
+    reportUnmatchedIgnoredErrors: true
+    parallel:
+        maximumNumberOfProcesses: 1

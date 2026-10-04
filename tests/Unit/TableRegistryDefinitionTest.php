@@ -26,22 +26,26 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         Assert::same($payload['title'], 'Пользователи');
         Assert::same($payload['primaryKey'], 'id');
         Assert::array($payload)->doesNotHaveKeys('source');
-        Assert::same($payload['query']['defaultSort'], ['column' => 'id', 'direction' => 'desc']);
+        Assert::same($payload['query']['defaultSort'] ?? null, ['column' => 'id', 'direction' => 'desc']);
 
         $fullNameColumn = $payload['columns'][1];
         Assert::same($fullNameColumn['key'], 'fullName');
         Assert::true($fullNameColumn['searchable']);
         Assert::true($fullNameColumn['sortable']);
         Assert::true($fullNameColumn['filterable']);
-        Assert::same($fullNameColumn['filter']['queryKey'], 'filter_fullName');
-        Assert::same($fullNameColumn['filter']['operators'], ['contains']);
+        $fullNameFilter = self::arrayValue($fullNameColumn['filter'] ?? null);
+        Assert::same($fullNameFilter['queryKey'] ?? null, 'filter_fullName');
+        Assert::same($fullNameFilter['operators'] ?? null, ['contains']);
 
         $statusColumn = $payload['columns'][2];
-        Assert::same($statusColumn['filter']['optionSource'], 'static');
-        Assert::same($statusColumn['filter']['options'][0]['label'], 'Активен');
+        $statusFilter = self::arrayValue($statusColumn['filter'] ?? null);
+        Assert::same($statusFilter['optionSource'] ?? null, 'static');
+        $options = self::arrayValue($statusFilter['options'] ?? null);
+        $firstOption = self::arrayValue($options[0] ?? null);
+        Assert::same($firstOption['label'] ?? null, 'Активен');
     }
 
-    public function rejectsDefinitionWithoutPrimaryKey(): never
+    public function rejectsDefinitionWithoutPrimaryKey(): void
     {
         Expect::exception(InvalidRegistryDefinitionException::class);
 
@@ -55,7 +59,7 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         );
     }
 
-    public function rejectsDuplicateColumnKeys(): never
+    public function rejectsDuplicateColumnKeys(): void
     {
         Expect::exception(InvalidRegistryDefinitionException::class);
 
@@ -84,13 +88,10 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
             ]
         ))->jsonSerialize();
 
-        Assert::same(\array_map(
-            static fn (array $column): string => $column['key'],
-            $payload['columns']
-        ), ['id', 'title']);
+        Assert::same(\array_column($payload['columns'], 'key'), ['id', 'title']);
     }
 
-    public function rejectsPayloadOnlyPrimaryKey(): never
+    public function rejectsPayloadOnlyPrimaryKey(): void
     {
         Expect::exception(InvalidRegistryDefinitionException::class);
 
@@ -118,17 +119,14 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
             ]
         ))->jsonSerialize();
 
-        Assert::same(\array_map(
-            static fn (array $column): string => $column['key'],
-            $payload['columns']
-        ), ['id', 'displayName']);
+        Assert::same(\array_column($payload['columns'], 'key'), ['id', 'displayName']);
 
         Assert::false($payload['columns'][1]['searchable']);
         Assert::false($payload['columns'][1]['sortable']);
         Assert::false($payload['columns'][1]['filterable']);
     }
 
-    public function rejectsOutputOnlyPrimaryKey(): never
+    public function rejectsOutputOnlyPrimaryKey(): void
     {
         Expect::exception(InvalidRegistryDefinitionException::class);
 
@@ -143,10 +141,20 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         );
     }
 
-    public function rejectsDefaultSortByUnknownColumn(): never
+    public function rejectsDefaultSortByUnknownColumn(): void
     {
         Expect::exception(\InvalidArgumentException::class);
 
         $this->usersDefinition()->withDefaultSort(RegistryDefaultSortDefinition::asc('missing'));
+    }
+
+    /** @return array<array-key, mixed> */
+    private static function arrayValue(mixed $value): array
+    {
+        if (!\is_array($value)) {
+            throw new \UnexpectedValueException('Expected an array value.');
+        }
+
+        return $value;
     }
 }

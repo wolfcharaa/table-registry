@@ -15,10 +15,11 @@ final class RegistryQueryValidationResult implements \JsonSerializable
     private array $issues;
 
     /**
-     * @param list<RegistryQueryValidationIssue> $issues
+     * @param array<array-key, mixed> $issues
      */
     public function __construct(array $issues = [])
     {
+        $normalized = [];
         foreach ($issues as $issue) {
             if (!$issue instanceof RegistryQueryValidationIssue) {
                 throw new \InvalidArgumentException(\sprintf(
@@ -26,9 +27,11 @@ final class RegistryQueryValidationResult implements \JsonSerializable
                     RegistryQueryValidationIssue::class
                 ));
             }
+
+            $normalized[] = $issue;
         }
 
-        $this->issues = \array_values($issues);
+        $this->issues = $normalized;
     }
 
     public function isValid(): bool

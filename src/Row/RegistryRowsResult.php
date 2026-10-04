@@ -15,13 +15,13 @@ final class RegistryRowsResult implements \JsonSerializable
     private const SCHEMA_VERSION = 2;
 
     /**
-     * @var list<array{primaryKey:string,values:array<string,array{value:mixed,label:string}>}>
+     * @var list<array{primaryKey:string,values:array<array-key,mixed>}>
      */
     private array $rows;
     private int $total;
 
     /**
-     * @param list<array{primaryKey:string,values:array<string,array{value:mixed,label:string}>}> $rows
+     * @param array<array-key, mixed> $rows
      */
     public function __construct(
         private readonly TableRegistryDefinition $definition,
@@ -30,8 +30,7 @@ final class RegistryRowsResult implements \JsonSerializable
         array $rows
     ) {
         $this->total = $this->normalizeTotal($total);
-        $this->assertRows($rows);
-        $this->rows = \array_values($rows);
+        $this->rows = $this->normalizeRows($rows);
     }
 
     public function registryKey(): string
@@ -45,7 +44,7 @@ final class RegistryRowsResult implements \JsonSerializable
     }
 
     /**
-     * @return list<array{primaryKey:string,values:array<string,array{value:mixed,label:string}>}>
+     * @return list<array{primaryKey:string,values:array<array-key,mixed>}>
      */
     public function rows(): array
     {
@@ -56,7 +55,7 @@ final class RegistryRowsResult implements \JsonSerializable
      * @return array{
      *     schemaVersion:int,
      *     registryKey:string,
-     *     rows:list<array{primaryKey:string,values:array<string,array{value:mixed,label:string}>}>,
+     *     rows:list<array{primaryKey:string,values:array<array-key,mixed>}>,
      *     total:int,
      *     query:array{page:int,perPage:int,search:string,sort:array{column:string,direction:string}}
      * }
@@ -98,10 +97,12 @@ final class RegistryRowsResult implements \JsonSerializable
     }
 
     /**
-     * @param list<array{primaryKey:string,values:array<string,array{value:mixed,label:string}>}> $rows
+     * @param array<array-key, mixed> $rows
+     * @return list<array{primaryKey:string,values:array<array-key,mixed>}>
      */
-    private function assertRows(array $rows): void
+    private function normalizeRows(array $rows): array
     {
+        $normalized = [];
         foreach ($rows as $row) {
             if (!\is_array($row)
                 || !\array_key_exists('primaryKey', $row)
@@ -111,6 +112,10 @@ final class RegistryRowsResult implements \JsonSerializable
             ) {
                 throw new \InvalidArgumentException('Registry rows result expects projected rows.');
             }
+
+            $normalized[] = $row;
         }
+
+        return $normalized;
     }
 }

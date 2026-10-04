@@ -31,7 +31,7 @@ final class PublicApiInspector
         preg_match_all('/^- `([^`]+)`$/m', $block, $matches);
 
         /** @var list<class-string> $symbols */
-        $symbols = array_values($matches[1]);
+        $symbols = $matches[1];
 
         return $symbols;
     }
@@ -166,7 +166,10 @@ final class PublicApiInspector
         return class_exists($symbol) || interface_exists($symbol) || enum_exists($symbol);
     }
 
-    /** @return list<\ReflectionClass|\ReflectionMethod|\ReflectionProperty> */
+    /**
+     * @param \ReflectionClass<object> $reflection
+     * @return list<\ReflectionClass<object>|\ReflectionMethod|\ReflectionProperty>
+     */
     private function exposedReflections(\ReflectionClass $reflection): array
     {
         $members = [$reflection];
@@ -215,6 +218,9 @@ final class PublicApiInspector
         if ($type instanceof \ReflectionNamedType) {
             return $type->isBuiltin() ? [] : [$type->getName()];
         }
+        if (!$type instanceof \ReflectionUnionType && !$type instanceof \ReflectionIntersectionType) {
+            return [];
+        }
 
         $names = [];
         foreach ($type->getTypes() as $nestedType) {
@@ -224,7 +230,10 @@ final class PublicApiInspector
         return $names;
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @param \ReflectionClass<object> $reflection
+     * @return array<string, mixed>
+     */
     private function snapshotSymbol(\ReflectionClass $reflection): array
     {
         $parent = $reflection->getParentClass();
@@ -328,6 +337,9 @@ final class PublicApiInspector
             $nullable = $type->allowsNull() && !in_array($type->getName(), ['mixed', 'null'], true);
 
             return ($nullable ? '?' : '') . $type->getName();
+        }
+        if (!$type instanceof \ReflectionUnionType && !$type instanceof \ReflectionIntersectionType) {
+            return '';
         }
 
         $separator = $type instanceof \ReflectionUnionType ? '|' : '&';

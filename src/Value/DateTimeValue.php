@@ -23,7 +23,11 @@ final class DateTimeValue implements PrimitiveValueObjectInterface
             return new self(null);
         }
 
-        return new self((string)$value);
+        if (\is_scalar($value) || $value instanceof \Stringable) {
+            return new self((string)$value);
+        }
+
+        return new self(null);
     }
 
     public function formatLabel(string $dateTimeFormat = 'd.m.Y H:i', string $dateFormat = 'd.m.Y'): string

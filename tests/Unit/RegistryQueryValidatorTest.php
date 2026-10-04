@@ -69,7 +69,7 @@ final class RegistryQueryValidatorTest extends RegistryTestCase
         ]);
     }
 
-    public function canAssertValidRegistryQuery(): never
+    public function canAssertValidRegistryQuery(): void
     {
         $result = (new RegistryQueryValidator())->validate($this->usersDefinition(), [
             RegistrySqlQueryInput::SORT_COLUMN_KEY => 'missing',

@@ -13,7 +13,7 @@ final class ColumnRegistryDefinitionCollection
     private array $columns;
 
     /**
-     * @param list<ColumnRegistryDefinition> $columns
+     * @param array<array-key, mixed> $columns
      */
     public function __construct(array $columns)
     {
@@ -64,10 +64,10 @@ final class ColumnRegistryDefinitionCollection
      */
     public function exportableKeys(): array
     {
-        return \array_values(\array_map(
+        return \array_map(
             static fn (ColumnRegistryDefinition $column): string => $column->key(),
             $this->exportable()
-        ));
+        );
     }
 
     public function primaryKey(): ColumnRegistryDefinition
