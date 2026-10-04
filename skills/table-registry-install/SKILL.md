@@ -20,7 +20,7 @@ these cases:
 - An update was requested: update only `romanfedorskij/table-registry` and the dependencies Composer proves must move;
   do not run an unrestricted project-wide update.
 
-The library requires PHP 8.1+, `ext-json`, and `ext-mbstring`. Composer also resolves compatible `psr/container` and
+The library requires PHP 8.2+, `ext-json`, and `ext-mbstring`. Composer also resolves compatible `psr/container` and
 `openspout/openspout` versions. Do not bypass a platform failure with `--ignore-platform-reqs` or hand-edit
 `composer.lock`; report the missing extension or conflicting constraint and fix the environment or declared
 constraint deliberately.
@@ -54,11 +54,15 @@ If the plugin cannot be used, copy only the desired directories from
 
 ## Library Source Checkout
 
-When preparing this repository itself, install the development dependencies and run its test script:
+When preparing this repository itself, install the development dependencies and run the complete local quality gate:
 
 ```bash
 composer install
-composer test
+composer check
 ```
+
+`composer check` validates Composer metadata, runs every Testo suite, executes PHPStan at maximum level, and runs all
+documentation examples. Use the narrower `composer test:*`, `composer analyse`, or `composer examples` commands only
+when iterating; finish with the complete gate.
 
 Do not publish, tag, or change the package version unless the user explicitly requests a release.

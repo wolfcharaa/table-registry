@@ -29,15 +29,15 @@ CRUD-командами и HTTP-роутингом. Эти решения дол
 
 ## Требования
 
-- PHP 8.1 или выше;
+- PHP 8.2 или выше;
 - `ext-json`;
 - `ext-mbstring`;
 - `psr/container` `^1.1 || ^2.0`;
 - `openspout/openspout` `^4.28 || ^5.0` для XLSX export;
-- `testo/testo` `0.10.54` только для разработки и тестов (требует PHP 8.2 или выше).
+- `testo/testo` `0.10.54` и `phpstan/phpstan` `2.2.16` только для разработки и проверок.
 
-Сама библиотека сохраняет поддержку PHP 8.1. Для локального запуска тестов нужен PHP 8.2 или выше.
-Конкретная major/minor версия OpenSpout выбирается Composer-ом с учетом PHP версии окружения.
+PHP 8.2 является минимальной production/dev/test версией. Конкретная major/minor версия OpenSpout выбирается
+Composer-ом с учетом PHP версии окружения.
 
 ## Установка
 
@@ -49,7 +49,7 @@ composer require romanfedorskij/table-registry
 
 ```bash
 composer install
-composer test
+composer check
 ```
 
 ### Скиллы Для AI-Агентов
@@ -581,14 +581,34 @@ $filePath = $result->filePath();
 $fileName = $result->fileName();
 ```
 
-## Тесты
+## Разработка И Проверки
 
-Тесты написаны для Testo. Запустить весь набор или только unit suite можно командами:
+Единый локальный gate проверяет Composer metadata, весь Testo suite, PHPStan на максимальном уровне и каждый пример из
+`docs/examples/`:
+
+```bash
+composer check
+```
+
+Отдельные проверки можно запускать командами:
 
 ```bash
 composer test
 composer test:unit
+composer test:contract
+composer test:characterization
+composer analyse
+composer examples
 ```
+
+Testo разделён на три suite:
+
+- `Unit` проверяет поведение отдельных компонентов;
+- `Contract` сверяет [поддерживаемый public API](docs/public-api.md) и reflection signature snapshot;
+- `Characterization` фиксирует совместимость наблюдаемых JSON, SQL, параметров и projected rows с линией `v0.5.x`.
+
+Направление совместимости для следующей minor-линии описано в [BC matrix](docs/v0.6-bc-matrix.md). Документационные
+примеры являются исполняемой частью quality gate и не должны оставлять временные артефакты.
 
 Unit-тесты покрывают:
 

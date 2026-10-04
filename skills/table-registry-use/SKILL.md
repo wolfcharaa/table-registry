@@ -6,8 +6,9 @@ description: "Build or modify integrations with romanfedorskij/table-registry: t
 # Use TableRegistry
 
 Treat the installed package as the API source of truth. Check the resolved version and inspect
-`vendor/romanfedorskij/table-registry/README.md`, its `docs/examples/`, and relevant source when an API detail may have
-drifted. In the library repository, use the root `README.md`, `docs/examples/`, and `src/` instead.
+`vendor/romanfedorskij/table-registry/docs/public-api.md`, its `README.md`, and `docs/examples/` when an API detail may
+have drifted. In the library repository, use the corresponding root documents. Depend only on symbols listed in
+`docs/public-api.md` and marked `@api`; autoloadable symbols marked `@internal` are not extension points.
 
 TableRegistry describes a tabular read model, compiles PostgreSQL SQL and parameters, projects database rows into a
 stable payload, and can write XLSX files. It does not execute SQL, choose a real connection, authorize routes, define
@@ -97,4 +98,4 @@ the application must stream/move the file and clean up the temporary file accord
 
 Test the consumer integration at its real boundary. At minimum cover definition serialization, invalid query input,
 rows/count using identical constraints, row labels/hydration, connection selection when non-default, export policy,
-and the no-access runtime-constraint path. In this library repository, run `composer test`.
+and the no-access runtime-constraint path. In this library repository, run `composer check` before handing work off.
