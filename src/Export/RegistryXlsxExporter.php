@@ -6,10 +6,7 @@ namespace Wolfcharaa\TableRegistry\Export;
 
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Border;
-use OpenSpout\Common\Entity\Style\BorderName;
 use OpenSpout\Common\Entity\Style\BorderPart;
-use OpenSpout\Common\Entity\Style\BorderStyle;
-use OpenSpout\Common\Entity\Style\BorderWidth;
 use OpenSpout\Common\Entity\Style\CellAlignment;
 use OpenSpout\Common\Entity\Style\Color;
 use OpenSpout\Common\Entity\Style\Style;
@@ -27,6 +24,9 @@ final class RegistryXlsxExporter
     private const HEADER_BG = '1F6E8C';
     private const BORDER_COLOR = '6E6E6E';
     private const BODY_BORDER_COLOR = '8E8E8E';
+    private const BORDER_NAME_CLASS = 'OpenSpout\\Common\\Entity\\Style\\BorderName';
+    private const BORDER_STYLE_CLASS = 'OpenSpout\\Common\\Entity\\Style\\BorderStyle';
+    private const BORDER_WIDTH_CLASS = 'OpenSpout\\Common\\Entity\\Style\\BorderWidth';
 
     /**
      * @param list<ColumnRegistryDefinition> $columns
@@ -150,27 +150,35 @@ final class RegistryXlsxExporter
     private function headerStyle(): Style
     {
         if ((new \ReflectionClass(Style::class))->hasMethod('withFontBold')) {
-            return (new Style())
-                ->withFontBold(true)
-                ->withFontColor(Color::WHITE)
-                ->withBackgroundColor(self::HEADER_BG)
-                ->withCellAlignment(CellAlignment::CENTER)
-                ->withShouldWrapText(true)
-                ->withBorder($this->borderV5(self::BORDER_COLOR, BorderWidth::MEDIUM));
+            $style = $this->invokeStyle(new Style(), 'withFontBold', true);
+            $style = $this->invokeStyle($style, 'withFontColor', Color::WHITE);
+            $style = $this->invokeStyle($style, 'withBackgroundColor', self::HEADER_BG);
+            $style = $this->invokeStyle(
+                $style,
+                'withCellAlignment',
+                $this->classConstant(CellAlignment::class, 'CENTER')
+            );
+            $style = $this->invokeStyle($style, 'withShouldWrapText', true);
+
+            return $this->invokeStyle(
+                $style,
+                'withBorder',
+                $this->borderV5(self::BORDER_COLOR, 'MEDIUM')
+            );
         }
 
         $style = new Style();
-        $style = $this->invokeLegacyStyle($style, 'setFontBold');
-        $style = $this->invokeLegacyStyle($style, 'setFontColor', Color::WHITE);
-        $style = $this->invokeLegacyStyle($style, 'setBackgroundColor', self::HEADER_BG);
-        $style = $this->invokeLegacyStyle(
+        $style = $this->invokeStyle($style, 'setFontBold');
+        $style = $this->invokeStyle($style, 'setFontColor', Color::WHITE);
+        $style = $this->invokeStyle($style, 'setBackgroundColor', self::HEADER_BG);
+        $style = $this->invokeStyle(
             $style,
             'setCellAlignment',
-            $this->legacyConstant(CellAlignment::class, 'CENTER')
+            $this->classConstant(CellAlignment::class, 'CENTER')
         );
-        $style = $this->invokeLegacyStyle($style, 'setShouldWrapText', true);
+        $style = $this->invokeStyle($style, 'setShouldWrapText', true);
 
-        return $this->invokeLegacyStyle(
+        return $this->invokeStyle(
             $style,
             'setBorder',
             $this->borderV4(self::BORDER_COLOR, 'WIDTH_MEDIUM')
@@ -180,14 +188,18 @@ final class RegistryXlsxExporter
     private function bodyStyle(): Style
     {
         if ((new \ReflectionClass(Style::class))->hasMethod('withShouldWrapText')) {
-            return (new Style())
-                ->withShouldWrapText(true)
-                ->withBorder($this->borderV5(self::BODY_BORDER_COLOR, BorderWidth::THIN));
+            $style = $this->invokeStyle(new Style(), 'withShouldWrapText', true);
+
+            return $this->invokeStyle(
+                $style,
+                'withBorder',
+                $this->borderV5(self::BODY_BORDER_COLOR, 'THIN')
+            );
         }
 
-        $style = $this->invokeLegacyStyle(new Style(), 'setShouldWrapText', true);
+        $style = $this->invokeStyle(new Style(), 'setShouldWrapText', true);
 
-        return $this->invokeLegacyStyle(
+        return $this->invokeStyle(
             $style,
             'setBorder',
             $this->borderV4(self::BODY_BORDER_COLOR, 'WIDTH_THIN')
@@ -200,7 +212,17 @@ final class RegistryXlsxExporter
     private function rowWithStyle(array $values, Style $style, ?float $height = null): Row
     {
         if ((new \ReflectionClass(Row::class))->hasMethod('fromValuesWithStyle')) {
-            return Row::fromValuesWithStyle($values, $style, $height ?? Row::DEFAULT_HEIGHT);
+            $arguments = [$values, $style];
+            if ($height !== null) {
+                $arguments[] = $height;
+            }
+
+            $row = (new \ReflectionMethod(Row::class, 'fromValuesWithStyle'))->invoke(null, ...$arguments);
+            if (!$row instanceof Row) {
+                throw new \LogicException('OpenSpout row factory returned an invalid value.');
+            }
+
+            return $row;
         }
 
         $row = (new \ReflectionMethod(Row::class, 'fromValues'))->invoke(null, $values, $style);
@@ -215,14 +237,20 @@ final class RegistryXlsxExporter
     }
 
     /** @param non-empty-string $color */
-    private function borderV5(string $color, BorderWidth $width): Border
+    private function borderV5(string $color, string $widthName): Border
     {
-        return new Border(
-            new BorderPart(BorderName::LEFT, $color, $width, BorderStyle::SOLID),
-            new BorderPart(BorderName::RIGHT, $color, $width, BorderStyle::SOLID),
-            new BorderPart(BorderName::TOP, $color, $width, BorderStyle::SOLID),
-            new BorderPart(BorderName::BOTTOM, $color, $width, BorderStyle::SOLID)
-        );
+        $parts = [];
+        foreach (['LEFT', 'RIGHT', 'TOP', 'BOTTOM'] as $name) {
+            $part = (new \ReflectionClass(BorderPart::class))->newInstance(
+                $this->classConstant(self::BORDER_NAME_CLASS, $name),
+                $color,
+                $this->classConstant(self::BORDER_WIDTH_CLASS, $widthName),
+                $this->classConstant(self::BORDER_STYLE_CLASS, 'SOLID')
+            );
+            $parts[] = $part;
+        }
+
+        return (new \ReflectionClass(Border::class))->newInstance(...$parts);
     }
 
     /** @param non-empty-string $color */
@@ -240,15 +268,15 @@ final class RegistryXlsxExporter
     private function borderPartV4(string $name, string $color, string $widthName): BorderPart
     {
         $part = (new \ReflectionClass(BorderPart::class))->newInstance(
-            $this->legacyConstant(Border::class, $name),
+            $this->classConstant(Border::class, $name),
             $color,
-            $this->legacyConstant(Border::class, $widthName),
-            $this->legacyConstant(Border::class, 'STYLE_SOLID')
+            $this->classConstant(Border::class, $widthName),
+            $this->classConstant(Border::class, 'STYLE_SOLID')
         );
         return $part;
     }
 
-    private function invokeLegacyStyle(Style $style, string $method, mixed ...$arguments): Style
+    private function invokeStyle(Style $style, string $method, mixed ...$arguments): Style
     {
         $result = (new \ReflectionMethod($style, $method))->invoke($style, ...$arguments);
         if (!$result instanceof Style) {
@@ -258,9 +286,14 @@ final class RegistryXlsxExporter
         return $result;
     }
 
-    private function legacyConstant(string $className, string $name): mixed
+    private function classConstant(string $className, string $name): mixed
     {
-        return constant($className . '::' . $name);
+        $constant = $className . '::' . $name;
+        if (!\defined($constant)) {
+            throw new \LogicException(\sprintf('OpenSpout constant %s is not available.', $constant));
+        }
+
+        return \constant($constant);
     }
 
     private function stringifyCellValue(mixed $value): string
