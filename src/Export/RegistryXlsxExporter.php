@@ -42,7 +42,16 @@ final class RegistryXlsxExporter
             throw new \InvalidArgumentException('XLSX export columns must not be empty.');
         }
 
-        $filePath = \tempnam(\sys_get_temp_dir(), 'xlsx_') . '.xlsx';
+        $temporaryPath = \tempnam(\sys_get_temp_dir(), 'xlsx_');
+        if ($temporaryPath === false) {
+            throw new \RuntimeException('Cannot allocate a temporary XLSX path.');
+        }
+
+        $filePath = $temporaryPath . '.xlsx';
+        if (!\unlink($temporaryPath)) {
+            throw new \RuntimeException('Cannot prepare a temporary XLSX path.');
+        }
+
         $writer = new Writer();
         $writer->openToFile($filePath);
         $writer->getCurrentSheet()->setName(self::normalizeSheetName($definition->title()));

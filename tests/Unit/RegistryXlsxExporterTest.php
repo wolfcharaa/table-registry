@@ -26,10 +26,12 @@ final class RegistryXlsxExporterTest extends RegistryTestCase
             ]],
             'people'
         );
+        $placeholderPath = \substr($result->filePath(), 0, -5);
 
         try {
             Assert::true(file_exists($result->filePath()));
             Assert::true(filesize($result->filePath()) > 0);
+            Assert::false(file_exists($placeholderPath));
 
             $archive = new \ZipArchive();
             Assert::same($archive->open($result->filePath()), true);
@@ -38,6 +40,9 @@ final class RegistryXlsxExporterTest extends RegistryTestCase
         } finally {
             if (file_exists($result->filePath())) {
                 unlink($result->filePath());
+            }
+            if (file_exists($placeholderPath)) {
+                unlink($placeholderPath);
             }
         }
     }
