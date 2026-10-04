@@ -25,6 +25,9 @@
     "require-dev": {
         "phpunit/phpunit": "^10.5"
     },
+    "suggest": {
+        "llm/skills": "Synchronizes the bundled TableRegistry AI-agent skills into the consumer project."
+    },
     "autoload": {
         "psr-4": {
             "Wolfcharaa\\TableRegistry\\": "src/"
@@ -42,5 +45,10 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {}
+    },
+    "extra": {
+        "skills": {
+            "source": "skills"
+        }
     }
 }

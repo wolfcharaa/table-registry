@@ -51,6 +51,25 @@ composer install
 composer test
 ```
 
+### Скиллы Для AI-Агентов
+
+Пакет поставляет два самостоятельных скилла:
+
+- `table-registry-install` — установка, обновление и проверка Composer-пакета;
+- `table-registry-use` — создание definition и интеграция query validation, SQL compilation, row projection и XLSX export.
+
+Если в проекте используется Composer-плагин [`llm/skills`](https://packagist.org/packages/llm/skills), каталог
+`skills/` объявлен в `composer.json` как источник и может быть синхронизирован в `.agents/skills/`:
+
+```bash
+composer require --dev llm/skills
+composer skills:init --quick
+composer skills:update romanfedorskij/table-registry
+```
+
+Composer запросит разрешение на запуск плагина при первой установке. Без плагина нужные директории можно скопировать
+из `vendor/romanfedorskij/table-registry/skills/` в каталог скиллов используемого агента.
+
 Более подробные сценарии использования вынесены в [docs/examples](docs/examples):
 
 - описание table definition;
