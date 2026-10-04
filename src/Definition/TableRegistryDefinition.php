@@ -15,6 +15,9 @@ use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeConstraintInterface;
 use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
+/**
+ * @api
+ */
 class TableRegistryDefinition implements \JsonSerializable
 {
     /** @var list<ColumnRegistryDefinition> */

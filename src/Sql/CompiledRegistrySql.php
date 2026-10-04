@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Sql;
 
+/**
+ * @api
+ */
 final class CompiledRegistrySql implements \JsonSerializable
 {
     /**

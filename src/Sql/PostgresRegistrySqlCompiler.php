@@ -13,6 +13,9 @@ use Wolfcharaa\TableRegistry\Runtime\NativeRegistryResolverInvoker;
 use Wolfcharaa\TableRegistry\Runtime\RegistryResolverInvokerInterface;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
+/**
+ * @api
+ */
 final class PostgresRegistrySqlCompiler
 {
     private int $paramIndex = 0;

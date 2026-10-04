@@ -13,5 +13,9 @@ return new ApplicationConfig(
             name: 'Unit',
             location: ['tests/Unit'],
         ),
+        new SuiteConfig(
+            name: 'Contract',
+            location: ['tests/Contract'],
+        ),
     ],
 );

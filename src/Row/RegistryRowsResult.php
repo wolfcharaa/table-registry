@@ -7,6 +7,9 @@ namespace Wolfcharaa\TableRegistry\Row;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 
+/**
+ * @api
+ */
 final class RegistryRowsResult implements \JsonSerializable
 {
     private const SCHEMA_VERSION = 2;

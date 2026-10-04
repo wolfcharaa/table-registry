@@ -8,6 +8,9 @@ use Wolfcharaa\TableRegistry\Row\RegistryRowData;
 use Wolfcharaa\TableRegistry\Value\DateTimeValue;
 use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
 
+/**
+ * @api
+ */
 final class DateTimeValueLabelResolver implements ColumnValueLabelResolverInterface
 {
     public function __invoke(

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Filter;
 
+/**
+ * @api
+ */
 final class TextFilterRegistryDefinition extends BaseRegistryFilterDefinition
 {
     public static function contains(string $queryKey, string $columnKey, string $title): self

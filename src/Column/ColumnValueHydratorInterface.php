@@ -7,6 +7,9 @@ namespace Wolfcharaa\TableRegistry\Column;
 use Wolfcharaa\TableRegistry\Row\RegistryRowData;
 use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
 
+/**
+ * @api
+ */
 interface ColumnValueHydratorInterface
 {
     public function __invoke(

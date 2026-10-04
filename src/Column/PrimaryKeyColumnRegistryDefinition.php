@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Column;
 
+/**
+ * @api
+ */
 final class PrimaryKeyColumnRegistryDefinition extends ColumnRegistryDefinition
 {
     public function __construct(string $key, string $title = 'ID')

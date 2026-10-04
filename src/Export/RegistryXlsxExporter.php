@@ -14,6 +14,9 @@ use OpenSpout\Writer\XLSX\Writer;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 
+/**
+ * @api
+ */
 final class RegistryXlsxExporter
 {
     private const DEFAULT_SHEET_NAME = 'Результат';

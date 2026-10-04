@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "ext-json": "*",
         "ext-mbstring": "*",
         "openspout/openspout": "^4.28 || ^5.0",
@@ -40,7 +40,8 @@
     },
     "scripts": {
         "test": "vendor/bin/testo",
-        "test:unit": "vendor/bin/testo --suite=Unit"
+        "test:unit": "vendor/bin/testo --suite=Unit",
+        "test:contract": "vendor/bin/testo --suite=Contract"
     },
     "config": {
         "sort-packages": true,

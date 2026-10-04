@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Query;
 
+/**
+ * @api
+ */
 final class RegistryPaginationDefinition implements \JsonSerializable
 {
     public function __construct(

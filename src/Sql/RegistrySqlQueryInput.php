@@ -6,6 +6,9 @@ namespace Wolfcharaa\TableRegistry\Sql;
 
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 
+/**
+ * @api
+ */
 final class RegistrySqlQueryInput
 {
     public const SORT_COLUMN_KEY = 'sort_col';

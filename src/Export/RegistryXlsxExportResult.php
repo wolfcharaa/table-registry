@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Export;
 
+/**
+ * @api
+ */
 final class RegistryXlsxExportResult
 {
     public function __construct(

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Sort;
 
+/**
+ * @api
+ */
 final class RegistrySortDefinition implements \JsonSerializable
 {
     private function __construct(

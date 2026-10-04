@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Source;
 
+/**
+ * @api
+ */
 final class RegistryDataScopeDefinition
 {
     /**

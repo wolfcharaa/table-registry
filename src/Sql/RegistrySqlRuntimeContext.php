@@ -6,6 +6,9 @@ namespace Wolfcharaa\TableRegistry\Sql;
 
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 
+/**
+ * @api
+ */
 final class RegistrySqlRuntimeContext
 {
     /**

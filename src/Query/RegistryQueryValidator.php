@@ -10,6 +10,9 @@ use Wolfcharaa\TableRegistry\Filter\RegistryFilterDefinitionInterface;
 use Wolfcharaa\TableRegistry\Filter\TimeRangeFilterRegistryDefinition;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 
+/**
+ * @api
+ */
 final class RegistryQueryValidator
 {
     /**

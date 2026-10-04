@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Filter;
 
+/**
+ * @api
+ */
 final class BasicRegistryFilterExpression implements RegistryFilterExpressionInterface
 {
     public function __construct(

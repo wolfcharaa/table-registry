@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Runtime;
 
+/**
+ * @api
+ */
 final class NativeRegistryResolverInvoker implements RegistryResolverInvokerInterface
 {
     public function invoke(callable|string $resolver, array $arguments): mixed

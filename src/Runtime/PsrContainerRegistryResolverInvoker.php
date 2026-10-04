@@ -6,6 +6,9 @@ namespace Wolfcharaa\TableRegistry\Runtime;
 
 use Psr\Container\ContainerInterface;
 
+/**
+ * @api
+ */
 final class PsrContainerRegistryResolverInvoker implements RegistryResolverInvokerInterface
 {
     public function __construct(
@@ -23,4 +26,3 @@ final class PsrContainerRegistryResolverInvoker implements RegistryResolverInvok
         return $this->fallback->invoke($resolver, $arguments);
     }
 }
-

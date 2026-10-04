@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Row;
 
+/**
+ * @api
+ */
 final class RegistryProjectedRowsFlattener
 {
     private const CELL_VALUE = 'value';

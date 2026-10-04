@@ -13,6 +13,9 @@ use Wolfcharaa\TableRegistry\Value\DateTimeValue;
 use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
 use Wolfcharaa\TableRegistry\Value\RawValue;
 
+/**
+ * @api
+ */
 class ColumnRegistryDefinition implements \JsonSerializable
 {
     /** @var callable|class-string<ColumnValueLabelResolverInterface>|string|null */

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Filter;
 
+/**
+ * @api
+ */
 interface RegistryFilterDefinitionInterface extends \JsonSerializable
 {
     public function queryKey(): string;

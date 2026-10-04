@@ -9,6 +9,9 @@ use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 use Wolfcharaa\TableRegistry\Runtime\NativeRegistryResolverInvoker;
 use Wolfcharaa\TableRegistry\Runtime\RegistryResolverInvokerInterface;
 
+/**
+ * @api
+ */
 final class RegistryRowsProjector
 {
     public function __construct(

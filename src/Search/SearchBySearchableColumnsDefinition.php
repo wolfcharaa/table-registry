@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Search;
 
+/**
+ * @api
+ */
 final class SearchBySearchableColumnsDefinition implements RegistrySearchDefinitionInterface
 {
     public function __construct(

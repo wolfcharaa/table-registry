@@ -7,6 +7,9 @@ namespace Wolfcharaa\TableRegistry\Export;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 
+/**
+ * @api
+ */
 final class RegistryExportColumnResolver
 {
     /**

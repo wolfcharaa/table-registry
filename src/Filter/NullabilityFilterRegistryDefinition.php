@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Filter;
 
+/**
+ * @api
+ */
 final class NullabilityFilterRegistryDefinition extends BaseRegistryFilterDefinition
 {
     public static function forColumn(string $queryKey, string $columnKey, string $title): self

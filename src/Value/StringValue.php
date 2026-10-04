@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Value;
 
+/**
+ * @api
+ */
 final class StringValue implements PrimitiveValueObjectInterface
 {
     private function __construct(private readonly string $value)

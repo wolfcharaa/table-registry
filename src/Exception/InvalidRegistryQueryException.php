@@ -6,6 +6,9 @@ namespace Wolfcharaa\TableRegistry\Exception;
 
 use Wolfcharaa\TableRegistry\Query\RegistryQueryValidationResult;
 
+/**
+ * @api
+ */
 final class InvalidRegistryQueryException extends \InvalidArgumentException
 {
     private function __construct(private readonly RegistryQueryValidationResult $result)

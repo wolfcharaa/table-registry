@@ -1,0 +1,729 @@
+{
+    "Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinition": {
+        "kind": "class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(string $key, string $title)",
+            "public function auxiliarySelects(): array",
+            "public function exportable(): bool",
+            "public function exposedInDefinition(): bool",
+            "public function filter(): ?Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface",
+            "public function filterable(): bool",
+            "public function isPrimaryKey(): bool",
+            "public function jsonSerialize(): array",
+            "public function key(): string",
+            "public function label(Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface $value, Wolfcharaa\\TableRegistry\\Row\\RegistryRowData $row, mixed $hydratedValue, Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface $invoker): string",
+            "public function outputOnly(): bool",
+            "public function payloadOnly(): bool",
+            "public function rawValueObject(mixed $rawValue): Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface",
+            "public function rowTypeObject(): string",
+            "public function searchable(): bool",
+            "public function select(): ?Wolfcharaa\\TableRegistry\\Column\\ColumnSelectDefinition",
+            "public function sort(): ?Wolfcharaa\\TableRegistry\\Sort\\RegistrySortDefinition",
+            "public function sortable(): bool",
+            "public function title(): string",
+            "public function value(Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface $value, Wolfcharaa\\TableRegistry\\Row\\RegistryRowData $row, Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface $invoker): mixed",
+            "public function withActionOnly(bool $actionOnly = true): static",
+            "public function withAuxiliarySelect(Wolfcharaa\\TableRegistry\\Column\\ColumnSelectDefinition $select): static",
+            "public function withExportable(bool $exportable = true): static",
+            "public function withFilter(?Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface $filter): static",
+            "public function withHint(?string $hint): static",
+            "public function withHydration(callable|string|null $resolver): static",
+            "public function withLabel(callable|string|null $label): static",
+            "public function withOutputOnly(bool $outputOnly = true): static",
+            "public function withPayloadOnly(bool $payloadOnly = true): static",
+            "public function withRowTypeObject(string $rowTypeObject): static",
+            "public function withSearchable(bool $searchable = true): static",
+            "public function withSelect(?Wolfcharaa\\TableRegistry\\Column\\ColumnSelectDefinition $select): static",
+            "public function withSort(?Wolfcharaa\\TableRegistry\\Sort\\RegistrySortDefinition $sort): static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinitionCollection": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(array $columns)",
+            "public function all(): array",
+            "public function exportable(): array",
+            "public function exportableKeys(): array",
+            "public function exposedInDefinition(): array",
+            "public function get(string $key): ?Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinition",
+            "public function payload(): array",
+            "public function primaryKey(): Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinition",
+            "public function searchable(): array",
+            "public function sortableKeys(): array"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Column\\ColumnSelectDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function alias(): string",
+            "public function expression(): string",
+            "public static function column(string $column, ?string $alias = NULL): self",
+            "public static function sqlExpression(string $alias, string $expression): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Column\\ColumnValueHydratorInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function __invoke(Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface $value, Wolfcharaa\\TableRegistry\\Row\\RegistryRowData $row, Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinition $column): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Column\\ColumnValueLabelResolverInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function __invoke(Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface $value, Wolfcharaa\\TableRegistry\\Row\\RegistryRowData $row, Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinition $column): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Column\\DateTimeValueLabelResolver": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Column\\ColumnValueLabelResolverInterface"
+        ],
+        "members": [
+            "public function __invoke(Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface $value, Wolfcharaa\\TableRegistry\\Row\\RegistryRowData $row, Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinition $column): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Column\\PrimaryKeyColumnRegistryDefinition": {
+        "kind": "final class",
+        "parent": "Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinition",
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(string $key, string $title = 'ID')",
+            "public function isPrimaryKey(): bool"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition": {
+        "kind": "class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(string $registryKey, string $title, Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition $source, array $columns)",
+            "public function columns(): Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinitionCollection",
+            "public function defaultSort(): ?Wolfcharaa\\TableRegistry\\Sort\\RegistryDefaultSortDefinition",
+            "public function jsonSerialize(): array",
+            "public function pagination(): Wolfcharaa\\TableRegistry\\Query\\RegistryPaginationDefinition",
+            "public function registryKey(): string",
+            "public function runtimeConstraints(): array",
+            "public function search(): Wolfcharaa\\TableRegistry\\Search\\RegistrySearchDefinitionInterface",
+            "public function source(): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
+            "public function title(): string",
+            "public function withDefaultSort(?Wolfcharaa\\TableRegistry\\Sort\\RegistryDefaultSortDefinition $defaultSort): static",
+            "public function withPagination(Wolfcharaa\\TableRegistry\\Query\\RegistryPaginationDefinition $pagination): static",
+            "public function withRuntimeConstraint(callable|string $resolver): static",
+            "public function withSearch(Wolfcharaa\\TableRegistry\\Search\\RegistrySearchDefinitionInterface $search): static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Exception\\InvalidRegistryDefinitionException": {
+        "kind": "final class",
+        "parent": "LogicException",
+        "interfaces": [
+            "Stringable",
+            "Throwable"
+        ],
+        "members": [
+            "public static function because(string $message): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Exception\\InvalidRegistryQueryException": {
+        "kind": "final class",
+        "parent": "InvalidArgumentException",
+        "interfaces": [
+            "Stringable",
+            "Throwable"
+        ],
+        "members": [
+            "public function result(): Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationResult",
+            "public static function fromResult(Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationResult $result): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Export\\RegistryExportColumnResolver": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function resolve(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, array $requestedColumnKeys = []): array"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Export\\RegistryXlsxExportResult": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $filePath, string $fileName)",
+            "public function fileName(): string",
+            "public function filePath(): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Export\\RegistryXlsxExporter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function export(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, array $columns, iterable $rows, ?string $fileNamePrefix = NULL): Wolfcharaa\\TableRegistry\\Export\\RegistryXlsxExportResult",
+            "public static function normalizeSheetName(string $sheetName): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\BaseRegistryFilterDefinition": {
+        "kind": "class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable",
+            "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
+        ],
+        "members": [
+            "protected function anyOptions(): array",
+            "public function __construct(string $queryKey, string $title, ?string $columnKey, string $valueFormat, array $operators, array $extraJson = [])",
+            "public function columnKey(): ?string",
+            "public function expression(mixed $normalizedValue): Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterExpressionInterface",
+            "public function jsonSerialize(): array",
+            "public function normalize(mixed $value): mixed",
+            "public function operators(): array",
+            "public function queryKey(): string",
+            "public function title(): string",
+            "public function valueFormat(): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\BasicRegistryFilterExpression": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterExpressionInterface"
+        ],
+        "members": [
+            "public function __construct(?string $columnKey, string $operator, mixed $value)",
+            "public function columnKey(): ?string",
+            "public function operator(): string",
+            "public function value(): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\BooleanFilterRegistryDefinition": {
+        "kind": "final class",
+        "parent": "Wolfcharaa\\TableRegistry\\Filter\\BaseRegistryFilterDefinition",
+        "interfaces": [
+            "JsonSerializable",
+            "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
+        ],
+        "members": [
+            "public function normalize(mixed $value): ?bool",
+            "public static function exact(string $queryKey, string $columnKey, string $title): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\DateRangeFilterRegistryDefinition": {
+        "kind": "final class",
+        "parent": "Wolfcharaa\\TableRegistry\\Filter\\BaseRegistryFilterDefinition",
+        "interfaces": [
+            "JsonSerializable",
+            "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
+        ],
+        "members": [
+            "public function __construct(string $queryKey, string $columnKey, string $title, string $fromKey, string $toKey)",
+            "public function fromKey(): string",
+            "public function toKey(): string",
+            "public static function forColumn(string $columnKey, string $title): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\IntegerFilterRegistryDefinition": {
+        "kind": "final class",
+        "parent": "Wolfcharaa\\TableRegistry\\Filter\\BaseRegistryFilterDefinition",
+        "interfaces": [
+            "JsonSerializable",
+            "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
+        ],
+        "members": [
+            "public function normalize(mixed $value): ?int",
+            "public static function exact(string $queryKey, string $columnKey, string $title): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\NullabilityFilterRegistryDefinition": {
+        "kind": "final class",
+        "parent": "Wolfcharaa\\TableRegistry\\Filter\\BaseRegistryFilterDefinition",
+        "interfaces": [
+            "JsonSerializable",
+            "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
+        ],
+        "members": [
+            "public static function forColumn(string $queryKey, string $columnKey, string $title): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public abstract function columnKey(): ?string",
+            "public abstract function expression(mixed $normalizedValue): Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterExpressionInterface",
+            "public abstract function normalize(mixed $value): mixed",
+            "public abstract function operators(): array",
+            "public abstract function queryKey(): string",
+            "public abstract function title(): string",
+            "public abstract function valueFormat(): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterExpressionInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function columnKey(): ?string",
+            "public abstract function operator(): string",
+            "public abstract function value(): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\SelectFilterRegistryDefinition": {
+        "kind": "final class",
+        "parent": "Wolfcharaa\\TableRegistry\\Filter\\BaseRegistryFilterDefinition",
+        "interfaces": [
+            "JsonSerializable",
+            "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
+        ],
+        "members": [
+            "protected function anyOptions(): array",
+            "public function normalize(mixed $value): mixed",
+            "public static function async(string $queryKey, string $columnKey, string $title, string $route, string $valueFormat = 'string'): self",
+            "public static function preload(string $queryKey, string $columnKey, string $title, string $route, string $valueFormat = 'string'): self",
+            "public static function static(string $queryKey, string $columnKey, string $title, array $options = [], string $valueFormat = 'string'): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\TextFilterRegistryDefinition": {
+        "kind": "final class",
+        "parent": "Wolfcharaa\\TableRegistry\\Filter\\BaseRegistryFilterDefinition",
+        "interfaces": [
+            "JsonSerializable",
+            "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
+        ],
+        "members": [
+            "public static function contains(string $queryKey, string $columnKey, string $title): self",
+            "public static function exact(string $queryKey, string $columnKey, string $title): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Filter\\TimeRangeFilterRegistryDefinition": {
+        "kind": "final class",
+        "parent": "Wolfcharaa\\TableRegistry\\Filter\\BaseRegistryFilterDefinition",
+        "interfaces": [
+            "JsonSerializable",
+            "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
+        ],
+        "members": [
+            "public function __construct(string $queryKey, string $columnKey, string $title, string $fromKey, string $toKey)",
+            "public function fromKey(): string",
+            "public function toKey(): string",
+            "public static function forColumn(string $columnKey, string $title): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Query\\RegistryPaginationDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(string $pageKey = 'page', string $perPageKey = 'per_page', int $defaultPerPage = 25, int $maxPerPage = 250)",
+            "public function defaultPerPage(): int",
+            "public function jsonSerialize(): array",
+            "public function maxPerPage(): int",
+            "public function pageKey(): string",
+            "public function perPageKey(): string",
+            "public static function page(): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationIssue": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(string $code, string $queryKey, string $message)",
+            "public function code(): string",
+            "public function jsonSerialize(): array",
+            "public function message(): string",
+            "public function queryKey(): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationResult": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(array $issues = [])",
+            "public function assertValid(): void",
+            "public function isValid(): bool",
+            "public function issues(): array",
+            "public function jsonSerialize(): array"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidator": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function validate(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, array $query): Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationResult"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Row\\RegistryProjectedRowsFlattener": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public static function flatten(array $rows, bool $withPrimaryKey = false, string $cellKey = self::CELL_VALUE): array",
+            "public static function flattenLabels(array $rows, bool $withPrimaryKey = false): array",
+            "public static function flattenRow(array $row, bool $withPrimaryKey = false, string $cellKey = self::CELL_VALUE): array"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Row\\RegistryRowData": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(array $row)",
+            "public function all(): array",
+            "public function get(string $key): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Row\\RegistryRowsProjector": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface $resolverInvoker = Wolfcharaa\\TableRegistry\\Runtime\\NativeRegistryResolverInvoker)",
+            "public function project(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, array $rows): array"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Row\\RegistryRowsResult": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput $query, string|int $total, array $rows)",
+            "public function jsonSerialize(): array",
+            "public function registryKey(): string",
+            "public function rows(): array",
+            "public function total(): int"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Runtime\\NativeRegistryResolverInvoker": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface"
+        ],
+        "members": [
+            "public function invoke(callable|string $resolver, array $arguments): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Runtime\\PsrContainerRegistryResolverInvoker": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface"
+        ],
+        "members": [
+            "public function __construct(Psr\\Container\\ContainerInterface $container, Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface $fallback = Wolfcharaa\\TableRegistry\\Runtime\\NativeRegistryResolverInvoker)",
+            "public function invoke(callable|string $resolver, array $arguments): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function invoke(callable|string $resolver, array $arguments): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Search\\RegistrySearchDefinitionInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public abstract function isEnabled(): bool",
+            "public abstract function queryKey(): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Search\\SearchBySearchableColumnsDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable",
+            "Wolfcharaa\\TableRegistry\\Search\\RegistrySearchDefinitionInterface"
+        ],
+        "members": [
+            "public function __construct(string $queryKey = 'search', bool $enabled = true)",
+            "public function isEnabled(): bool",
+            "public function jsonSerialize(): array",
+            "public function queryKey(): string",
+            "public static function default(): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sort\\RegistryDefaultSortDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(string $columnKey, string $direction = 'asc')",
+            "public function columnKey(): string",
+            "public function direction(): string",
+            "public function jsonSerialize(): array",
+            "public static function asc(string $columnKey): self",
+            "public static function desc(string $columnKey): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sort\\RegistrySortDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function columnKey(): string",
+            "public function expression(): ?string",
+            "public function jsonSerialize(): array",
+            "public static function byColumn(string $columnKey): self",
+            "public static function byExpression(string $columnKey, string $expression): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $name, array $options = [])",
+            "public function name(): string",
+            "public function options(): array",
+            "public static function named(string $name, mixed ...$options): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function connection(): string",
+            "public function countSource(): ?string",
+            "public function dataScope(): ?Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition",
+            "public function fromSql(): string",
+            "public function joins(): array",
+            "public function withConnection(string $connection): self",
+            "public function withCountSource(string $countSource): self",
+            "public function withDataScope(Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition $dataScope): self",
+            "public function withJoin(string $joinSql): self",
+            "public function withLeftJoin(string $relation, string $on): self",
+            "public static function from(string $from): self",
+            "public static function relation(string $from): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sql\\CompiledRegistrySql": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(string $sql, array $params)",
+            "public function jsonSerialize(): array",
+            "public function params(): array",
+            "public function sql(): string",
+            "public function sqlWithInlinedParams(): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sql\\PostgresIdentifier": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Stringable"
+        ],
+        "members": [
+            "public function __toString(): string",
+            "public function quoted(): string",
+            "public static function value(string $value): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sql\\PostgresLiteral": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function quoted(): string",
+            "public static function value(mixed $value): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sql\\PostgresRegistrySqlCompiler": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface $resolverInvoker = Wolfcharaa\\TableRegistry\\Runtime\\NativeRegistryResolverInvoker)",
+            "public function compileCount(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput|array $query = []): Wolfcharaa\\TableRegistry\\Sql\\CompiledRegistrySql",
+            "public function compileExportRows(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput|array $query = []): Wolfcharaa\\TableRegistry\\Sql\\CompiledRegistrySql",
+            "public function compileRows(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput|array $query = []): Wolfcharaa\\TableRegistry\\Sql\\CompiledRegistrySql"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlCondition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function params(): array",
+            "public function sql(): string",
+            "public static function impossible(): self",
+            "public static function raw(string $sql, array $params = []): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public const SORT_COLUMN_KEY = 'sort_col'",
+            "public const SORT_DIRECTION_KEY = 'sort_dir'",
+            "public function __construct(string $search = '', int $page = 1, int $perPage = 25, string $sortColumn = '', string $sortDirection = 'asc', array $filters = [], array $selectedPrimaryKeys = [])",
+            "public function filterValue(string $queryKey): mixed",
+            "public function filters(): array",
+            "public function hasFilterValue(string $queryKey): bool",
+            "public function offset(): int",
+            "public function page(): int",
+            "public function perPage(): int",
+            "public function search(): string",
+            "public function selectedPrimaryKeys(): array",
+            "public function sortColumn(): string",
+            "public function sortDirection(): string",
+            "public static function empty(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition): self",
+            "public static function fromArray(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, array $query): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlRuntimeConstraintInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function __invoke(Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlRuntimeContext $context): ?Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlCondition"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlRuntimeContext": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput $query, Closure $paramFactory)",
+            "public function definition(): Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition",
+            "public function param(mixed $value): string",
+            "public function query(): Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Value\\BooleanValue": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Stringable",
+            "Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface"
+        ],
+        "members": [
+            "public function __toString(): string",
+            "public function getValue(): ?bool",
+            "public static function value(mixed $value): static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Value\\DateTimeValue": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Stringable",
+            "Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface"
+        ],
+        "members": [
+            "public function __toString(): string",
+            "public function dateTime(): ?DateTimeImmutable",
+            "public function formatLabel(string $dateTimeFormat = 'd.m.Y H:i', string $dateFormat = 'd.m.Y'): string",
+            "public function getValue(): ?string",
+            "public static function value(mixed $value): static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Value\\IntegerValue": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Stringable",
+            "Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface"
+        ],
+        "members": [
+            "public function __toString(): string",
+            "public function getValue(): ?int",
+            "public static function value(mixed $value): static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Value\\JsonListValue": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Stringable",
+            "Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface"
+        ],
+        "members": [
+            "public function __toString(): string",
+            "public function getValue(): array",
+            "public static function value(mixed $value): static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [
+            "Stringable"
+        ],
+        "members": [
+            "public abstract function getValue(): mixed",
+            "public abstract static function value(mixed $value): static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Value\\RawValue": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Stringable",
+            "Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface"
+        ],
+        "members": [
+            "public function __toString(): string",
+            "public function getValue(): mixed",
+            "public static function value(mixed $value): static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Value\\StringValue": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Stringable",
+            "Wolfcharaa\\TableRegistry\\Value\\PrimitiveValueObjectInterface"
+        ],
+        "members": [
+            "public function __toString(): string",
+            "public function getValue(): string",
+            "public static function value(mixed $value): static"
+        ]
+    }
+}

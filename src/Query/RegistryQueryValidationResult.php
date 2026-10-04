@@ -6,6 +6,9 @@ namespace Wolfcharaa\TableRegistry\Query;
 
 use Wolfcharaa\TableRegistry\Exception\InvalidRegistryQueryException;
 
+/**
+ * @api
+ */
 final class RegistryQueryValidationResult implements \JsonSerializable
 {
     /** @var list<RegistryQueryValidationIssue> */

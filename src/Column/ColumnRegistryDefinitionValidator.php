@@ -6,6 +6,9 @@ namespace Wolfcharaa\TableRegistry\Column;
 
 use Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException;
 
+/**
+ * @internal
+ */
 final class ColumnRegistryDefinitionValidator
 {
     /**
