@@ -1,0 +1,141 @@
+{
+    "schemaVersion": 2,
+    "registryKey": "legacy_people",
+    "title": "Люди",
+    "primaryKey": "id",
+    "columns": [
+        {
+            "key": "id",
+            "title": "ID",
+            "searchable": false,
+            "sortable": false,
+            "filterable": false
+        },
+        {
+            "key": "fullName",
+            "title": "ФИО",
+            "searchable": true,
+            "sortable": true,
+            "filterable": true,
+            "filter": {
+                "queryKey": "filter_fullName",
+                "label": "ФИО",
+                "columnKey": "fullName",
+                "valueFormat": "string",
+                "operators": [
+                    "contains"
+                ]
+            },
+            "hint": "Поиск по ФИО"
+        },
+        {
+            "key": "status",
+            "title": "Статус",
+            "searchable": false,
+            "sortable": false,
+            "filterable": true,
+            "filter": {
+                "queryKey": "filter_status",
+                "label": "Статус",
+                "columnKey": "status",
+                "valueFormat": "string",
+                "operators": [
+                    "exact",
+                    "in"
+                ],
+                "optionSource": "static",
+                "options": [
+                    {
+                        "value": "active",
+                        "label": "Активен"
+                    },
+                    {
+                        "value": "blocked",
+                        "label": "Заблокирован"
+                    }
+                ]
+            }
+        },
+        {
+            "key": "organizationId",
+            "title": "Организация",
+            "searchable": false,
+            "sortable": false,
+            "filterable": true,
+            "filter": {
+                "queryKey": "filter_organizationId",
+                "label": "Организация",
+                "columnKey": "organizationId",
+                "valueFormat": "integer",
+                "operators": [
+                    "exact",
+                    "in"
+                ],
+                "optionSource": "preload",
+                "route": "/options/organizations"
+            }
+        },
+        {
+            "key": "areaId",
+            "title": "Территория",
+            "searchable": false,
+            "sortable": false,
+            "filterable": true,
+            "filter": {
+                "queryKey": "filter_areaId",
+                "label": "Территория",
+                "columnKey": "areaId",
+                "valueFormat": "integer",
+                "operators": [
+                    "exact",
+                    "in"
+                ],
+                "optionSource": "async",
+                "route": "/options/areas"
+            }
+        },
+        {
+            "key": "createdAt",
+            "title": "Создан",
+            "searchable": false,
+            "sortable": false,
+            "filterable": true,
+            "filter": {
+                "queryKey": "createdAt",
+                "label": "Создан",
+                "columnKey": "createdAt",
+                "valueFormat": "date",
+                "operators": [
+                    "from",
+                    "to"
+                ],
+                "fromKey": "createdAt_from",
+                "toKey": "createdAt_to"
+            }
+        },
+        {
+            "key": "displayName",
+            "title": "Отображаемое имя",
+            "searchable": false,
+            "sortable": false,
+            "filterable": false
+        }
+    ],
+    "query": {
+        "search": {
+            "enabled": true,
+            "queryKey": "search"
+        },
+        "pagination": {
+            "type": "page",
+            "pageKey": "page",
+            "perPageKey": "per_page",
+            "defaultPerPage": 20,
+            "maxPerPage": 100
+        },
+        "defaultSort": {
+            "column": "id",
+            "direction": "desc"
+        }
+    }
+}

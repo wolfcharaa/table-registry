@@ -1,0 +1,53 @@
+{
+    "schemaVersion": 2,
+    "registryKey": "legacy_people",
+    "rows": [
+        {
+            "primaryKey": "42",
+            "values": {
+                "id": {
+                    "value": 42,
+                    "label": "42"
+                },
+                "fullName": {
+                    "value": "Петров Иван Иванович",
+                    "label": "Петров Иван Иванович"
+                },
+                "status": {
+                    "value": "active",
+                    "label": "Активен"
+                },
+                "organizationId": {
+                    "value": "organization:7",
+                    "label": "Организация 7"
+                },
+                "areaId": {
+                    "value": 77,
+                    "label": "77"
+                },
+                "createdAt": {
+                    "value": "2026-10-04 12:30:00",
+                    "label": "04.10.2026 12:30"
+                },
+                "actionToken": {
+                    "value": "token-42",
+                    "label": "token-42"
+                },
+                "displayName": {
+                    "value": "И. И. Петров",
+                    "label": "И. И. Петров"
+                }
+            }
+        }
+    ],
+    "total": 123,
+    "query": {
+        "page": 2,
+        "perPage": 10,
+        "search": "иван",
+        "sort": {
+            "column": "fullName",
+            "direction": "desc"
+        }
+    }
+}

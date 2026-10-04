@@ -41,7 +41,8 @@
     "scripts": {
         "test": "vendor/bin/testo",
         "test:unit": "vendor/bin/testo --suite=Unit",
-        "test:contract": "vendor/bin/testo --suite=Contract"
+        "test:contract": "vendor/bin/testo --suite=Contract",
+        "test:characterization": "vendor/bin/testo --suite=Characterization"
     },
     "config": {
         "sort-packages": true,

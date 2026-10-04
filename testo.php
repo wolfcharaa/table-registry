@@ -17,5 +17,9 @@ return new ApplicationConfig(
             name: 'Contract',
             location: ['tests/Contract'],
         ),
+        new SuiteConfig(
+            name: 'Characterization',
+            location: ['tests/Characterization'],
+        ),
     ],
 );
