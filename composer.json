@@ -44,7 +44,7 @@
         "test:unit": "vendor/bin/testo --suite=Unit",
         "test:contract": "vendor/bin/testo --suite=Contract",
         "test:characterization": "vendor/bin/testo --suite=Characterization",
-        "analyse": "vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --no-progress --debug",
+        "analyse": "@php -d memory_limit=512M vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --no-progress --debug",
         "examples": "@php tools/run-examples.php",
         "check": [
             "@composer validate --strict",
