@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
 use Psr\Container\ContainerInterface;
+use Testo\Assert;
+use Testo\Test;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Column\ColumnValueLabelResolverInterface;
 use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
@@ -15,9 +17,10 @@ use Wolfcharaa\TableRegistry\Runtime\PsrContainerRegistryResolverInvoker;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
 
+#[Test]
 final class PsrContainerRegistryResolverInvokerTest extends RegistryTestCase
 {
-    public function testResolvesInvokableClassFromPsrContainer(): void
+    public function resolvesInvokableClassFromPsrContainer(): void
     {
         $definition = new TableRegistryDefinition(
             registryKey: 'tasks',
@@ -40,7 +43,7 @@ final class PsrContainerRegistryResolverInvokerTest extends RegistryTestCase
             ['id' => 1, 'state' => 'ready'],
         ]);
 
-        self::assertSame('Готово', $rows[0]['values']['state']['label']);
+        Assert::same($rows[0]['values']['state']['label'], 'Готово');
     }
 }
 
@@ -74,4 +77,3 @@ final class ContainerStateLabelResolver implements ColumnValueLabelResolverInter
         return $value->getValue() === 'ready' ? 'Готово' : 'Неизвестно';
     }
 }
-

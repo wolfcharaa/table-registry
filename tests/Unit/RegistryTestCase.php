@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Column\ColumnSelectDefinition;
 use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
@@ -15,7 +14,7 @@ use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
 use Wolfcharaa\TableRegistry\Sort\RegistrySortDefinition;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
-abstract class RegistryTestCase extends TestCase
+abstract class RegistryTestCase
 {
     protected function usersDefinition(): TableRegistryDefinition
     {
@@ -54,4 +53,3 @@ abstract class RegistryTestCase extends TestCase
         ))->withDefaultSort(RegistryDefaultSortDefinition::desc('id'));
     }
 }
-

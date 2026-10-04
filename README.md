@@ -34,8 +34,9 @@ CRUD-командами и HTTP-роутингом. Эти решения дол
 - `ext-mbstring`;
 - `psr/container` `^1.1 || ^2.0`;
 - `openspout/openspout` `^4.28 || ^5.0` для XLSX export;
-- `phpunit/phpunit` только для разработки и тестов.
+- `testo/testo` `0.10.54` только для разработки и тестов (требует PHP 8.2 или выше).
 
+Сама библиотека сохраняет поддержку PHP 8.1. Для локального запуска тестов нужен PHP 8.2 или выше.
 Конкретная major/minor версия OpenSpout выбирается Composer-ом с учетом PHP версии окружения.
 
 ## Установка
@@ -582,8 +583,11 @@ $fileName = $result->fileName();
 
 ## Тесты
 
+Тесты написаны для Testo. Запустить весь набор или только unit suite можно командами:
+
 ```bash
 composer test
+composer test:unit
 ```
 
 Unit-тесты покрывают:

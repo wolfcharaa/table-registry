@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
+use Testo\Assert;
+use Testo\Test;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Column\ColumnSelectDefinition;
 use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
@@ -15,9 +17,10 @@ use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeContext;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
+#[Test]
 final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
 {
-    public function testCompilesRowsQueryWithSearchFilterSortAndPagination(): void
+    public function compilesRowsQueryWithSearchFilterSortAndPagination(): void
     {
         $compiled = (new PostgresRegistrySqlCompiler())->compileRows($this->usersDefinition(), [
             'search' => 'иван',
@@ -30,35 +33,35 @@ final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
         ]);
 
         $sql = $compiled->sql();
-        self::assertStringContainsString('u.id AS "id"', $sql);
-        self::assertStringContainsString("concat_ws(' ', p.last_name, p.first_name) AS \"fullName\"", $sql);
-        self::assertStringContainsString('FROM public.users u', $sql);
-        self::assertStringContainsString('LEFT JOIN public.user_profile p ON p.user_id = u.id', $sql);
-        self::assertStringContainsString("CAST(concat_ws(' ', p.last_name, p.first_name) AS text) ILIKE :p0", $sql);
-        self::assertStringContainsString("CAST(concat_ws(' ', p.last_name, p.first_name) AS text) ILIKE :p1", $sql);
-        self::assertStringContainsString('u.status IN (:p2, :p3)', $sql);
-        self::assertStringContainsString('ORDER BY p.last_name, p.first_name DESC', $sql);
-        self::assertStringContainsString('LIMIT 10 OFFSET 10', $sql);
+        Assert::string($sql)->contains('u.id AS "id"');
+        Assert::string($sql)->contains("concat_ws(' ', p.last_name, p.first_name) AS \"fullName\"");
+        Assert::string($sql)->contains('FROM public.users u');
+        Assert::string($sql)->contains('LEFT JOIN public.user_profile p ON p.user_id = u.id');
+        Assert::string($sql)->contains("CAST(concat_ws(' ', p.last_name, p.first_name) AS text) ILIKE :p0");
+        Assert::string($sql)->contains("CAST(concat_ws(' ', p.last_name, p.first_name) AS text) ILIKE :p1");
+        Assert::string($sql)->contains('u.status IN (:p2, :p3)');
+        Assert::string($sql)->contains('ORDER BY p.last_name, p.first_name DESC');
+        Assert::string($sql)->contains('LIMIT 10 OFFSET 10');
 
-        self::assertSame([
+        Assert::same($compiled->params(), [
             'p0' => '%иван%',
             'p1' => '%петров%',
             'p2' => 'active',
             'p3' => 'blocked',
-        ], $compiled->params());
+        ]);
     }
 
-    public function testUsesDefaultSortWhenRequestedColumnIsNotSortable(): void
+    public function usesDefaultSortWhenRequestedColumnIsNotSortable(): void
     {
         $compiled = (new PostgresRegistrySqlCompiler())->compileRows($this->usersDefinition(), [
             RegistrySqlQueryInput::SORT_COLUMN_KEY => 'status',
             RegistrySqlQueryInput::SORT_DIRECTION_KEY => 'asc',
         ]);
 
-        self::assertStringContainsString('ORDER BY u.id DESC', $compiled->sql());
+        Assert::string($compiled->sql())->contains('ORDER BY u.id DESC');
     }
 
-    public function testCompilesRuntimeConstraintCallback(): void
+    public function compilesRuntimeConstraintCallback(): void
     {
         $definition = $this->usersDefinition()->withRuntimeConstraint(
             static function (
@@ -74,23 +77,23 @@ final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
 
         $compiled = (new PostgresRegistrySqlCompiler())->compileRows($definition);
 
-        self::assertStringContainsString('(u.department_id = :p0)', $compiled->sql());
-        self::assertSame(['p0' => 42], $compiled->params());
+        Assert::string($compiled->sql())->contains('(u.department_id = :p0)');
+        Assert::same($compiled->params(), ['p0' => 42]);
     }
 
-    public function testCompilesExportRowsWithoutPagination(): void
+    public function compilesExportRowsWithoutPagination(): void
     {
         $compiled = (new PostgresRegistrySqlCompiler())->compileExportRows($this->usersDefinition(), [
             'filter_status' => 'active',
         ]);
 
-        self::assertStringNotContainsString('LIMIT', $compiled->sql());
-        self::assertStringNotContainsString('OFFSET', $compiled->sql());
-        self::assertStringContainsString('u.status = :p0', $compiled->sql());
-        self::assertSame(['p0' => 'active'], $compiled->params());
+        Assert::string($compiled->sql())->notContains('LIMIT');
+        Assert::string($compiled->sql())->notContains('OFFSET');
+        Assert::string($compiled->sql())->contains('u.status = :p0');
+        Assert::same($compiled->params(), ['p0' => 'active']);
     }
 
-    public function testCompileCountUsesCountSourceWhenDefined(): void
+    public function compileCountUsesCountSourceWhenDefined(): void
     {
         $definition = new TableRegistryDefinition(
             registryKey: 'users',
@@ -105,12 +108,12 @@ final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
         $rows = $compiler->compileRows($definition);
         $count = $compiler->compileCount($definition);
 
-        self::assertStringContainsString('FROM public.users_view u', $rows->sql());
-        self::assertStringContainsString('FROM public.users u', $count->sql());
-        self::assertStringNotContainsString('FROM public.users_view u', $count->sql());
+        Assert::string($rows->sql())->contains('FROM public.users_view u');
+        Assert::string($count->sql())->contains('FROM public.users u');
+        Assert::string($count->sql())->notContains('FROM public.users_view u');
     }
 
-    public function testCompileCountIgnoresOpaqueCountSourceKey(): void
+    public function compileCountIgnoresOpaqueCountSourceKey(): void
     {
         $definition = new TableRegistryDefinition(
             registryKey: 'packages',
@@ -131,20 +134,18 @@ final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
             'createdAt_to' => '2026-08-23',
         ]);
 
-        self::assertStringContainsString(
-            'FROM (SELECT * FROM public.fis_export_package WHERE deleted_at IS NULL) p',
-            $count->sql()
-        );
-        self::assertStringNotContainsString('fis_export_package:active', $count->sql());
-        self::assertStringContainsString('WHERE p.created_at >= :p0', $count->sql());
-        self::assertStringContainsString('AND p.created_at < :p1', $count->sql());
-        self::assertSame([
+        Assert::string($count->sql())
+            ->contains('FROM (SELECT * FROM public.fis_export_package WHERE deleted_at IS NULL) p');
+        Assert::string($count->sql())->notContains('fis_export_package:active');
+        Assert::string($count->sql())->contains('WHERE p.created_at >= :p0');
+        Assert::string($count->sql())->contains('AND p.created_at < :p1');
+        Assert::same($count->params(), [
             'p0' => '2026-07-24 00:00:00',
             'p1' => '2026-08-24 00:00:00',
-        ], $count->params());
+        ]);
     }
 
-    public function testDoesNotSelectOutputOnlyColumns(): void
+    public function doesNotSelectOutputOnlyColumns(): void
     {
         $definition = new TableRegistryDefinition(
             registryKey: 'people',
@@ -160,8 +161,8 @@ final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
 
         $compiled = (new PostgresRegistrySqlCompiler())->compileRows($definition);
 
-        self::assertStringContainsString('"id" AS "id"', $compiled->sql());
-        self::assertStringContainsString('"firstName" AS "firstName"', $compiled->sql());
-        self::assertStringNotContainsString('"displayName" AS "displayName"', $compiled->sql());
+        Assert::string($compiled->sql())->contains('"id" AS "id"');
+        Assert::string($compiled->sql())->contains('"firstName" AS "firstName"');
+        Assert::string($compiled->sql())->notContains('"displayName" AS "displayName"');
     }
 }

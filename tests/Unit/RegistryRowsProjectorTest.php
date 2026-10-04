@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
+use Testo\Assert;
+use Testo\Test;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
@@ -13,9 +15,10 @@ use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 use Wolfcharaa\TableRegistry\Value\DateTimeValue;
 use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
 
+#[Test]
 final class RegistryRowsProjectorTest extends RegistryTestCase
 {
-    public function testProjectsRowsToStableValueAndLabelPayload(): void
+    public function projectsRowsToStableValueAndLabelPayload(): void
     {
         $definition = new TableRegistryDefinition(
             registryKey: 'events',
@@ -44,14 +47,14 @@ final class RegistryRowsProjectorTest extends RegistryTestCase
             ],
         ]);
 
-        self::assertSame('7', $rows[0]['primaryKey']);
-        self::assertSame('2026-08-15 17:30:10', $rows[0]['values']['createdAt']['value']);
-        self::assertSame('15.08.2026 17:30', $rows[0]['values']['createdAt']['label']);
-        self::assertSame('ready', $rows[0]['values']['state']['value']);
-        self::assertSame('Готово', $rows[0]['values']['state']['label']);
+        Assert::same($rows[0]['primaryKey'], '7');
+        Assert::same($rows[0]['values']['createdAt']['value'], '2026-08-15 17:30:10');
+        Assert::same($rows[0]['values']['createdAt']['label'], '15.08.2026 17:30');
+        Assert::same($rows[0]['values']['state']['value'], 'ready');
+        Assert::same($rows[0]['values']['state']['label'], 'Готово');
     }
 
-    public function testKeepsPayloadOnlyColumnsInRowsPayload(): void
+    public function keepsPayloadOnlyColumnsInRowsPayload(): void
     {
         $definition = new TableRegistryDefinition(
             registryKey: 'devices',
@@ -73,11 +76,11 @@ final class RegistryRowsProjectorTest extends RegistryTestCase
             ],
         ]);
 
-        self::assertSame('token-15', $rows[0]['values']['actionToken']['value']);
-        self::assertSame('token-15', $rows[0]['values']['actionToken']['label']);
+        Assert::same($rows[0]['values']['actionToken']['value'], 'token-15');
+        Assert::same($rows[0]['values']['actionToken']['label'], 'token-15');
     }
 
-    public function testProjectsOutputOnlyColumnsFromPreparedRows(): void
+    public function projectsOutputOnlyColumnsFromPreparedRows(): void
     {
         $definition = new TableRegistryDefinition(
             registryKey: 'people',
@@ -99,7 +102,7 @@ final class RegistryRowsProjectorTest extends RegistryTestCase
             ],
         ]);
 
-        self::assertSame('Иван Петров', $rows[0]['values']['displayName']['value']);
-        self::assertSame('Иван Петров', $rows[0]['values']['displayName']['label']);
+        Assert::same($rows[0]['values']['displayName']['value'], 'Иван Петров');
+        Assert::same($rows[0]['values']['displayName']['label'], 'Иван Петров');
     }
 }

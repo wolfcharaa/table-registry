@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
+use Testo\Assert;
+use Testo\Expect;
+use Testo\Test;
 use Wolfcharaa\TableRegistry\Row\RegistryRowsProjector;
 use Wolfcharaa\TableRegistry\Row\RegistryRowsResult;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 
+#[Test]
 final class RegistryRowsResultTest extends RegistryTestCase
 {
-    public function testSerializesRowsResultContract(): void
+    public function serializesRowsResultContract(): void
     {
         $definition = $this->usersDefinition();
         $query = RegistrySqlQueryInput::fromArray($definition, [
@@ -30,11 +34,11 @@ final class RegistryRowsResultTest extends RegistryTestCase
 
         $payload = (new RegistryRowsResult($definition, $query, '123', $rows))->jsonSerialize();
 
-        self::assertSame(2, $payload['schemaVersion']);
-        self::assertSame('users', $payload['registryKey']);
-        self::assertSame(123, $payload['total']);
-        self::assertSame($rows, $payload['rows']);
-        self::assertSame([
+        Assert::same($payload['schemaVersion'], 2);
+        Assert::same($payload['registryKey'], 'users');
+        Assert::same($payload['total'], 123);
+        Assert::same($payload['rows'], $rows);
+        Assert::same($payload['query'], [
             'page' => 2,
             'perPage' => 10,
             'search' => 'иван',
@@ -42,12 +46,12 @@ final class RegistryRowsResultTest extends RegistryTestCase
                 'column' => 'fullName',
                 'direction' => 'desc',
             ],
-        ], $payload['query']);
+        ]);
     }
 
-    public function testRejectsInvalidRowsResultTotal(): void
+    public function rejectsInvalidRowsResultTotal(): never
     {
-        $this->expectException(\InvalidArgumentException::class);
+        Expect::exception(\InvalidArgumentException::class);
 
         new RegistryRowsResult(
             $this->usersDefinition(),
@@ -57,9 +61,9 @@ final class RegistryRowsResultTest extends RegistryTestCase
         );
     }
 
-    public function testRejectsRawRows(): void
+    public function rejectsRawRows(): never
     {
-        $this->expectException(\InvalidArgumentException::class);
+        Expect::exception(\InvalidArgumentException::class);
 
         new RegistryRowsResult(
             $this->usersDefinition(),

@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
+use Testo\Assert;
+use Testo\Test;
 use Wolfcharaa\TableRegistry\Row\RegistryProjectedRowsFlattener;
 
-final class RegistryProjectedRowsFlattenerTest extends RegistryTestCase
+#[Test]
+final class RegistryProjectedRowsFlattenerTest
 {
-    public function testFlattensProjectedRowsByLabels(): void
+    public function flattensProjectedRowsByLabels(): void
     {
         $rows = RegistryProjectedRowsFlattener::flattenLabels([
             [
@@ -20,13 +23,12 @@ final class RegistryProjectedRowsFlattenerTest extends RegistryTestCase
             ],
         ], withPrimaryKey: true);
 
-        self::assertSame([
+        Assert::same($rows, [
             [
                 'primaryKey' => '10',
                 'status' => 'Готово',
                 'counter' => '5',
             ],
-        ], $rows);
+        ]);
     }
 }
-

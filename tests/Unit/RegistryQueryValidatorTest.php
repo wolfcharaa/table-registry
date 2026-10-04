@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
+use Testo\Assert;
+use Testo\Expect;
+use Testo\Test;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
@@ -15,9 +18,10 @@ use Wolfcharaa\TableRegistry\Query\RegistryQueryValidator;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
+#[Test]
 final class RegistryQueryValidatorTest extends RegistryTestCase
 {
-    public function testAcceptsValidRegistryQuery(): void
+    public function acceptsValidRegistryQuery(): void
     {
         $result = (new RegistryQueryValidator())->validate($this->usersDefinition(), [
             'search' => 'иван',
@@ -30,13 +34,13 @@ final class RegistryQueryValidatorTest extends RegistryTestCase
             'selected_primary_keys' => ['1', '2'],
         ]);
 
-        self::assertTrue($result->isValid());
-        self::assertSame(['valid' => true, 'issues' => []], $result->jsonSerialize());
+        Assert::true($result->isValid());
+        Assert::same($result->jsonSerialize(), ['valid' => true, 'issues' => []]);
 
         $result->assertValid();
     }
 
-    public function testReportsInvalidRegistryQuery(): void
+    public function reportsInvalidRegistryQuery(): void
     {
         $result = (new RegistryQueryValidator())->validate($this->validationDefinition(), [
             'unexpected' => 'value',
@@ -49,8 +53,11 @@ final class RegistryQueryValidatorTest extends RegistryTestCase
             'scheduledAt_to' => '25:00',
         ]);
 
-        self::assertFalse($result->isValid());
-        self::assertSame([
+        Assert::false($result->isValid());
+        Assert::same(\array_map(
+            static fn ($issue): string => $issue->code(),
+            $result->issues()
+        ), [
             'unknown_query_key',
             'not_sortable_column',
             'invalid_sort_direction',
@@ -59,24 +66,18 @@ final class RegistryQueryValidatorTest extends RegistryTestCase
             'invalid_filter_value',
             'invalid_date_filter_value',
             'invalid_time_filter_value',
-        ], \array_map(
-            static fn ($issue): string => $issue->code(),
-            $result->issues()
-        ));
+        ]);
     }
 
-    public function testCanAssertValidRegistryQuery(): void
+    public function canAssertValidRegistryQuery(): never
     {
         $result = (new RegistryQueryValidator())->validate($this->usersDefinition(), [
             RegistrySqlQueryInput::SORT_COLUMN_KEY => 'missing',
         ]);
 
-        try {
-            $result->assertValid();
-            self::fail('Expected invalid registry query exception.');
-        } catch (InvalidRegistryQueryException $exception) {
-            self::assertSame($result, $exception->result());
-        }
+        Expect::exception(InvalidRegistryQueryException::class);
+
+        $result->assertValid();
     }
 
     private function validationDefinition(): TableRegistryDefinition

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
+use Testo\Assert;
+use Testo\Expect;
+use Testo\Test;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
@@ -11,35 +14,36 @@ use Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException;
 use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
+#[Test]
 final class TableRegistryDefinitionTest extends RegistryTestCase
 {
-    public function testSerializesFrontendContractWithoutBackendSource(): void
+    public function serializesFrontendContractWithoutBackendSource(): void
     {
         $payload = $this->usersDefinition()->jsonSerialize();
 
-        self::assertSame(2, $payload['schemaVersion']);
-        self::assertSame('users', $payload['registryKey']);
-        self::assertSame('Пользователи', $payload['title']);
-        self::assertSame('id', $payload['primaryKey']);
-        self::assertArrayNotHasKey('source', $payload);
-        self::assertSame(['column' => 'id', 'direction' => 'desc'], $payload['query']['defaultSort']);
+        Assert::same($payload['schemaVersion'], 2);
+        Assert::same($payload['registryKey'], 'users');
+        Assert::same($payload['title'], 'Пользователи');
+        Assert::same($payload['primaryKey'], 'id');
+        Assert::array($payload)->doesNotHaveKeys('source');
+        Assert::same($payload['query']['defaultSort'], ['column' => 'id', 'direction' => 'desc']);
 
         $fullNameColumn = $payload['columns'][1];
-        self::assertSame('fullName', $fullNameColumn['key']);
-        self::assertTrue($fullNameColumn['searchable']);
-        self::assertTrue($fullNameColumn['sortable']);
-        self::assertTrue($fullNameColumn['filterable']);
-        self::assertSame('filter_fullName', $fullNameColumn['filter']['queryKey']);
-        self::assertSame(['contains'], $fullNameColumn['filter']['operators']);
+        Assert::same($fullNameColumn['key'], 'fullName');
+        Assert::true($fullNameColumn['searchable']);
+        Assert::true($fullNameColumn['sortable']);
+        Assert::true($fullNameColumn['filterable']);
+        Assert::same($fullNameColumn['filter']['queryKey'], 'filter_fullName');
+        Assert::same($fullNameColumn['filter']['operators'], ['contains']);
 
         $statusColumn = $payload['columns'][2];
-        self::assertSame('static', $statusColumn['filter']['optionSource']);
-        self::assertSame('Активен', $statusColumn['filter']['options'][0]['label']);
+        Assert::same($statusColumn['filter']['optionSource'], 'static');
+        Assert::same($statusColumn['filter']['options'][0]['label'], 'Активен');
     }
 
-    public function testRejectsDefinitionWithoutPrimaryKey(): void
+    public function rejectsDefinitionWithoutPrimaryKey(): never
     {
-        $this->expectException(InvalidRegistryDefinitionException::class);
+        Expect::exception(InvalidRegistryDefinitionException::class);
 
         new TableRegistryDefinition(
             registryKey: 'invalid',
@@ -51,9 +55,9 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         );
     }
 
-    public function testRejectsDuplicateColumnKeys(): void
+    public function rejectsDuplicateColumnKeys(): never
     {
-        $this->expectException(InvalidRegistryDefinitionException::class);
+        Expect::exception(InvalidRegistryDefinitionException::class);
 
         new TableRegistryDefinition(
             registryKey: 'invalid',
@@ -66,7 +70,7 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         );
     }
 
-    public function testHidesPayloadOnlyColumnsFromFrontendContract(): void
+    public function hidesPayloadOnlyColumnsFromFrontendContract(): void
     {
         $payload = (new TableRegistryDefinition(
             registryKey: 'devices',
@@ -80,15 +84,15 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
             ]
         ))->jsonSerialize();
 
-        self::assertSame(['id', 'title'], \array_map(
+        Assert::same(\array_map(
             static fn (array $column): string => $column['key'],
             $payload['columns']
-        ));
+        ), ['id', 'title']);
     }
 
-    public function testRejectsPayloadOnlyPrimaryKey(): void
+    public function rejectsPayloadOnlyPrimaryKey(): never
     {
-        $this->expectException(InvalidRegistryDefinitionException::class);
+        Expect::exception(InvalidRegistryDefinitionException::class);
 
         new TableRegistryDefinition(
             registryKey: 'invalid',
@@ -101,7 +105,7 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         );
     }
 
-    public function testKeepsOutputOnlyColumnsInFrontendContract(): void
+    public function keepsOutputOnlyColumnsInFrontendContract(): void
     {
         $payload = (new TableRegistryDefinition(
             registryKey: 'people',
@@ -114,19 +118,19 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
             ]
         ))->jsonSerialize();
 
-        self::assertSame(['id', 'displayName'], \array_map(
+        Assert::same(\array_map(
             static fn (array $column): string => $column['key'],
             $payload['columns']
-        ));
+        ), ['id', 'displayName']);
 
-        self::assertFalse($payload['columns'][1]['searchable']);
-        self::assertFalse($payload['columns'][1]['sortable']);
-        self::assertFalse($payload['columns'][1]['filterable']);
+        Assert::false($payload['columns'][1]['searchable']);
+        Assert::false($payload['columns'][1]['sortable']);
+        Assert::false($payload['columns'][1]['filterable']);
     }
 
-    public function testRejectsOutputOnlyPrimaryKey(): void
+    public function rejectsOutputOnlyPrimaryKey(): never
     {
-        $this->expectException(InvalidRegistryDefinitionException::class);
+        Expect::exception(InvalidRegistryDefinitionException::class);
 
         new TableRegistryDefinition(
             registryKey: 'invalid',
@@ -139,9 +143,9 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         );
     }
 
-    public function testRejectsDefaultSortByUnknownColumn(): void
+    public function rejectsDefaultSortByUnknownColumn(): never
     {
-        $this->expectException(\InvalidArgumentException::class);
+        Expect::exception(\InvalidArgumentException::class);
 
         $this->usersDefinition()->withDefaultSort(RegistryDefaultSortDefinition::asc('missing'));
     }

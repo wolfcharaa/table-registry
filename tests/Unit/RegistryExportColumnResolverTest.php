@@ -4,38 +4,41 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Tests\Unit;
 
+use Testo\Assert;
+use Testo\Test;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 use Wolfcharaa\TableRegistry\Export\RegistryExportColumnResolver;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
+#[Test]
 final class RegistryExportColumnResolverTest extends RegistryTestCase
 {
-    public function testResolvesRequestedColumnsInsideDefinitionExportPolicy(): void
+    public function resolvesRequestedColumnsInsideDefinitionExportPolicy(): void
     {
         $columns = (new RegistryExportColumnResolver())->resolve(
             $this->usersDefinition(),
             ['status', 'missing', 'status', 'fullName']
         );
 
-        self::assertSame(['status', 'fullName'], \array_map(
+        Assert::same(\array_map(
             static fn ($column): string => $column->key(),
             $columns
-        ));
+        ), ['status', 'fullName']);
     }
 
-    public function testFallsBackToExportableColumnsWhenRequestIsEmpty(): void
+    public function fallsBackToExportableColumnsWhenRequestIsEmpty(): void
     {
         $columns = (new RegistryExportColumnResolver())->resolve($this->usersDefinition());
 
-        self::assertSame(['id', 'fullName', 'status'], \array_map(
+        Assert::same(\array_map(
             static fn ($column): string => $column->key(),
             $columns
-        ));
+        ), ['id', 'fullName', 'status']);
     }
 
-    public function testSkipsPayloadOnlyAndNonExportableColumns(): void
+    public function skipsPayloadOnlyAndNonExportableColumns(): void
     {
         $definition = new TableRegistryDefinition(
             registryKey: 'users',
@@ -55,11 +58,11 @@ final class RegistryExportColumnResolverTest extends RegistryTestCase
             ['actionToken', 'userId', 'computedLabel', 'fullName']
         );
 
-        self::assertSame(['fullName'], \array_map(
+        Assert::same(\array_map(
             static fn ($column): string => $column->key(),
             $columns
-        ));
+        ), ['fullName']);
 
-        self::assertSame(['id', 'fullName'], $definition->columns()->exportableKeys());
+        Assert::same($definition->columns()->exportableKeys(), ['id', 'fullName']);
     }
 }
