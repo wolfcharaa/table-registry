@@ -10,9 +10,60 @@ Treat the installed package as the API source of truth. Check the resolved versi
 have drifted. In the library repository, use the corresponding root documents. Depend only on symbols listed in
 `docs/public-api.md` and marked `@api`; autoloadable symbols marked `@internal` are not extension points.
 
-TableRegistry describes a tabular read model, compiles PostgreSQL SQL and parameters, projects database rows into a
-stable payload, and can write XLSX files. It does not execute SQL, choose a real connection, authorize routes, define
-CRUD actions, or own the HTTP response. Keep those responsibilities in the application.
+TableRegistry describes tabular and standalone read models, compiles PostgreSQL SQL and parameters, projects database
+rows into stable table/option payloads, and can write XLSX files. It does not execute SQL, choose a real connection,
+authorize routes, define CRUD actions, or own the HTTP response. Keep those responsibilities in the application.
+
+## Build A Standalone Select Or Option List
+
+Use `SelectDefinition` for options, reusable lists, and small read models that do not need table metadata. Construct it
+from `SelectSourceDefinition` and a non-empty ordered list of `SelectFieldDefinition`. Declare every user-driven
+capability up front: criteria with fixed operators/types, literal contains search, allowlisted sorts, deterministic
+order, and optional limit/offset pagination. Paginated definitions must add stable order before pagination.
+
+Wrap a select in `OptionListDefinition` when the output has `value`/`label` semantics. Map required aliases explicitly,
+choose string or integer value conversion, and declare optional `code`, `description`, and flat scalar `meta`. Keep
+`OptionSourceDefinition::static/preload/async()` separate: it describes frontend delivery metadata, not backend SQL.
+
+```php
+$select = SelectDefinition::from(
+    SelectSourceDefinition::relation('public.organization', 'o'),
+    [
+        SelectFieldDefinition::column('o.id', 'value'),
+        SelectFieldDefinition::column('o.name', 'label'),
+    ]
+)
+    ->withSearch(SelectSearchDefinition::contains(['o.name']))
+    ->withOrderBy(SelectOrderDefinition::ascending('o.name'))
+    ->withOrderBy(SelectOrderDefinition::ascending('o.id'))
+    ->withPagination(SelectPaginationDefinition::limit(25, 100));
+
+$options = OptionListDefinition::from(
+    $select,
+    valueAlias: 'value',
+    labelAlias: 'label',
+    valueType: SelectValueType::Integer
+);
+```
+
+Transport parsing belongs to the application. Convert request aliases and scalar strings into a strict
+`SelectQueryInput`, validate it with `SelectQueryValidator`, then compile it. Never place SQL, operators, callbacks,
+request objects, actors, or services in query input.
+
+```php
+$query = SelectQueryInput::from(search: $search, criteria: ['areaId' => $areaId], limit: 25);
+(new SelectQueryValidator())->validate($select, $query)->assertValid();
+$compiled = $compiler->compile($select, $query);
+
+// Execute with the project adapter, then keep only declared aliases.
+$rows = (new SelectRowsProjector())->project($select, $databaseRows);
+$items = (new SelectOptionsProjector())->project($options, $rows);
+```
+
+Use a `SelectRuntimeConstraintInterface` class resolved through `PsrContainerResolverInvoker` for actor, tenant, area,
+or policy-dependent predicates. Inject project services through its constructor. Bind dynamic values only with
+`SelectRuntimeContext::param()`, which returns the complete placeholder (`:p0`). Route-level authorization remains
+separate. For selected-value hydration, declare an explicit `oneOf` criterion instead of bypassing the definition.
 
 ## Define The Table
 
@@ -99,3 +150,6 @@ the application must stream/move the file and clean up the temporary file accord
 Test the consumer integration at its real boundary. At minimum cover definition serialization, invalid query input,
 rows/count using identical constraints, row labels/hydration, connection selection when non-default, export policy,
 and the no-access runtime-constraint path. In this library repository, run `composer check` before handing work off.
+
+For a `v0.5.x` consumer upgrade, follow `docs/migration-v0.5-to-v0.6.md`: pilot an exact RC, migrate one preload and
+one scoped async endpoint, keep legacy tables working, then move to `^0.6.0` only after the project checks pass.

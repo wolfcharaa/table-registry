@@ -1,7 +1,7 @@
 # TableRegistry
 
-`TableRegistry` - PHP-библиотека для явного описания табличных read-моделей, сборки PostgreSQL-запросов,
-нормализации строк под frontend-контракт и выгрузки данных в XLSX.
+`TableRegistry` - PHP-библиотека для явного описания табличных и самостоятельных read-моделей, сборки
+PostgreSQL-запросов, нормализации строк под frontend-контракт и выгрузки данных в XLSX.
 
 Библиотека не зависит от конкретного web-фреймворка, DI-контейнера или HTTP-слоя. Она описывает только то, что
 backend должен знать о таблице: источник данных, колонки, фильтры, сортировки, поиск, пагинацию и подготовку строк.
@@ -13,6 +13,8 @@ backend должен знать о таблице: источник данных
 - явные sortable/filterable/searchable правила на уровне колонок;
 - сериализация definition в стабильный JSON-контракт для frontend;
 - компиляция rows/count/export SQL для PostgreSQL;
+- самостоятельный `SelectDefinition` для options, списков и небольших read-моделей вне таблицы;
+- typed `OptionListDefinition`/`SelectOption` для стабильных `value`/`label` payload;
 - validation query параметров относительно definition без привязки к HTTP;
 - payload-only/action-only колонки для служебных значений строк без попадания в настройки отображения;
 - output-only/computed колонки для значений, добавленных приложением до projection;
@@ -79,6 +81,7 @@ Composer запросит разрешение на запуск плагина 
 - runtime constraints;
 - PSR-container invoker;
 - XLSX export.
+- standalone select и option list вне table definition.
 
 ## Быстрый Старт
 
@@ -145,6 +148,110 @@ $definition = (new TableRegistryDefinition(
     ]
 ))->withDefaultSort(RegistryDefaultSortDefinition::desc('id'));
 ```
+
+## Standalone Select И Option Lists
+
+`SelectDefinition` описывает самостоятельную read-модель ниже table и option abstractions. Он не требует
+`TableRegistryDefinition`, primary key или frontend table metadata и подходит для preload/async options, зависимых
+списков, восстановления выбранных значений и небольших project-specific reads.
+
+```php
+use Wolfcharaa\TableRegistry\Option\OptionListDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectCriterionDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectFieldDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectOrderDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectPaginationDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectSearchDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectSourceDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectValueType;
+
+$select = SelectDefinition::from(
+    SelectSourceDefinition::relation('public.organization', 'o'),
+    [
+        SelectFieldDefinition::column('o.id', 'value'),
+        SelectFieldDefinition::column('o.name', 'label'),
+        SelectFieldDefinition::column('o.code', 'code'),
+    ]
+)
+    ->withCriterion(SelectCriterionDefinition::equal(
+        'departmentId',
+        'o.department_id',
+        SelectValueType::Integer
+    ))
+    ->withSearch(SelectSearchDefinition::contains(['o.name', 'o.code']))
+    ->withOrderBy(SelectOrderDefinition::ascending('o.name'))
+    ->withOrderBy(SelectOrderDefinition::ascending('o.id'))
+    ->withPagination(SelectPaginationDefinition::limit(defaultLimit: 25, maxLimit: 100));
+
+$options = OptionListDefinition::from(
+    select: $select,
+    valueAlias: 'value',
+    labelAlias: 'label',
+    valueType: SelectValueType::Integer
+)->withCode('code');
+```
+
+Transport adapter приложения преобразует HTTP/CLI aliases и значения в canonical input. Библиотека не читает
+request и не выполняет неявное преобразование строк в числа:
+
+```php
+use Wolfcharaa\TableRegistry\Select\Query\SelectQueryInput;
+use Wolfcharaa\TableRegistry\Select\Query\SelectQueryValidator;
+use Wolfcharaa\TableRegistry\Select\Sql\PostgresSelectCompiler;
+
+$query = SelectQueryInput::from(
+    search: 'центр',
+    criteria: ['departmentId' => 10],
+    limit: 25
+);
+
+(new SelectQueryValidator())->validate($select, $query)->assertValid();
+$compiled = (new PostgresSelectCompiler())->compile($select, $query);
+
+// Приложение исполняет $compiled->sql() с $compiled->params().
+```
+
+После выполнения SQL generic projector пропускает только aliases, объявленные definition. Option projector затем
+преобразует их в стабильный typed payload:
+
+```php
+use Wolfcharaa\TableRegistry\Option\SelectOptionsProjector;
+use Wolfcharaa\TableRegistry\Select\Row\SelectRowsProjector;
+
+$rows = (new SelectRowsProjector())->project($select, $databaseRows);
+$items = (new SelectOptionsProjector())->project($options, $rows);
+
+// [{"value": 42, "label": "Центральная организация", "code": null}]
+```
+
+### Контекст И Ограничения Доступа
+
+Search, criteria, sort и limit относятся к canonical query input. Текущий actor, tenant, area и policy services не
+передаются в универсальном context bag: project constraint получает их через constructor/DI, а динамические SQL
+значения добавляет только через `SelectRuntimeContext::param()`.
+
+```php
+use Wolfcharaa\TableRegistry\Select\Runtime\SelectRuntimeContext;
+use Wolfcharaa\TableRegistry\Select\Sql\SelectCondition;
+
+$select = $select->withRuntimeConstraint(
+    static function (SelectRuntimeContext $context): SelectCondition {
+        return SelectCondition::sql('o.area_id = ' . $context->param(77));
+    }
+);
+```
+
+В отличие от legacy `RegistrySqlRuntimeContext`, generic `SelectRuntimeContext::param()` возвращает готовый
+placeholder с двоеточием (`:p0`). Runtime constraints исполняются после declarative criteria в порядке регистрации.
+Для class-string constraints используйте `Select\Runtime\PsrContainerResolverInvoker`.
+
+`OptionSourceDefinition::static()`, `preload()` и `async()` описывает только способ доставки options на frontend.
+Он намеренно не связан с backend `OptionListDefinition`: routes/controllers, авторизация, SQL execution и HTTP envelope
+остаются в приложении.
+
+Полный исполняемый сценарий находится в
+[`docs/examples/07-standalone-option-list.php`](docs/examples/07-standalone-option-list.php).
 
 ## JSON-Контракт
 
@@ -607,7 +714,8 @@ Testo разделён на три suite:
 - `Contract` сверяет [поддерживаемый public API](docs/public-api.md) и reflection signature snapshot;
 - `Characterization` фиксирует совместимость наблюдаемых JSON, SQL, параметров и projected rows с линией `v0.5.x`.
 
-Направление совместимости для следующей minor-линии описано в [BC matrix](docs/v0.6-bc-matrix.md). Документационные
+Направление совместимости описано в [BC matrix](docs/v0.6-bc-matrix.md), а обновление приложения с `v0.5.x` — в
+[migration guide](docs/migration-v0.5-to-v0.6.md). Документационные
 примеры являются исполняемой частью quality gate и не должны оставлять временные артефакты.
 
 Unit-тесты покрывают:
@@ -621,3 +729,5 @@ Unit-тесты покрывают:
 - export column resolver;
 - flatten projected rows;
 - PostgreSQL identifier/literal value objects.
+- standalone select query validation и PostgreSQL compilation;
+- strict generic rows и typed option projection.

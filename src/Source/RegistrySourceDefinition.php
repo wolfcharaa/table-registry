@@ -4,22 +4,24 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Source;
 
+use Wolfcharaa\TableRegistry\Select\Definition\SelectSourceDefinition;
+
 /**
  * @api
  */
 final class RegistrySourceDefinition
 {
-    /** @var list<string> */
-    private array $joins = [];
-    private string $connection = 'default';
     private ?RegistryDataScopeDefinition $dataScope = null;
     private ?string $countSource = null;
+    private SelectSourceDefinition $selectSource;
 
     private function __construct(private readonly string $from)
     {
         if (\trim($from) === '') {
             throw new \InvalidArgumentException('Registry source FROM must not be empty.');
         }
+
+        $this->selectSource = SelectSourceDefinition::fromSql($from);
     }
 
     public static function relation(string $from): self
@@ -40,7 +42,7 @@ final class RegistrySourceDefinition
         }
 
         $clone = clone $this;
-        $clone->joins[] = $joinSql;
+        $clone->selectSource = $clone->selectSource->withRawJoin($joinSql);
 
         return $clone;
     }
@@ -58,7 +60,7 @@ final class RegistrySourceDefinition
         }
 
         $clone = clone $this;
-        $clone->connection = $connection;
+        $clone->selectSource = $clone->selectSource->withConnection($connection);
 
         return $clone;
     }
@@ -94,12 +96,19 @@ final class RegistrySourceDefinition
      */
     public function joins(): array
     {
-        return $this->joins;
+        $joins = [];
+        foreach ($this->selectSource->joins() as $join) {
+            if ($join->raw() !== null) {
+                $joins[] = $join->raw();
+            }
+        }
+
+        return $joins;
     }
 
     public function connection(): string
     {
-        return $this->connection;
+        return $this->selectSource->connection();
     }
 
     public function dataScope(): ?RegistryDataScopeDefinition

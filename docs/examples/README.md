@@ -8,6 +8,7 @@
 - `04-runtime-constraint.php` - runtime SQL-ограничение через callback.
 - `05-xlsx-export.php` - выбор колонок, flatten labels и XLSX export.
 - `06-psr-container-invoker.php` - получение resolver-а из PSR container по class-string.
+- `07-standalone-option-list.php` - самостоятельный `SelectDefinition`, runtime scope, SQL compilation и typed options.
 
 Примеры не выполняют SQL-запросы. Библиотека возвращает SQL и параметры, а выполнение остаётся ответственностью
 приложения и его DB-адаптера.

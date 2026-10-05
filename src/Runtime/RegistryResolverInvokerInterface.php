@@ -7,7 +7,7 @@ namespace Wolfcharaa\TableRegistry\Runtime;
 /**
  * @api
  */
-interface RegistryResolverInvokerInterface
+interface RegistryResolverInvokerInterface extends \Wolfcharaa\TableRegistry\Select\Runtime\ResolverInvokerInterface
 {
     /**
      * @param callable|class-string $resolver

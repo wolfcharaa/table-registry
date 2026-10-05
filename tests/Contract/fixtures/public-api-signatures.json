@@ -152,6 +152,62 @@
             "public static function fromResult(Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationResult $result): self"
         ]
     },
+    "Wolfcharaa\\TableRegistry\\Exception\\InvalidSelectDefinitionException": {
+        "kind": "final class",
+        "parent": "InvalidArgumentException",
+        "interfaces": [
+            "Stringable",
+            "Throwable"
+        ],
+        "members": [
+            "public static function because(string $message): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Exception\\InvalidSelectQueryException": {
+        "kind": "final class",
+        "parent": "InvalidArgumentException",
+        "interfaces": [
+            "Stringable",
+            "Throwable"
+        ],
+        "members": [
+            "public function result(): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidationResult",
+            "public static function fromResult(Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidationResult $result): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Exception\\OptionProjectionException": {
+        "kind": "final class",
+        "parent": "RuntimeException",
+        "interfaces": [
+            "Stringable",
+            "Throwable"
+        ],
+        "members": [
+            "public static function because(string $message): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Exception\\SelectCompilationException": {
+        "kind": "final class",
+        "parent": "RuntimeException",
+        "interfaces": [
+            "Stringable",
+            "Throwable"
+        ],
+        "members": [
+            "public static function because(string $message): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Exception\\SelectProjectionException": {
+        "kind": "final class",
+        "parent": "RuntimeException",
+        "interfaces": [
+            "Stringable",
+            "Throwable"
+        ],
+        "members": [
+            "public static function missingAlias(string $alias, int $rowIndex): self"
+        ]
+    },
     "Wolfcharaa\\TableRegistry\\Export\\RegistryExportColumnResolver": {
         "kind": "final class",
         "parent": null,
@@ -328,6 +384,67 @@
             "public static function forColumn(string $columnKey, string $title): self"
         ]
     },
+    "Wolfcharaa\\TableRegistry\\Option\\OptionListDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function codeAlias(): ?string",
+            "public function descriptionAlias(): ?string",
+            "public function labelAlias(): string",
+            "public function meta(): array",
+            "public function select(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
+            "public function valueAlias(): string",
+            "public function valueType(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType",
+            "public function withCode(string $alias): self",
+            "public function withDescription(string $alias): self",
+            "public function withMeta(string $key, string $alias, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $type): self",
+            "public static function from(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $select, string $valueAlias, string $labelAlias, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::String): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Option\\OptionSourceDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function jsonSerialize(): array",
+            "public function mode(): string",
+            "public function options(): array",
+            "public function routePath(): ?string",
+            "public static function async(string $route): self",
+            "public static function preload(string $route): self",
+            "public static function static(array $options = []): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Option\\SelectOption": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function code(): ?string",
+            "public function description(): ?string",
+            "public function jsonSerialize(): array",
+            "public function label(): string",
+            "public function meta(): array",
+            "public function value(): string|int",
+            "public function withCode(?string $code): self",
+            "public function withDescription(?string $description): self",
+            "public function withMeta(array $meta): self",
+            "public static function from(string|int $value, string $label, ?string $code = NULL, ?string $description = NULL, array $meta = []): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Option\\SelectOptionsProjector": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function project(Wolfcharaa\\TableRegistry\\Option\\OptionListDefinition $definition, array $rows): array"
+        ]
+    },
     "Wolfcharaa\\TableRegistry\\Query\\RegistryPaginationDefinition": {
         "kind": "final class",
         "parent": null,
@@ -427,7 +544,8 @@
         "kind": "final class",
         "parent": null,
         "interfaces": [
-            "Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface"
+            "Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface",
+            "Wolfcharaa\\TableRegistry\\Select\\Runtime\\ResolverInvokerInterface"
         ],
         "members": [
             "public function invoke(callable|string $resolver, array $arguments): mixed"
@@ -437,7 +555,8 @@
         "kind": "final class",
         "parent": null,
         "interfaces": [
-            "Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface"
+            "Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface",
+            "Wolfcharaa\\TableRegistry\\Select\\Runtime\\ResolverInvokerInterface"
         ],
         "members": [
             "public function __construct(Psr\\Container\\ContainerInterface $container, Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface $fallback = Wolfcharaa\\TableRegistry\\Runtime\\NativeRegistryResolverInvoker)",
@@ -447,7 +566,9 @@
     "Wolfcharaa\\TableRegistry\\Runtime\\RegistryResolverInvokerInterface": {
         "kind": "interface",
         "parent": null,
-        "interfaces": [],
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Select\\Runtime\\ResolverInvokerInterface"
+        ],
         "members": [
             "public abstract function invoke(callable|string $resolver, array $arguments): mixed"
         ]
@@ -476,6 +597,426 @@
             "public function jsonSerialize(): array",
             "public function queryKey(): string",
             "public static function default(): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCountDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function alias(): string",
+            "public function expression(): string",
+            "public function source(): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
+            "public static function fromSource(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition $source, string $expression = 'COUNT(*)::bigint', string $alias = 'total'): self",
+            "public static function matchingRows(string $expression = 'COUNT(*)::bigint', string $alias = 'total'): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public const CONTAINS = 'contains'",
+            "public const EQUAL = 'equal'",
+            "public const EQUAL_OR_ONE_OF = 'equal_or_one_of'",
+            "public const GREATER_THAN = 'greater_than'",
+            "public const GREATER_THAN_OR_EQUAL = 'greater_than_or_equal'",
+            "public const LESS_THAN = 'less_than'",
+            "public const LESS_THAN_OR_EQUAL = 'less_than_or_equal'",
+            "public const NULLABILITY = 'nullability'",
+            "public const ONE_OF = 'one_of'",
+            "public const RANGE = 'range'",
+            "public function expression(): string",
+            "public function key(): string",
+            "public function operator(): string",
+            "public function valueType(): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType",
+            "public static function contains(string $key, string $expression): self",
+            "public static function equal(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
+            "public static function equalOrOneOf(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
+            "public static function greaterThan(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
+            "public static function greaterThanOrEqual(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
+            "public static function lessThan(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
+            "public static function lessThanOrEqual(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
+            "public static function nullability(string $key, string $expression): self",
+            "public static function oneOf(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
+            "public static function range(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function count(): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCountDefinition",
+            "public function criteria(): array",
+            "public function criterion(string $key): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public function field(string $alias): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectFieldDefinition",
+            "public function fields(): array",
+            "public function order(): array",
+            "public function pagination(): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectPaginationDefinition",
+            "public function runtimeConstraints(): array",
+            "public function search(): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSearchDefinition",
+            "public function sort(string $key): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition",
+            "public function sorts(): array",
+            "public function source(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
+            "public function withCount(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCountDefinition $count): self",
+            "public function withCriterion(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition $criterion): self",
+            "public function withOrderBy(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectOrderDefinition $order): self",
+            "public function withPagination(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectPaginationDefinition $pagination): self",
+            "public function withRuntimeConstraint(callable|string $constraint): self",
+            "public function withSearch(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSearchDefinition $search): self",
+            "public function withSort(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition $sort): self",
+            "public static function from(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition $source, array $fields): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectFieldDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function alias(): string",
+            "public function columnName(): ?string",
+            "public function expression(): string",
+            "public function isColumn(): bool",
+            "public static function column(string $column, ?string $alias = NULL): self",
+            "public static function sqlExpression(string $alias, string $expression): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectJoinDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function alias(): ?string",
+            "public function on(): ?string",
+            "public function raw(): ?string",
+            "public function relation(): ?string",
+            "public function type(): string",
+            "public static function inner(string $relation, string $on, ?string $alias = NULL): self",
+            "public static function left(string $relation, string $on, ?string $alias = NULL): self",
+            "public static function rawSql(string $sql): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectOrderDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function direction(): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection",
+            "public function expression(): string",
+            "public function nulls(): ?string",
+            "public function withNullsFirst(): self",
+            "public function withNullsLast(): self",
+            "public static function ascending(string $expression): self",
+            "public static function descending(string $expression): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectPaginationDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function defaultLimit(): int",
+            "public function maxLimit(): int",
+            "public static function limit(int $defaultLimit = 25, int $maxLimit = 100): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSearchDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function expressions(): array",
+            "public function maxLength(): ?int",
+            "public function minLength(): int",
+            "public static function contains(array $expressions, int $minLength = 1, ?int $maxLength = NULL): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function allows(Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection $direction): bool",
+            "public function directions(): array",
+            "public function expression(): string",
+            "public function key(): string",
+            "public function nulls(): ?string",
+            "public function withNullsFirst(): self",
+            "public function withNullsLast(): self",
+            "public static function ascending(string $key, string $expression): self",
+            "public static function both(string $key, string $expression): self",
+            "public static function descending(string $key, string $expression): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function alias(): ?string",
+            "public function connection(): string",
+            "public function isRelation(): bool",
+            "public function joins(): array",
+            "public function relationName(): ?string",
+            "public function sql(): string",
+            "public function withConnection(string $connection): self",
+            "public function withInnerJoin(string $relation, string $on, ?string $alias = NULL): self",
+            "public function withJoin(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectJoinDefinition $join): self",
+            "public function withLeftJoin(string $relation, string $on, ?string $alias = NULL): self",
+            "public function withRawJoin(string $sql): self",
+            "public static function fromSql(string $sql): self",
+            "public static function relation(string $relation, ?string $alias = NULL): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType": {
+        "kind": "enum",
+        "parent": null,
+        "interfaces": [
+            "BackedEnum",
+            "UnitEnum"
+        ],
+        "members": [
+            "public const Boolean = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::Boolean",
+            "public const Date = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::Date",
+            "public const DateTime = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::DateTime",
+            "public const Float = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::Float",
+            "public const Integer = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::Integer",
+            "public const String = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::String",
+            "public const Time = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::Time",
+            "public readonly string $name",
+            "public readonly string $value",
+            "public static function cases(): array",
+            "public static function from(string|int $value): static",
+            "public static function tryFrom(string|int $value): ?static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Query\\SelectNullability": {
+        "kind": "enum",
+        "parent": null,
+        "interfaces": [
+            "BackedEnum",
+            "UnitEnum"
+        ],
+        "members": [
+            "public const IsNotNull = Wolfcharaa\\TableRegistry\\Select\\Query\\SelectNullability::IsNotNull",
+            "public const IsNull = Wolfcharaa\\TableRegistry\\Select\\Query\\SelectNullability::IsNull",
+            "public readonly string $name",
+            "public readonly string $value",
+            "public static function cases(): array",
+            "public static function from(string|int $value): static",
+            "public static function tryFrom(string|int $value): ?static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function criteria(): array",
+            "public function criterion(string $key): mixed",
+            "public function hasCriterion(string $key): bool",
+            "public function limit(): ?int",
+            "public function offset(): ?int",
+            "public function search(): ?string",
+            "public function sortDirection(): ?Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection",
+            "public function sortKey(): ?string",
+            "public static function empty(): self",
+            "public static function from(?string $search = NULL, array $criteria = [], ?string $sortKey = NULL, ?Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection $sortDirection = NULL, ?int $limit = NULL, ?int $offset = NULL): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidationIssue": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(string $code, string $key, string $message)",
+            "public function code(): string",
+            "public function jsonSerialize(): array",
+            "public function key(): string",
+            "public function message(): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidationResult": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(array $issues = [])",
+            "public function assertValid(): void",
+            "public function isValid(): bool",
+            "public function issues(): array",
+            "public function jsonSerialize(): array"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidator": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function validate(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $definition, Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput $input): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidationResult"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Query\\SelectRange": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function fromValue(): mixed",
+            "public function hasFrom(): bool",
+            "public function hasTo(): bool",
+            "public function toValue(): mixed",
+            "public static function between(mixed $from, mixed $to): self",
+            "public static function from(mixed $from): self",
+            "public static function to(mixed $to): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection": {
+        "kind": "enum",
+        "parent": null,
+        "interfaces": [
+            "BackedEnum",
+            "UnitEnum"
+        ],
+        "members": [
+            "public const Ascending = Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection::Ascending",
+            "public const Descending = Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection::Descending",
+            "public readonly string $name",
+            "public readonly string $value",
+            "public static function cases(): array",
+            "public static function from(string|int $value): static",
+            "public static function tryFrom(string|int $value): ?static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Row\\SelectRow": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function all(): array",
+            "public function get(string $alias): mixed",
+            "public function has(string $alias): bool",
+            "public function jsonSerialize(): array",
+            "public static function from(array $values): self"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Row\\SelectRowsProjector": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function project(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $definition, array $rows): array"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Runtime\\NativeResolverInvoker": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Select\\Runtime\\ResolverInvokerInterface"
+        ],
+        "members": [
+            "public function invoke(callable|string $resolver, array $arguments): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Runtime\\PsrContainerResolverInvoker": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Select\\Runtime\\ResolverInvokerInterface"
+        ],
+        "members": [
+            "public function __construct(Psr\\Container\\ContainerInterface $container, Wolfcharaa\\TableRegistry\\Select\\Runtime\\ResolverInvokerInterface $fallback = Wolfcharaa\\TableRegistry\\Select\\Runtime\\NativeResolverInvoker)",
+            "public function invoke(callable|string $resolver, array $arguments): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Runtime\\ResolverInvokerInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function invoke(callable|string $resolver, array $arguments): mixed"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Runtime\\SelectRuntimeConstraintInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function __invoke(Wolfcharaa\\TableRegistry\\Select\\Runtime\\SelectRuntimeContext $context): ?Wolfcharaa\\TableRegistry\\Select\\Sql\\SelectCondition"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Runtime\\SelectRuntimeContext": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $definition, Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput $query, Closure $paramFactory)",
+            "public function definition(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
+            "public function param(mixed $value): string",
+            "public function query(): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelect": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "JsonSerializable"
+        ],
+        "members": [
+            "public function __construct(string $sql, array $params)",
+            "public function jsonSerialize(): array",
+            "public function params(): array",
+            "public function sql(): string",
+            "public function sqlWithInlinedParams(): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelectReadPlan": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelect $rows, ?Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelect $count = NULL)",
+            "public function count(): ?Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelect",
+            "public function rows(): Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelect"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Sql\\PostgresSelectCompiler": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Select\\Sql\\SelectCompilerInterface"
+        ],
+        "members": [
+            "public function __construct(Wolfcharaa\\TableRegistry\\Select\\Runtime\\ResolverInvokerInterface $resolverInvoker = Wolfcharaa\\TableRegistry\\Select\\Runtime\\NativeResolverInvoker, Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidator $validator = Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidator)",
+            "public function compile(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $definition, ?Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput $query = NULL): Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelect",
+            "public function compileReadPlan(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $definition, ?Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput $query = NULL): Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelectReadPlan"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Sql\\SelectCompilerInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function compile(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $definition, ?Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput $query = NULL): Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelect",
+            "public abstract function compileReadPlan(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $definition, ?Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput $query = NULL): Wolfcharaa\\TableRegistry\\Select\\Sql\\CompiledSelectReadPlan"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Select\\Sql\\SelectCondition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function toSql(): string",
+            "public static function allOf(array $conditions): self",
+            "public static function alwaysFalse(): self",
+            "public static function anyOf(array $conditions): self",
+            "public static function sql(string $sql): self"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Sort\\RegistryDefaultSortDefinition": {

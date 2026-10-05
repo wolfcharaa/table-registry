@@ -4,31 +4,21 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Filter;
 
+use Wolfcharaa\TableRegistry\Option\OptionSourceDefinition;
+
 /**
  * @api
  */
 final class SelectFilterRegistryDefinition extends BaseRegistryFilterDefinition
 {
-    /**
-     * @param list<array{value:string,label:string}> $options
-     */
     private function __construct(
         string $queryKey,
         string $columnKey,
         string $title,
-        private readonly string $optionSource,
-        private readonly ?string $route = null,
-        private readonly array $options = [],
+        private readonly OptionSourceDefinition $optionSource,
         string $valueFormat = 'string',
         array $operators = ['exact', 'in']
     ) {
-        if (
-            \in_array($optionSource, ['async', 'preload'], true)
-            && ($route === null || \trim($route) === '')
-        ) {
-            throw new \InvalidArgumentException('Async and preload select filters must define a route.');
-        }
-
         parent::__construct($queryKey, $title, $columnKey, $valueFormat, $operators);
     }
 
@@ -39,7 +29,15 @@ final class SelectFilterRegistryDefinition extends BaseRegistryFilterDefinition
         string $route,
         string $valueFormat = 'string'
     ): self {
-        return new self($queryKey, $columnKey, $title, 'preload', $route, valueFormat: $valueFormat);
+        self::assertRoute($route);
+
+        return new self(
+            $queryKey,
+            $columnKey,
+            $title,
+            OptionSourceDefinition::preload($route),
+            valueFormat: $valueFormat
+        );
     }
 
     public static function async(
@@ -49,7 +47,15 @@ final class SelectFilterRegistryDefinition extends BaseRegistryFilterDefinition
         string $route,
         string $valueFormat = 'string'
     ): self {
-        return new self($queryKey, $columnKey, $title, 'async', $route, valueFormat: $valueFormat);
+        self::assertRoute($route);
+
+        return new self(
+            $queryKey,
+            $columnKey,
+            $title,
+            OptionSourceDefinition::async($route),
+            valueFormat: $valueFormat
+        );
     }
 
     /**
@@ -62,7 +68,13 @@ final class SelectFilterRegistryDefinition extends BaseRegistryFilterDefinition
         array $options = [],
         string $valueFormat = 'string'
     ): self {
-        return new self($queryKey, $columnKey, $title, 'static', options: $options, valueFormat: $valueFormat);
+        return new self(
+            $queryKey,
+            $columnKey,
+            $title,
+            OptionSourceDefinition::static($options),
+            valueFormat: $valueFormat
+        );
     }
 
     public function normalize(mixed $value): mixed
@@ -94,18 +106,13 @@ final class SelectFilterRegistryDefinition extends BaseRegistryFilterDefinition
      */
     protected function anyOptions(): array
     {
-        $payload = [
-            'optionSource' => $this->optionSource,
-        ];
+        return $this->optionSource->jsonSerialize();
+    }
 
-        if ($this->route !== null) {
-            $payload['route'] = $this->route;
+    private static function assertRoute(string $route): void
+    {
+        if (\trim($route) === '') {
+            throw new \InvalidArgumentException('Async and preload select filters must define a route.');
         }
-
-        if ($this->options !== []) {
-            $payload['options'] = $this->options;
-        }
-
-        return $payload;
     }
 }

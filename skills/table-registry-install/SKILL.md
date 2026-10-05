@@ -20,6 +20,10 @@ these cases:
 - An update was requested: update only `romanfedorskij/table-registry` and the dependencies Composer proves must move;
   do not run an unrestricted project-wide update.
 
+For migration from `v0.5.x`, inspect the installed package's `docs/migration-v0.5-to-v0.6.md`. Use an exact
+`0.6.0-rc.N` constraint for a project pilot and switch to `^0.6.0` only after its integration tests pass. Preserve a
+rollback command for `0.5.2`, and keep the endpoint migration and Composer change in the same reviewable unit.
+
 The library requires PHP 8.2+, `ext-json`, and `ext-mbstring`. Composer also resolves compatible `psr/container` and
 `openspout/openspout` versions. Do not bypass a platform failure with `--ignore-platform-reqs` or hand-edit
 `composer.lock`; report the missing extension or conflicting constraint and fix the environment or declared

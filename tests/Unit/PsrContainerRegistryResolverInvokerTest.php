@@ -15,6 +15,14 @@ use Wolfcharaa\TableRegistry\Row\RegistryRowData;
 use Wolfcharaa\TableRegistry\Row\RegistryRowsProjector;
 use Wolfcharaa\TableRegistry\Runtime\PsrContainerRegistryResolverInvoker;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectFieldDefinition;
+use Wolfcharaa\TableRegistry\Select\Definition\SelectSourceDefinition;
+use Wolfcharaa\TableRegistry\Select\Runtime\PsrContainerResolverInvoker;
+use Wolfcharaa\TableRegistry\Select\Runtime\SelectRuntimeConstraintInterface;
+use Wolfcharaa\TableRegistry\Select\Runtime\SelectRuntimeContext;
+use Wolfcharaa\TableRegistry\Select\Sql\PostgresSelectCompiler;
+use Wolfcharaa\TableRegistry\Select\Sql\SelectCondition;
 use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
 
 #[Test]
@@ -44,6 +52,22 @@ final class PsrContainerRegistryResolverInvokerTest extends RegistryTestCase
         ]);
 
         Assert::same($rows[0]['values']['state']['label'], 'Готово');
+    }
+
+    public function resolvesStandaloneSelectConstraintFromPsrContainer(): void
+    {
+        $definition = SelectDefinition::from(
+            SelectSourceDefinition::relation('document', 'd'),
+            [SelectFieldDefinition::column('d.id', 'id')]
+        )->withRuntimeConstraint(ContainerAreaConstraint::class);
+
+        $compiler = new PostgresSelectCompiler(new PsrContainerResolverInvoker(new ArrayContainer([
+            ContainerAreaConstraint::class => new ContainerAreaConstraint(77),
+        ])));
+        $compiled = $compiler->compile($definition);
+
+        Assert::string($compiled->sql())->contains('(d.area_id = :p0)');
+        Assert::same($compiled->params(), ['p0' => 77]);
     }
 }
 
@@ -75,5 +99,17 @@ final class ContainerStateLabelResolver implements ColumnValueLabelResolverInter
         ColumnRegistryDefinition $column
     ): string {
         return $value->getValue() === 'ready' ? 'Готово' : 'Неизвестно';
+    }
+}
+
+final class ContainerAreaConstraint implements SelectRuntimeConstraintInterface
+{
+    public function __construct(private readonly int $areaId)
+    {
+    }
+
+    public function __invoke(SelectRuntimeContext $context): SelectCondition
+    {
+        return SelectCondition::sql('d.area_id = ' . $context->param($this->areaId));
     }
 }

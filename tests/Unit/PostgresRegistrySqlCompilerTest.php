@@ -12,6 +12,7 @@ use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 use Wolfcharaa\TableRegistry\Filter\DateRangeFilterRegistryDefinition;
 use Wolfcharaa\TableRegistry\Sql\PostgresRegistrySqlCompiler;
+use Wolfcharaa\TableRegistry\Sql\CompiledRegistrySql;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlCondition;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeContext;
@@ -164,5 +165,34 @@ final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
         Assert::string($compiled->sql())->contains('"id" AS "id"');
         Assert::string($compiled->sql())->contains('"firstName" AS "firstName"');
         Assert::string($compiled->sql())->notContains('"displayName" AS "displayName"');
+    }
+
+    public function keepsLegacyBindingsInsideEachFiberCall(): void
+    {
+        $compiler = new PostgresRegistrySqlCompiler();
+        $definition = fn (int $areaId): TableRegistryDefinition => $this->usersDefinition()->withRuntimeConstraint(
+            static function (RegistrySqlRuntimeContext $context) use ($areaId): RegistrySqlCondition {
+                $parameter = $context->param($areaId);
+                \Fiber::suspend();
+
+                return RegistrySqlCondition::raw('u.area_id = :' . $parameter);
+            }
+        );
+
+        $firstFiber = new \Fiber(fn () => $compiler->compileRows($definition(10)));
+        $secondFiber = new \Fiber(fn () => $compiler->compileRows($definition(20)));
+        $firstFiber->start();
+        $secondFiber->start();
+        $firstFiber->resume();
+        $secondFiber->resume();
+
+        $first = $firstFiber->getReturn();
+        $second = $secondFiber->getReturn();
+        if (!$first instanceof CompiledRegistrySql || !$second instanceof CompiledRegistrySql) {
+            throw new \LogicException('Fiber compilation must return CompiledRegistrySql instances.');
+        }
+
+        Assert::same($first->params()['p0'], 10);
+        Assert::same($second->params()['p0'], 20);
     }
 }

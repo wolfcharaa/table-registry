@@ -18,8 +18,6 @@ use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
  */
 final class PostgresRegistrySqlCompiler
 {
-    private int $paramIndex = 0;
-
     public function __construct(
         private readonly RegistryResolverInvokerInterface $resolverInvoker = new NativeRegistryResolverInvoker()
     ) {
@@ -30,11 +28,11 @@ final class PostgresRegistrySqlCompiler
      */
     public function compileRows(TableRegistryDefinition $definition, RegistrySqlQueryInput|array $query = []): CompiledRegistrySql
     {
-        $this->paramIndex = 0;
         $input = $this->queryInput($definition, $query);
 
         $params = [];
-        $where = $this->whereSql($definition, $input, $params);
+        $paramIndex = 0;
+        $where = $this->whereSql($definition, $input, $params, $paramIndex);
         $orderBy = $this->orderBySql($definition, $input);
 
         $sql = \sprintf(
@@ -56,11 +54,11 @@ final class PostgresRegistrySqlCompiler
      */
     public function compileExportRows(TableRegistryDefinition $definition, RegistrySqlQueryInput|array $query = []): CompiledRegistrySql
     {
-        $this->paramIndex = 0;
         $input = $this->queryInput($definition, $query);
 
         $params = [];
-        $where = $this->whereSql($definition, $input, $params);
+        $paramIndex = 0;
+        $where = $this->whereSql($definition, $input, $params, $paramIndex);
         $orderBy = $this->orderBySql($definition, $input);
 
         $sql = \sprintf(
@@ -80,11 +78,11 @@ final class PostgresRegistrySqlCompiler
      */
     public function compileCount(TableRegistryDefinition $definition, RegistrySqlQueryInput|array $query = []): CompiledRegistrySql
     {
-        $this->paramIndex = 0;
         $input = $this->queryInput($definition, $query);
 
         $params = [];
-        $where = $this->whereSql($definition, $input, $params);
+        $paramIndex = 0;
+        $where = $this->whereSql($definition, $input, $params, $paramIndex);
 
         $sql = \sprintf(
             "SELECT COUNT(*)::bigint AS \"total\"\nFROM %s\n%s%s",
@@ -155,14 +153,19 @@ final class PostgresRegistrySqlCompiler
     /**
      * @param array<string, mixed> $params
      */
-    private function whereSql(TableRegistryDefinition $definition, RegistrySqlQueryInput $query, array &$params): string
+    private function whereSql(
+        TableRegistryDefinition $definition,
+        RegistrySqlQueryInput $query,
+        array &$params,
+        int &$paramIndex
+    ): string
     {
         $conditions = [];
 
-        $this->applySearch($definition, $query, $conditions, $params);
-        $this->applyFilters($definition, $query, $conditions, $params);
-        $this->applySelectedPrimaryKeys($definition, $query, $conditions, $params);
-        $this->applyRuntimeConstraints($definition, $query, $conditions, $params);
+        $this->applySearch($definition, $query, $conditions, $params, $paramIndex);
+        $this->applyFilters($definition, $query, $conditions, $params, $paramIndex);
+        $this->applySelectedPrimaryKeys($definition, $query, $conditions, $params, $paramIndex);
+        $this->applyRuntimeConstraints($definition, $query, $conditions, $params, $paramIndex);
 
         if ($conditions === []) {
             return '';
@@ -179,7 +182,8 @@ final class PostgresRegistrySqlCompiler
         TableRegistryDefinition $definition,
         RegistrySqlQueryInput $query,
         array &$conditions,
-        array &$params
+        array &$params,
+        int &$paramIndex
     ): void {
         if (!$definition->search()->isEnabled()) {
             return;
@@ -197,7 +201,7 @@ final class PostgresRegistrySqlCompiler
 
         $searchConditions = [];
         foreach ($searchableColumns as $column) {
-            $param = $this->nextParam($params, '%' . $search . '%');
+            $param = $this->nextParam($params, $paramIndex, '%' . $search . '%');
             $searchConditions[] = \sprintf(
                 'CAST(%s AS text) ILIKE :%s',
                 $this->columnExpression($column),
@@ -216,7 +220,8 @@ final class PostgresRegistrySqlCompiler
         TableRegistryDefinition $definition,
         RegistrySqlQueryInput $query,
         array &$conditions,
-        array &$params
+        array &$params,
+        int &$paramIndex
     ): void {
         foreach ($definition->columns()->all() as $column) {
             if ($column->outputOnly()) {
@@ -229,12 +234,12 @@ final class PostgresRegistrySqlCompiler
             }
 
             if ($filter instanceof DateRangeFilterRegistryDefinition) {
-                $this->applyDateRangeFilter($column, $filter, $query, $conditions, $params);
+                $this->applyDateRangeFilter($column, $filter, $query, $conditions, $params, $paramIndex);
                 continue;
             }
 
             if ($filter instanceof TimeRangeFilterRegistryDefinition) {
-                $this->applyTimeRangeFilter($column, $filter, $query, $conditions, $params);
+                $this->applyTimeRangeFilter($column, $filter, $query, $conditions, $params, $paramIndex);
                 continue;
             }
 
@@ -247,7 +252,7 @@ final class PostgresRegistrySqlCompiler
                 continue;
             }
 
-            $this->applyFilterExpression($column, $filter->expression($value), $conditions, $params);
+            $this->applyFilterExpression($column, $filter->expression($value), $conditions, $params, $paramIndex);
         }
     }
 
@@ -260,19 +265,20 @@ final class PostgresRegistrySqlCompiler
         TimeRangeFilterRegistryDefinition $filter,
         RegistrySqlQueryInput $query,
         array &$conditions,
-        array &$params
+        array &$params,
+        int &$paramIndex
     ): void {
         $expression = $this->columnExpression($column);
         $from = $this->timeQueryValue($query->filterValue($filter->fromKey()));
         $to = $this->timeQueryValue($query->filterValue($filter->toKey()));
 
         if ($from !== '') {
-            $param = $this->nextParam($params, $from);
+            $param = $this->nextParam($params, $paramIndex, $from);
             $conditions[] = \sprintf('%s >= :%s', $expression, $param);
         }
 
         if ($to !== '') {
-            $param = $this->nextParam($params, $to);
+            $param = $this->nextParam($params, $paramIndex, $to);
             $conditions[] = \sprintf('%s <= :%s', $expression, $param);
         }
     }
@@ -286,14 +292,15 @@ final class PostgresRegistrySqlCompiler
         DateRangeFilterRegistryDefinition $filter,
         RegistrySqlQueryInput $query,
         array &$conditions,
-        array &$params
+        array &$params,
+        int &$paramIndex
     ): void {
         $expression = $this->columnExpression($column);
         $from = $this->stringQueryValue($query->filterValue($filter->fromKey()));
         $to = $this->stringQueryValue($query->filterValue($filter->toKey()));
 
         if ($from !== '') {
-            $param = $this->nextParam($params, $from . ' 00:00:00');
+            $param = $this->nextParam($params, $paramIndex, $from . ' 00:00:00');
             $conditions[] = \sprintf('%s >= :%s', $expression, $param);
         }
 
@@ -301,7 +308,7 @@ final class PostgresRegistrySqlCompiler
             $toDate = (new \DateTimeImmutable($to . ' 00:00:00'))
                 ->modify('+1 day')
                 ->format('Y-m-d H:i:s');
-            $param = $this->nextParam($params, $toDate);
+            $param = $this->nextParam($params, $paramIndex, $toDate);
             $conditions[] = \sprintf('%s < :%s', $expression, $param);
         }
     }
@@ -314,7 +321,8 @@ final class PostgresRegistrySqlCompiler
         ColumnRegistryDefinition $column,
         RegistryFilterExpressionInterface $filter,
         array &$conditions,
-        array &$params
+        array &$params,
+        int &$paramIndex
     ): void {
         $expression = $this->columnExpression($column);
         $operator = $filter->operator();
@@ -327,7 +335,7 @@ final class PostgresRegistrySqlCompiler
 
             $placeholders = [];
             foreach ($value as $item) {
-                $param = $this->nextParam($params, $item);
+                $param = $this->nextParam($params, $paramIndex, $item);
                 $placeholders[] = ':' . $param;
             }
 
@@ -336,7 +344,7 @@ final class PostgresRegistrySqlCompiler
         }
 
         if ($operator === 'contains') {
-            $param = $this->nextParam($params, '%' . $this->scalarString($value) . '%');
+            $param = $this->nextParam($params, $paramIndex, '%' . $this->scalarString($value) . '%');
             $conditions[] = \sprintf('CAST(%s AS text) ILIKE :%s', $expression, $param);
             return;
         }
@@ -351,7 +359,7 @@ final class PostgresRegistrySqlCompiler
             return;
         }
 
-        $param = $this->nextParam($params, $value);
+        $param = $this->nextParam($params, $paramIndex, $value);
         $conditions[] = \sprintf('%s = :%s', $expression, $param);
     }
 
@@ -363,7 +371,8 @@ final class PostgresRegistrySqlCompiler
         TableRegistryDefinition $definition,
         RegistrySqlQueryInput $query,
         array &$conditions,
-        array &$params
+        array &$params,
+        int &$paramIndex
     ): void {
         $selectedPrimaryKeys = $query->selectedPrimaryKeys();
         if ($selectedPrimaryKeys === []) {
@@ -372,7 +381,7 @@ final class PostgresRegistrySqlCompiler
 
         $placeholders = [];
         foreach ($selectedPrimaryKeys as $primaryKey) {
-            $placeholders[] = ':' . $this->nextParam($params, $primaryKey);
+            $placeholders[] = ':' . $this->nextParam($params, $paramIndex, $primaryKey);
         }
 
         $conditions[] = \sprintf(
@@ -390,7 +399,8 @@ final class PostgresRegistrySqlCompiler
         TableRegistryDefinition $definition,
         RegistrySqlQueryInput $query,
         array &$conditions,
-        array &$params
+        array &$params,
+        int &$paramIndex
     ): void {
         $runtimeConstraints = $definition->runtimeConstraints();
         if ($runtimeConstraints === []) {
@@ -400,8 +410,8 @@ final class PostgresRegistrySqlCompiler
         $context = new RegistrySqlRuntimeContext(
             $definition,
             $query,
-            function (mixed $value) use (&$params): string {
-                return $this->nextParam($params, $value);
+            function (mixed $value) use (&$params, &$paramIndex): string {
+                return $this->nextParam($params, $paramIndex, $value);
             }
         );
 
@@ -502,9 +512,9 @@ final class PostgresRegistrySqlCompiler
     /**
      * @param array<string, mixed> $params
      */
-    private function nextParam(array &$params, mixed $value): string
+    private function nextParam(array &$params, int &$paramIndex, mixed $value): string
     {
-        $key = 'p' . $this->paramIndex++;
+        $key = 'p' . $paramIndex++;
         $params[$key] = $value;
 
         return $key;

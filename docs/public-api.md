@@ -28,6 +28,11 @@
 - `Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition`
 - `Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException`
 - `Wolfcharaa\TableRegistry\Exception\InvalidRegistryQueryException`
+- `Wolfcharaa\TableRegistry\Exception\InvalidSelectDefinitionException`
+- `Wolfcharaa\TableRegistry\Exception\InvalidSelectQueryException`
+- `Wolfcharaa\TableRegistry\Exception\OptionProjectionException`
+- `Wolfcharaa\TableRegistry\Exception\SelectCompilationException`
+- `Wolfcharaa\TableRegistry\Exception\SelectProjectionException`
 - `Wolfcharaa\TableRegistry\Export\RegistryExportColumnResolver`
 - `Wolfcharaa\TableRegistry\Export\RegistryXlsxExportResult`
 - `Wolfcharaa\TableRegistry\Export\RegistryXlsxExporter`
@@ -42,6 +47,10 @@
 - `Wolfcharaa\TableRegistry\Filter\SelectFilterRegistryDefinition`
 - `Wolfcharaa\TableRegistry\Filter\TextFilterRegistryDefinition`
 - `Wolfcharaa\TableRegistry\Filter\TimeRangeFilterRegistryDefinition`
+- `Wolfcharaa\TableRegistry\Option\OptionListDefinition`
+- `Wolfcharaa\TableRegistry\Option\OptionSourceDefinition`
+- `Wolfcharaa\TableRegistry\Option\SelectOption`
+- `Wolfcharaa\TableRegistry\Option\SelectOptionsProjector`
 - `Wolfcharaa\TableRegistry\Query\RegistryPaginationDefinition`
 - `Wolfcharaa\TableRegistry\Query\RegistryQueryValidationIssue`
 - `Wolfcharaa\TableRegistry\Query\RegistryQueryValidationResult`
@@ -55,6 +64,36 @@
 - `Wolfcharaa\TableRegistry\Runtime\RegistryResolverInvokerInterface`
 - `Wolfcharaa\TableRegistry\Search\RegistrySearchDefinitionInterface`
 - `Wolfcharaa\TableRegistry\Search\SearchBySearchableColumnsDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectCountDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectCriterionDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectFieldDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectJoinDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectOrderDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectPaginationDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectSearchDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectSortDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectSourceDefinition`
+- `Wolfcharaa\TableRegistry\Select\Definition\SelectValueType`
+- `Wolfcharaa\TableRegistry\Select\Query\SelectNullability`
+- `Wolfcharaa\TableRegistry\Select\Query\SelectQueryInput`
+- `Wolfcharaa\TableRegistry\Select\Query\SelectQueryValidationIssue`
+- `Wolfcharaa\TableRegistry\Select\Query\SelectQueryValidationResult`
+- `Wolfcharaa\TableRegistry\Select\Query\SelectQueryValidator`
+- `Wolfcharaa\TableRegistry\Select\Query\SelectRange`
+- `Wolfcharaa\TableRegistry\Select\Query\SelectSortDirection`
+- `Wolfcharaa\TableRegistry\Select\Row\SelectRow`
+- `Wolfcharaa\TableRegistry\Select\Row\SelectRowsProjector`
+- `Wolfcharaa\TableRegistry\Select\Runtime\NativeResolverInvoker`
+- `Wolfcharaa\TableRegistry\Select\Runtime\PsrContainerResolverInvoker`
+- `Wolfcharaa\TableRegistry\Select\Runtime\ResolverInvokerInterface`
+- `Wolfcharaa\TableRegistry\Select\Runtime\SelectRuntimeConstraintInterface`
+- `Wolfcharaa\TableRegistry\Select\Runtime\SelectRuntimeContext`
+- `Wolfcharaa\TableRegistry\Select\Sql\CompiledSelect`
+- `Wolfcharaa\TableRegistry\Select\Sql\CompiledSelectReadPlan`
+- `Wolfcharaa\TableRegistry\Select\Sql\PostgresSelectCompiler`
+- `Wolfcharaa\TableRegistry\Select\Sql\SelectCompilerInterface`
+- `Wolfcharaa\TableRegistry\Select\Sql\SelectCondition`
 - `Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition`
 - `Wolfcharaa\TableRegistry\Sort\RegistrySortDefinition`
 - `Wolfcharaa\TableRegistry\Source\RegistryDataScopeDefinition`
@@ -85,7 +124,10 @@
 - `RegistryFilterDefinitionInterface` и `RegistryFilterExpressionInterface`;
 - `RegistryResolverInvokerInterface`;
 - `RegistrySearchDefinitionInterface`;
-- `RegistrySqlRuntimeConstraintInterface`.
+- `RegistrySqlRuntimeConstraintInterface`;
+- `ResolverInvokerInterface`;
+- `SelectCompilerInterface`;
+- `SelectRuntimeConstraintInterface`.
 
 Новые interfaces добавляются только для доказанного project extension use case. Простое желание заменить immutable
 value object не является основанием создавать для него interface.
