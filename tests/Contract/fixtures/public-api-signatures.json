@@ -65,8 +65,8 @@
         "members": [
             "public function alias(): string",
             "public function expression(): string",
-            "public static function column(string $column, ?string $alias = NULL): self",
-            "public static function sqlExpression(string $alias, string $expression): self"
+            "public static function column(string $column, ?string $alias = NULL): Wolfcharaa\\TableRegistry\\Column\\ColumnSelectDefinition",
+            "public static function sqlExpression(string $alias, string $expression): Wolfcharaa\\TableRegistry\\Column\\ColumnSelectDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Column\\ColumnValueHydratorInterface": {
@@ -137,7 +137,7 @@
             "Throwable"
         ],
         "members": [
-            "public static function because(string $message): self"
+            "public static function because(string $message): Wolfcharaa\\TableRegistry\\Exception\\InvalidRegistryDefinitionException"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Exception\\InvalidRegistryQueryException": {
@@ -149,7 +149,7 @@
         ],
         "members": [
             "public function result(): Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationResult",
-            "public static function fromResult(Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationResult $result): self"
+            "public static function fromResult(Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationResult $result): Wolfcharaa\\TableRegistry\\Exception\\InvalidRegistryQueryException"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Exception\\InvalidSelectDefinitionException": {
@@ -160,7 +160,7 @@
             "Throwable"
         ],
         "members": [
-            "public static function because(string $message): self"
+            "public static function because(string $message): Wolfcharaa\\TableRegistry\\Exception\\InvalidSelectDefinitionException"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Exception\\InvalidSelectQueryException": {
@@ -172,7 +172,7 @@
         ],
         "members": [
             "public function result(): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidationResult",
-            "public static function fromResult(Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidationResult $result): self"
+            "public static function fromResult(Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidationResult $result): Wolfcharaa\\TableRegistry\\Exception\\InvalidSelectQueryException"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Exception\\OptionProjectionException": {
@@ -183,7 +183,7 @@
             "Throwable"
         ],
         "members": [
-            "public static function because(string $message): self"
+            "public static function because(string $message): Wolfcharaa\\TableRegistry\\Exception\\OptionProjectionException"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Exception\\SelectCompilationException": {
@@ -194,7 +194,7 @@
             "Throwable"
         ],
         "members": [
-            "public static function because(string $message): self"
+            "public static function because(string $message): Wolfcharaa\\TableRegistry\\Exception\\SelectCompilationException"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Exception\\SelectProjectionException": {
@@ -205,7 +205,7 @@
             "Throwable"
         ],
         "members": [
-            "public static function missingAlias(string $alias, int $rowIndex): self"
+            "public static function missingAlias(string $alias, int $rowIndex): Wolfcharaa\\TableRegistry\\Exception\\SelectProjectionException"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Export\\RegistryExportColumnResolver": {
@@ -277,7 +277,7 @@
         ],
         "members": [
             "public function normalize(mixed $value): ?bool",
-            "public static function exact(string $queryKey, string $columnKey, string $title): self"
+            "public static function exact(string $queryKey, string $columnKey, string $title): Wolfcharaa\\TableRegistry\\Filter\\BooleanFilterRegistryDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Filter\\DateRangeFilterRegistryDefinition": {
@@ -291,7 +291,7 @@
             "public function __construct(string $queryKey, string $columnKey, string $title, string $fromKey, string $toKey)",
             "public function fromKey(): string",
             "public function toKey(): string",
-            "public static function forColumn(string $columnKey, string $title): self"
+            "public static function forColumn(string $columnKey, string $title): Wolfcharaa\\TableRegistry\\Filter\\DateRangeFilterRegistryDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Filter\\IntegerFilterRegistryDefinition": {
@@ -303,7 +303,7 @@
         ],
         "members": [
             "public function normalize(mixed $value): ?int",
-            "public static function exact(string $queryKey, string $columnKey, string $title): self"
+            "public static function exact(string $queryKey, string $columnKey, string $title): Wolfcharaa\\TableRegistry\\Filter\\IntegerFilterRegistryDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Filter\\NullabilityFilterRegistryDefinition": {
@@ -314,7 +314,7 @@
             "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
         ],
         "members": [
-            "public static function forColumn(string $queryKey, string $columnKey, string $title): self"
+            "public static function forColumn(string $queryKey, string $columnKey, string $title): Wolfcharaa\\TableRegistry\\Filter\\NullabilityFilterRegistryDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface": {
@@ -353,9 +353,9 @@
         "members": [
             "protected function anyOptions(): array",
             "public function normalize(mixed $value): mixed",
-            "public static function async(string $queryKey, string $columnKey, string $title, string $route, string $valueFormat = 'string'): self",
-            "public static function preload(string $queryKey, string $columnKey, string $title, string $route, string $valueFormat = 'string'): self",
-            "public static function static(string $queryKey, string $columnKey, string $title, array $options = [], string $valueFormat = 'string'): self"
+            "public static function async(string $queryKey, string $columnKey, string $title, string $route, string $valueFormat = 'string'): Wolfcharaa\\TableRegistry\\Filter\\SelectFilterRegistryDefinition",
+            "public static function preload(string $queryKey, string $columnKey, string $title, string $route, string $valueFormat = 'string'): Wolfcharaa\\TableRegistry\\Filter\\SelectFilterRegistryDefinition",
+            "public static function static(string $queryKey, string $columnKey, string $title, array $options = [], string $valueFormat = 'string'): Wolfcharaa\\TableRegistry\\Filter\\SelectFilterRegistryDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Filter\\TextFilterRegistryDefinition": {
@@ -366,8 +366,8 @@
             "Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface"
         ],
         "members": [
-            "public static function contains(string $queryKey, string $columnKey, string $title): self",
-            "public static function exact(string $queryKey, string $columnKey, string $title): self"
+            "public static function contains(string $queryKey, string $columnKey, string $title): Wolfcharaa\\TableRegistry\\Filter\\TextFilterRegistryDefinition",
+            "public static function exact(string $queryKey, string $columnKey, string $title): Wolfcharaa\\TableRegistry\\Filter\\TextFilterRegistryDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Filter\\TimeRangeFilterRegistryDefinition": {
@@ -381,7 +381,7 @@
             "public function __construct(string $queryKey, string $columnKey, string $title, string $fromKey, string $toKey)",
             "public function fromKey(): string",
             "public function toKey(): string",
-            "public static function forColumn(string $columnKey, string $title): self"
+            "public static function forColumn(string $columnKey, string $title): Wolfcharaa\\TableRegistry\\Filter\\TimeRangeFilterRegistryDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Option\\OptionListDefinition": {
@@ -396,10 +396,10 @@
             "public function select(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
             "public function valueAlias(): string",
             "public function valueType(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType",
-            "public function withCode(string $alias): self",
-            "public function withDescription(string $alias): self",
-            "public function withMeta(string $key, string $alias, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $type): self",
-            "public static function from(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $select, string $valueAlias, string $labelAlias, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::String): self"
+            "public function withCode(string $alias): Wolfcharaa\\TableRegistry\\Option\\OptionListDefinition",
+            "public function withDescription(string $alias): Wolfcharaa\\TableRegistry\\Option\\OptionListDefinition",
+            "public function withMeta(string $key, string $alias, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $type): Wolfcharaa\\TableRegistry\\Option\\OptionListDefinition",
+            "public static function from(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition $select, string $valueAlias, string $labelAlias, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType = Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType::String): Wolfcharaa\\TableRegistry\\Option\\OptionListDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Option\\OptionSourceDefinition": {
@@ -413,9 +413,9 @@
             "public function mode(): string",
             "public function options(): array",
             "public function routePath(): ?string",
-            "public static function async(string $route): self",
-            "public static function preload(string $route): self",
-            "public static function static(array $options = []): self"
+            "public static function async(string $route): Wolfcharaa\\TableRegistry\\Option\\OptionSourceDefinition",
+            "public static function preload(string $route): Wolfcharaa\\TableRegistry\\Option\\OptionSourceDefinition",
+            "public static function static(array $options = []): Wolfcharaa\\TableRegistry\\Option\\OptionSourceDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Option\\SelectOption": {
@@ -431,10 +431,10 @@
             "public function label(): string",
             "public function meta(): array",
             "public function value(): string|int",
-            "public function withCode(?string $code): self",
-            "public function withDescription(?string $description): self",
-            "public function withMeta(array $meta): self",
-            "public static function from(string|int $value, string $label, ?string $code = NULL, ?string $description = NULL, array $meta = []): self"
+            "public function withCode(?string $code): Wolfcharaa\\TableRegistry\\Option\\SelectOption",
+            "public function withDescription(?string $description): Wolfcharaa\\TableRegistry\\Option\\SelectOption",
+            "public function withMeta(array $meta): Wolfcharaa\\TableRegistry\\Option\\SelectOption",
+            "public static function from(string|int $value, string $label, ?string $code = NULL, ?string $description = NULL, array $meta = []): Wolfcharaa\\TableRegistry\\Option\\SelectOption"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Option\\SelectOptionsProjector": {
@@ -458,7 +458,7 @@
             "public function maxPerPage(): int",
             "public function pageKey(): string",
             "public function perPageKey(): string",
-            "public static function page(): self"
+            "public static function page(): Wolfcharaa\\TableRegistry\\Query\\RegistryPaginationDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Query\\RegistryQueryValidationIssue": {
@@ -596,7 +596,7 @@
             "public function isEnabled(): bool",
             "public function jsonSerialize(): array",
             "public function queryKey(): string",
-            "public static function default(): self"
+            "public static function default(): Wolfcharaa\\TableRegistry\\Search\\SearchBySearchableColumnsDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCountDefinition": {
@@ -607,8 +607,8 @@
             "public function alias(): string",
             "public function expression(): string",
             "public function source(): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
-            "public static function fromSource(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition $source, string $expression = 'COUNT(*)::bigint', string $alias = 'total'): self",
-            "public static function matchingRows(string $expression = 'COUNT(*)::bigint', string $alias = 'total'): self"
+            "public static function fromSource(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition $source, string $expression = 'COUNT(*)::bigint', string $alias = 'total'): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCountDefinition",
+            "public static function matchingRows(string $expression = 'COUNT(*)::bigint', string $alias = 'total'): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCountDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition": {
@@ -630,16 +630,16 @@
             "public function key(): string",
             "public function operator(): string",
             "public function valueType(): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType",
-            "public static function contains(string $key, string $expression): self",
-            "public static function equal(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
-            "public static function equalOrOneOf(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
-            "public static function greaterThan(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
-            "public static function greaterThanOrEqual(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
-            "public static function lessThan(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
-            "public static function lessThanOrEqual(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
-            "public static function nullability(string $key, string $expression): self",
-            "public static function oneOf(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self",
-            "public static function range(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): self"
+            "public static function contains(string $key, string $expression): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public static function equal(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public static function equalOrOneOf(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public static function greaterThan(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public static function greaterThanOrEqual(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public static function lessThan(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public static function lessThanOrEqual(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public static function nullability(string $key, string $expression): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public static function oneOf(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition",
+            "public static function range(string $key, string $expression, Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType $valueType): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition": {
@@ -659,14 +659,14 @@
             "public function sort(string $key): ?Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition",
             "public function sorts(): array",
             "public function source(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
-            "public function withCount(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCountDefinition $count): self",
-            "public function withCriterion(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition $criterion): self",
-            "public function withOrderBy(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectOrderDefinition $order): self",
-            "public function withPagination(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectPaginationDefinition $pagination): self",
-            "public function withRuntimeConstraint(callable|string $constraint): self",
-            "public function withSearch(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSearchDefinition $search): self",
-            "public function withSort(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition $sort): self",
-            "public static function from(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition $source, array $fields): self"
+            "public function withCount(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCountDefinition $count): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
+            "public function withCriterion(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectCriterionDefinition $criterion): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
+            "public function withOrderBy(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectOrderDefinition $order): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
+            "public function withPagination(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectPaginationDefinition $pagination): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
+            "public function withRuntimeConstraint(callable|string $constraint): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
+            "public function withSearch(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSearchDefinition $search): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
+            "public function withSort(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition $sort): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition",
+            "public static function from(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition $source, array $fields): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectFieldDefinition": {
@@ -678,8 +678,8 @@
             "public function columnName(): ?string",
             "public function expression(): string",
             "public function isColumn(): bool",
-            "public static function column(string $column, ?string $alias = NULL): self",
-            "public static function sqlExpression(string $alias, string $expression): self"
+            "public static function column(string $column, ?string $alias = NULL): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectFieldDefinition",
+            "public static function sqlExpression(string $alias, string $expression): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectFieldDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectJoinDefinition": {
@@ -692,9 +692,9 @@
             "public function raw(): ?string",
             "public function relation(): ?string",
             "public function type(): string",
-            "public static function inner(string $relation, string $on, ?string $alias = NULL): self",
-            "public static function left(string $relation, string $on, ?string $alias = NULL): self",
-            "public static function rawSql(string $sql): self"
+            "public static function inner(string $relation, string $on, ?string $alias = NULL): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectJoinDefinition",
+            "public static function left(string $relation, string $on, ?string $alias = NULL): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectJoinDefinition",
+            "public static function rawSql(string $sql): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectJoinDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectOrderDefinition": {
@@ -705,10 +705,10 @@
             "public function direction(): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection",
             "public function expression(): string",
             "public function nulls(): ?string",
-            "public function withNullsFirst(): self",
-            "public function withNullsLast(): self",
-            "public static function ascending(string $expression): self",
-            "public static function descending(string $expression): self"
+            "public function withNullsFirst(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectOrderDefinition",
+            "public function withNullsLast(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectOrderDefinition",
+            "public static function ascending(string $expression): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectOrderDefinition",
+            "public static function descending(string $expression): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectOrderDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectPaginationDefinition": {
@@ -718,7 +718,7 @@
         "members": [
             "public function defaultLimit(): int",
             "public function maxLimit(): int",
-            "public static function limit(int $defaultLimit = 25, int $maxLimit = 100): self"
+            "public static function limit(int $defaultLimit = 25, int $maxLimit = 100): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectPaginationDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSearchDefinition": {
@@ -729,7 +729,7 @@
             "public function expressions(): array",
             "public function maxLength(): ?int",
             "public function minLength(): int",
-            "public static function contains(array $expressions, int $minLength = 1, ?int $maxLength = NULL): self"
+            "public static function contains(array $expressions, int $minLength = 1, ?int $maxLength = NULL): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSearchDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition": {
@@ -742,11 +742,11 @@
             "public function expression(): string",
             "public function key(): string",
             "public function nulls(): ?string",
-            "public function withNullsFirst(): self",
-            "public function withNullsLast(): self",
-            "public static function ascending(string $key, string $expression): self",
-            "public static function both(string $key, string $expression): self",
-            "public static function descending(string $key, string $expression): self"
+            "public function withNullsFirst(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition",
+            "public function withNullsLast(): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition",
+            "public static function ascending(string $key, string $expression): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition",
+            "public static function both(string $key, string $expression): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition",
+            "public static function descending(string $key, string $expression): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSortDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition": {
@@ -760,13 +760,13 @@
             "public function joins(): array",
             "public function relationName(): ?string",
             "public function sql(): string",
-            "public function withConnection(string $connection): self",
-            "public function withInnerJoin(string $relation, string $on, ?string $alias = NULL): self",
-            "public function withJoin(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectJoinDefinition $join): self",
-            "public function withLeftJoin(string $relation, string $on, ?string $alias = NULL): self",
-            "public function withRawJoin(string $sql): self",
-            "public static function fromSql(string $sql): self",
-            "public static function relation(string $relation, ?string $alias = NULL): self"
+            "public function withConnection(string $connection): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
+            "public function withInnerJoin(string $relation, string $on, ?string $alias = NULL): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
+            "public function withJoin(Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectJoinDefinition $join): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
+            "public function withLeftJoin(string $relation, string $on, ?string $alias = NULL): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
+            "public function withRawJoin(string $sql): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
+            "public static function fromSql(string $sql): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition",
+            "public static function relation(string $relation, ?string $alias = NULL): Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectSourceDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Definition\\SelectValueType": {
@@ -821,8 +821,8 @@
             "public function search(): ?string",
             "public function sortDirection(): ?Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection",
             "public function sortKey(): ?string",
-            "public static function empty(): self",
-            "public static function from(?string $search = NULL, array $criteria = [], ?string $sortKey = NULL, ?Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection $sortDirection = NULL, ?int $limit = NULL, ?int $offset = NULL): self"
+            "public static function empty(): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput",
+            "public static function from(?string $search = NULL, array $criteria = [], ?string $sortKey = NULL, ?Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection $sortDirection = NULL, ?int $limit = NULL, ?int $offset = NULL): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryInput"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Query\\SelectQueryValidationIssue": {
@@ -870,9 +870,9 @@
             "public function hasFrom(): bool",
             "public function hasTo(): bool",
             "public function toValue(): mixed",
-            "public static function between(mixed $from, mixed $to): self",
-            "public static function from(mixed $from): self",
-            "public static function to(mixed $to): self"
+            "public static function between(mixed $from, mixed $to): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectRange",
+            "public static function from(mixed $from): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectRange",
+            "public static function to(mixed $to): Wolfcharaa\\TableRegistry\\Select\\Query\\SelectRange"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Query\\SelectSortDirection": {
@@ -903,7 +903,7 @@
             "public function get(string $alias): mixed",
             "public function has(string $alias): bool",
             "public function jsonSerialize(): array",
-            "public static function from(array $values): self"
+            "public static function from(array $values): Wolfcharaa\\TableRegistry\\Select\\Row\\SelectRow"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Select\\Row\\SelectRowsProjector": {
@@ -1013,10 +1013,10 @@
         "interfaces": [],
         "members": [
             "public function toSql(): string",
-            "public static function allOf(array $conditions): self",
-            "public static function alwaysFalse(): self",
-            "public static function anyOf(array $conditions): self",
-            "public static function sql(string $sql): self"
+            "public static function allOf(array $conditions): Wolfcharaa\\TableRegistry\\Select\\Sql\\SelectCondition",
+            "public static function alwaysFalse(): Wolfcharaa\\TableRegistry\\Select\\Sql\\SelectCondition",
+            "public static function anyOf(array $conditions): Wolfcharaa\\TableRegistry\\Select\\Sql\\SelectCondition",
+            "public static function sql(string $sql): Wolfcharaa\\TableRegistry\\Select\\Sql\\SelectCondition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Sort\\RegistryDefaultSortDefinition": {
@@ -1030,8 +1030,8 @@
             "public function columnKey(): string",
             "public function direction(): string",
             "public function jsonSerialize(): array",
-            "public static function asc(string $columnKey): self",
-            "public static function desc(string $columnKey): self"
+            "public static function asc(string $columnKey): Wolfcharaa\\TableRegistry\\Sort\\RegistryDefaultSortDefinition",
+            "public static function desc(string $columnKey): Wolfcharaa\\TableRegistry\\Sort\\RegistryDefaultSortDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Sort\\RegistrySortDefinition": {
@@ -1044,8 +1044,8 @@
             "public function columnKey(): string",
             "public function expression(): ?string",
             "public function jsonSerialize(): array",
-            "public static function byColumn(string $columnKey): self",
-            "public static function byExpression(string $columnKey, string $expression): self"
+            "public static function byColumn(string $columnKey): Wolfcharaa\\TableRegistry\\Sort\\RegistrySortDefinition",
+            "public static function byExpression(string $columnKey, string $expression): Wolfcharaa\\TableRegistry\\Sort\\RegistrySortDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition": {
@@ -1056,7 +1056,7 @@
             "public function __construct(string $name, array $options = [])",
             "public function name(): string",
             "public function options(): array",
-            "public static function named(string $name, mixed ...$options): self"
+            "public static function named(string $name, mixed ...$options): Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition": {
@@ -1069,13 +1069,13 @@
             "public function dataScope(): ?Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition",
             "public function fromSql(): string",
             "public function joins(): array",
-            "public function withConnection(string $connection): self",
-            "public function withCountSource(string $countSource): self",
-            "public function withDataScope(Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition $dataScope): self",
-            "public function withJoin(string $joinSql): self",
-            "public function withLeftJoin(string $relation, string $on): self",
-            "public static function from(string $from): self",
-            "public static function relation(string $from): self"
+            "public function withConnection(string $connection): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
+            "public function withCountSource(string $countSource): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
+            "public function withDataScope(Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition $dataScope): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
+            "public function withJoin(string $joinSql): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
+            "public function withLeftJoin(string $relation, string $on): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
+            "public static function from(string $from): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
+            "public static function relation(string $from): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Sql\\CompiledRegistrySql": {
@@ -1101,7 +1101,7 @@
         "members": [
             "public function __toString(): string",
             "public function quoted(): string",
-            "public static function value(string $value): self"
+            "public static function value(string $value): Wolfcharaa\\TableRegistry\\Sql\\PostgresIdentifier"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Sql\\PostgresLiteral": {
@@ -1110,7 +1110,7 @@
         "interfaces": [],
         "members": [
             "public function quoted(): string",
-            "public static function value(mixed $value): self"
+            "public static function value(mixed $value): Wolfcharaa\\TableRegistry\\Sql\\PostgresLiteral"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Sql\\PostgresRegistrySqlCompiler": {
@@ -1131,8 +1131,8 @@
         "members": [
             "public function params(): array",
             "public function sql(): string",
-            "public static function impossible(): self",
-            "public static function raw(string $sql, array $params = []): self"
+            "public static function impossible(): Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlCondition",
+            "public static function raw(string $sql, array $params = []): Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlCondition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput": {
@@ -1153,8 +1153,8 @@
             "public function selectedPrimaryKeys(): array",
             "public function sortColumn(): string",
             "public function sortDirection(): string",
-            "public static function empty(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition): self",
-            "public static function fromArray(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, array $query): self"
+            "public static function empty(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition): Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput",
+            "public static function fromArray(Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition $definition, array $query): Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlQueryInput"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Sql\\RegistrySqlRuntimeConstraintInterface": {

@@ -260,7 +260,7 @@ final class PublicApiInspector
                 continue;
             }
             $hasDefault = array_key_exists($property->getName(), $defaultProperties);
-            $propertyType = $this->renderType($property->getType());
+            $propertyType = $this->renderType($property->getType(), $reflection);
             $members[] = sprintf(
                 '%s%s%s %s$%s%s',
                 $property->isPublic() ? 'public' : 'protected',
@@ -286,7 +286,7 @@ final class PublicApiInspector
                         ? $parameter->getDefaultValueConstantName()
                         : $this->renderValue($parameter->getDefaultValue()));
                 }
-                $parameterType = $this->renderType($parameter->getType());
+                $parameterType = $this->renderType($parameter->getType(), $reflection);
                 $parameters[] = sprintf(
                     '%s%s%s%s$%s%s',
                     $parameterType,
@@ -298,7 +298,7 @@ final class PublicApiInspector
                 );
             }
 
-            $returnType = $this->renderType($method->getReturnType());
+            $returnType = $this->renderType($method->getReturnType(), $reflection);
             $members[] = sprintf(
                 '%s%s%s%s function %s%s(%s)%s',
                 $method->isPublic() ? 'public' : 'protected',
@@ -328,15 +328,22 @@ final class PublicApiInspector
         ];
     }
 
-    private function renderType(?\ReflectionType $type): string
+    /** @param \ReflectionClass<object> $scope */
+    private function renderType(?\ReflectionType $type, \ReflectionClass $scope): string
     {
         if ($type === null) {
             return '';
         }
         if ($type instanceof \ReflectionNamedType) {
-            $nullable = $type->allowsNull() && !in_array($type->getName(), ['mixed', 'null'], true);
+            $typeName = $type->getName();
+            if ($typeName === 'self') {
+                $typeName = $scope->getName();
+            } elseif ($typeName === 'parent' && ($parent = $scope->getParentClass()) !== false) {
+                $typeName = $parent->getName();
+            }
+            $nullable = $type->allowsNull() && !in_array($typeName, ['mixed', 'null'], true);
 
-            return ($nullable ? '?' : '') . $type->getName();
+            return ($nullable ? '?' : '') . $typeName;
         }
         if (!$type instanceof \ReflectionUnionType && !$type instanceof \ReflectionIntersectionType) {
             return '';
@@ -344,7 +351,10 @@ final class PublicApiInspector
 
         $separator = $type instanceof \ReflectionUnionType ? '|' : '&';
 
-        return implode($separator, array_map(fn (\ReflectionType $nested): string => $this->renderType($nested), $type->getTypes()));
+        return implode($separator, array_map(
+            fn (\ReflectionType $nested): string => $this->renderType($nested, $scope),
+            $type->getTypes()
+        ));
     }
 
     private function renderValue(mixed $value): string
