@@ -1,5 +1,7 @@
 # Standalone Select И Option Lists
 
+[English](en/select-and-options.md)
+
 `SelectDefinition` описывает read-model без `TableRegistryDefinition`, primary key и frontend table metadata. Он
 подходит для preload/async options, зависимых списков, восстановления выбранных значений и небольших project-specific
 reads.

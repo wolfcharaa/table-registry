@@ -1,11 +1,13 @@
 # Public API
 
+Reference is shared by the Russian and English editions because symbol names and signatures are language-neutral.
+
 Этот документ задаёт поддерживаемую public API surface библиотеки. Наличие PHP-файла под `src/` и доступность
 символа через Composer PSR-4 сами по себе не являются compatibility promise.
 
 ## Compatibility policy
 
-- Символы из allowlist ниже поддерживаются в пределах линии `v0.6.x`.
+- Символы из allowlist ниже поддерживаются в пределах линии `v0.7.x`.
 - Изменение их public/protected native signatures требует осознанного API review и обновления signature snapshot.
 - Символы с `@internal` могут меняться без compatibility promise и не должны использоваться приложениями.
 - Каждый новый symbol под `src/` обязан быть либо перечислен здесь и помечен `@api`, либо помечен `@internal`.
@@ -186,6 +188,10 @@
 
 - `ColumnValueHydratorInterface`;
 - `ColumnValueLabelResolverInterface`;
+- `CompileTimeProviderResolverInterface`;
+- `RelationMetadataProviderInterface`;
+- `RelationSourceProviderInterface`;
+- `SqlExpressionProviderInterface`;
 - `RegistryFilterDefinitionInterface` и `RegistryFilterExpressionInterface`;
 - `RegistryResolverInvokerInterface`;
 - `RegistrySearchDefinitionInterface`;
@@ -196,3 +202,6 @@
 
 Новые interfaces добавляются только для доказанного project extension use case. Простое желание заменить immutable
 value object не является основанием создавать для него interface.
+
+Attribute compiler, public Attributes, lifecycle и validation limits описаны в
+[`attributes.md`](attributes.md) и [`attribute-reference.md`](attribute-reference.md).

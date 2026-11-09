@@ -1,16 +1,20 @@
 # TableRegistry
 
+[English](README.en.md)
+
 `TableRegistry` — framework-agnostic PHP-библиотека для описания табличных и самостоятельных read-моделей,
 компиляции PostgreSQL-запросов, нормализации строк под frontend-контракт и выгрузки XLSX.
 
 Библиотека полезна, когда backend должен явно зафиксировать колонки, фильтры, поиск, сортировку, пагинацию и форму
 ответа, но выполнение SQL, HTTP, авторизация и бизнес-действия должны оставаться в приложении.
 
-Документация ведётся на русском языке. Имена public API, команды и исполняемые примеры общие для всех потребителей.
+Русский — основной язык документации; English edition поддерживается рядом. Имена public API, команды и исполняемые
+примеры общие для всех потребителей. Документация ветки `main` описывает готовящуюся линию `v0.7`.
 
 ## Что Даёт Библиотека
 
 - `TableRegistryDefinition` для таблиц с обязательным primary key и сериализуемым frontend-контрактом;
+- Attribute compiler для описания static relations, JOIN aggregates и finite variants над обычными PHP-классами;
 - `SelectDefinition` для options, списков и небольших read-моделей без table metadata;
 - строгую валидацию canonical query input;
 - PostgreSQL-компиляцию rows/count/export SQL и параметров без выполнения запроса;
@@ -29,11 +33,14 @@
 - `psr/container` `^1.1 || ^2.0`;
 - `openspout/openspout` `^4.28 || ^5.0` для XLSX.
 
-Установите стабильную линию `v0.6.x` из Packagist:
+После публикации `v0.7.0` установите minor line из Packagist:
 
 ```bash
-composer require romanfedorskij/table-registry:^0.6
+composer require romanfedorskij/table-registry:^0.7
 ```
+
+До final tag используйте только явно опубликованный exact RC. Инструкции для текущей стабильной `v0.6.x` остаются в
+[`docs/migration-v0.5-to-v0.6.md`](docs/migration-v0.5-to-v0.6.md).
 
 ## Быстрый Старт
 
@@ -86,6 +93,10 @@ registry=users primary=id columns=2
 Этот результат подтверждает первый публичный контракт библиотеки без БД и web-фреймворка. Поддерживаемый исходник
 примера находится в [`docs/examples/00-quick-start.php`](docs/examples/00-quick-start.php).
 
+Для новых static table definitions в `v0.7` рекомендуются Attributes. Первый запускаемый вариант находится в
+[`docs/examples/08-attribute-table.php`](docs/examples/08-attribute-table.php), подробный путь — в
+[`docs/attributes.md`](docs/attributes.md). Object API из quick start остаётся поддерживаемым для dynamic definitions.
+
 ## Как Устроена Интеграция
 
 ```text
@@ -102,10 +113,13 @@ HTTP/CLI adapter → validate input → compile SQL + params → application exe
 Начните с [карты документации](docs/README.md) или сразу выберите задачу:
 
 - [построить table read-model от definition до response](docs/table-read-model.md);
+- [описать relation/aggregate через Attributes](docs/attributes.md);
+- [сверить точную Attribute semantics](docs/attribute-reference.md);
 - [построить standalone select или typed option list](docs/select-and-options.md);
 - [запустить исполняемые примеры](docs/examples/README.md);
 - [проверить поддерживаемые public symbols](docs/public-api.md);
 - [обновиться с `v0.5.x` на `v0.6.0`](docs/migration-v0.5-to-v0.6.md);
+- [перейти с `v0.6.x` на additive `v0.7.0`](docs/migration-v0.6-to-v0.7.md);
 - [понять стратегию совместимости `v0.6.x`](docs/v0.6-bc-matrix.md).
 
 ## Скиллы Для AI-Агентов
@@ -129,7 +143,7 @@ Composer запросит отдельное разрешение на запу�
 
 ## Совместимость
 
-Поддерживаемая поверхность `v0.6.x` перечислена в [`docs/public-api.md`](docs/public-api.md) и проверяется signature
+Поддерживаемая поверхность `v0.7.x` перечислена в [`docs/public-api.md`](docs/public-api.md) и проверяется signature
 snapshot-ом. Наличие класса под `src/` само по себе не означает compatibility promise; consumer code должен зависеть
 только от символов с `@api` из allowlist.
 

@@ -24,6 +24,10 @@ For migration from `v0.5.x`, inspect the installed package's `docs/migration-v0.
 `0.6.0-rc.N` constraint for a project pilot and switch to `^0.6.0` only after its integration tests pass. Preserve a
 rollback command for `0.5.2`, and keep the endpoint migration and Composer change in the same reviewable unit.
 
+For migration from `v0.6.x` to the Attribute-capable `v0.7` line, read
+`docs/migration-v0.6-to-v0.7.md`. Use an exact published `0.7.0-rc.N` during a pilot, keep object-authored definitions as
+the parity oracle, and switch to `^0.7.0` only after JSON, SQL/params, projection, and export checks pass.
+
 The library requires PHP 8.2+, `ext-json`, and `ext-mbstring`. Composer also resolves compatible `psr/container` and
 `openspout/openspout` versions. Do not bypass a platform failure with `--ignore-platform-reqs` or hand-edit
 `composer.lock`; report the missing extension or conflicting constraint and fix the environment or declared

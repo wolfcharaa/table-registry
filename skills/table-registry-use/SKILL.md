@@ -14,6 +14,29 @@ TableRegistry describes tabular and standalone read models, compiles PostgreSQL 
 rows into stable table/option payloads, and can write XLSX files. It does not execute SQL, choose a real connection,
 authorize routes, define CRUD actions, or own the HTTP response. Keep those responsibilities in the application.
 
+## Author Static Tables With Attributes
+
+For a static table shape on `v0.7+`, prefer ordinary relation and aggregate classes compiled by
+`AttributeTableRegistryCompiler`. A relation class owns only source/field facts through `Relation`/`Field`; a separate
+aggregate owns `Table`, `From`/`Join`, explicit `Column` projection, query capabilities, and presentation. Never expose
+every relation field implicitly.
+
+Use `FieldMatch` for ordinary equality joins and the explicit trusted `RawJoinCondition` escape hatch for advanced SQL.
+Use `SqlExpression` for small aggregate-local expressions, `Internal` for resolver-only row values, and
+`LabelFrom`/scoped `LabelWith`/`HydrateWith` for presentation. A hydrated computed/external input requires `RawType`.
+
+Finite active/archive families use repeatable `Variant` with exactly one default plus `OnlyInVariant` or
+`ExcludeFromVariant`. `compile()` validates the complete family, `compileVariants()` returns every member by name, and
+`compileAll()` registers defaults by unique registry key.
+
+For non-SQL rows use `ExternalRows` and `ExternalField`; project normally, but do not send that definition to the
+PostgreSQL compiler. Compile-time providers receive no request context and are resolved once per compiler operation.
+Keep actor/tenant/request restrictions as immutable post-compilation runtime constraints.
+
+Read the installed package's `docs/attributes.md`, `docs/attribute-reference.md`, and executable examples `08`–`11`
+before inventing metadata conventions. Keep the object authoring API for genuinely runtime-dependent shapes and as a
+parity oracle during migration.
+
 ## Build A Standalone Select Or Option List
 
 Use `SelectDefinition` for options, reusable lists, and small read models that do not need table metadata. Construct it
@@ -65,7 +88,7 @@ or policy-dependent predicates. Inject project services through its constructor.
 `SelectRuntimeContext::param()`, which returns the complete placeholder (`:p0`). Route-level authorization remains
 separate. For selected-value hydration, declare an explicit `oneOf` criterion instead of bypassing the definition.
 
-## Define The Table
+## Define A Dynamic Table With The Object API
 
 Build a `TableRegistryDefinition` with a stable `registryKey`, a title, one `RegistrySourceDefinition`, and columns.
 Every definition must contain exactly one `PrimaryKeyColumnRegistryDefinition`, and column keys must be unique.
@@ -151,5 +174,6 @@ Test the consumer integration at its real boundary. At minimum cover definition 
 rows/count using identical constraints, row labels/hydration, connection selection when non-default, export policy,
 and the no-access runtime-constraint path. In this library repository, run `composer check` before handing work off.
 
-For a `v0.5.x` consumer upgrade, follow `docs/migration-v0.5-to-v0.6.md`: pilot an exact RC, migrate one preload and
-one scoped async endpoint, keep legacy tables working, then move to `^0.6.0` only after the project checks pass.
+For a `v0.6.x` → `v0.7` consumer upgrade, follow `docs/migration-v0.6-to-v0.7.md`: keep the current factory as a parity
+oracle, compare JSON/rows-count-export SQL/params/projection/export, and switch registration only after parity. Existing
+object-authored definitions may remain in place.

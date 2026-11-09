@@ -1,5 +1,7 @@
 # Table Read-Model
 
+[English](en/table-read-model.md)
+
 Это руководство проводит один supported path: от `TableRegistryDefinition` и недоверенного query input до
 скомпилированного PostgreSQL, projected rows и стабильного response payload. Оно не задаёт HTTP framework или DB
 adapter — эти части принадлежат приложению.
@@ -7,7 +9,14 @@ adapter — эти части принадлежат приложению.
 Полные исполняемые варианты находятся в [`examples/`](examples/README.md). Фрагменты ниже предполагают, что
 `$definition` уже создан на предыдущем шаге.
 
-## 1. Опишите Таблицу
+## 1. Получите Definition
+
+Для static shape в `v0.7` рекомендуются relation/aggregate Attributes и `AttributeTableRegistryCompiler`; полный путь
+описан в [`attributes.md`](attributes.md). Для runtime-dependent shape и incremental migration сохраняется object API
+ниже. Оба frontend-а выпускают один `TableRegistryDefinition`, поэтому остальные шаги этого руководства одинаковы.
+
+Запускаемые варианты: [`examples/08-attribute-table.php`](examples/08-attribute-table.php) и object-authored
+[`examples/01-table-definition.php`](examples/01-table-definition.php).
 
 Definition содержит стабильный `registryKey`, title, source и колонки. Ровно одна колонка должна быть
 `PrimaryKeyColumnRegistryDefinition`; ключи колонок должны быть уникальными.
@@ -41,9 +50,6 @@ $definition = (new TableRegistryDefinition(
     ]
 ))->withDefaultSort(RegistryDefaultSortDefinition::desc('id'));
 ```
-
-Поддерживаемый расширенный пример —
-[`examples/01-table-definition.php`](examples/01-table-definition.php).
 
 ### Source И SQL-Фрагменты
 
