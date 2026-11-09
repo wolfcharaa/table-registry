@@ -1,4 +1,499 @@
 {
+    "Wolfcharaa\\TableRegistry\\Attribute\\AsyncSelectFilter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $route, ?string $queryKey = NULL, string $valueFormat = 'string')",
+            "public readonly ?string $queryKey",
+            "public readonly string $route",
+            "public readonly string $valueFormat"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\BooleanFilter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(?string $queryKey = NULL)",
+            "public readonly ?string $queryKey"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Column": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $title, int $position, ?string $key = NULL, Wolfcharaa\\TableRegistry\\Attribute\\ColumnMode $mode = Wolfcharaa\\TableRegistry\\Attribute\\ColumnMode::Visible, ?bool $exportable = NULL, ?string $hint = NULL)",
+            "public readonly ?bool $exportable",
+            "public readonly ?string $hint",
+            "public readonly ?string $key",
+            "public readonly Wolfcharaa\\TableRegistry\\Attribute\\ColumnMode $mode",
+            "public readonly int $position",
+            "public readonly string $title"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\ColumnMode": {
+        "kind": "enum",
+        "parent": null,
+        "interfaces": [
+            "BackedEnum",
+            "UnitEnum"
+        ],
+        "members": [
+            "public const Output = Wolfcharaa\\TableRegistry\\Attribute\\ColumnMode::Output",
+            "public const Payload = Wolfcharaa\\TableRegistry\\Attribute\\ColumnMode::Payload",
+            "public const Visible = Wolfcharaa\\TableRegistry\\Attribute\\ColumnMode::Visible",
+            "public readonly string $name",
+            "public readonly string $value",
+            "public static function cases(): array",
+            "public static function from(string|int $value): static",
+            "public static function tryFrom(string|int $value): ?static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\CountSource": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $source, ?string $variant = NULL)",
+            "public readonly ?string $variant",
+            "public readonly string $source"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\DateRangeFilter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(?string $queryKey = NULL, ?string $fromKey = NULL, ?string $toKey = NULL)",
+            "public readonly ?string $fromKey",
+            "public readonly ?string $queryKey",
+            "public readonly ?string $toKey"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\DefaultSort": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $column, string $direction = 'asc', ?string $variant = NULL)",
+            "public readonly ?string $variant",
+            "public readonly string $column",
+            "public readonly string $direction"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\ExcludeField": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $field)",
+            "public readonly string $field"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\ExcludeFromVariant": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string ...$variants)",
+            "public readonly array $variants"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\ExternalField": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(?string $key = NULL)",
+            "public readonly ?string $key"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\ExternalRows": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $key)",
+            "public readonly string $key"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Field": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(?string $column = NULL, ?string $rowType = NULL, ?bool $nullable = NULL)",
+            "public readonly ?bool $nullable",
+            "public readonly ?string $column",
+            "public readonly ?string $rowType"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\FieldMatch": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $left, string $right)",
+            "public readonly string $left",
+            "public readonly string $right"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\From": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $model, string $alias)",
+            "public readonly string $alias",
+            "public readonly string $model"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\HydrateWith": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $resolver, array $inputs = [], bool $unchecked = false)",
+            "public readonly array $inputs",
+            "public readonly bool $unchecked",
+            "public readonly string $resolver"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\IntegerFilter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(?string $queryKey = NULL)",
+            "public readonly ?string $queryKey"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Internal": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": []
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Join": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $model, string $alias, Wolfcharaa\\TableRegistry\\Attribute\\JoinType $type, int $position, Wolfcharaa\\TableRegistry\\Attribute\\RawJoinCondition|array $on)",
+            "public readonly Wolfcharaa\\TableRegistry\\Attribute\\JoinType $type",
+            "public readonly Wolfcharaa\\TableRegistry\\Attribute\\RawJoinCondition|array $on",
+            "public readonly int $position",
+            "public readonly string $alias",
+            "public readonly string $model"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\JoinType": {
+        "kind": "enum",
+        "parent": null,
+        "interfaces": [
+            "BackedEnum",
+            "UnitEnum"
+        ],
+        "members": [
+            "public const Inner = Wolfcharaa\\TableRegistry\\Attribute\\JoinType::Inner",
+            "public const Left = Wolfcharaa\\TableRegistry\\Attribute\\JoinType::Left",
+            "public readonly string $name",
+            "public readonly string $value",
+            "public static function cases(): array",
+            "public static function from(string|int $value): static",
+            "public static function tryFrom(string|int $value): ?static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Label": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $text)",
+            "public readonly string $text"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\LabelFrom": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $property, bool $fallbackToValue = true)",
+            "public readonly bool $fallbackToValue",
+            "public readonly string $property"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\LabelWith": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $resolver, array $inputs = [])",
+            "public readonly array $inputs",
+            "public readonly string $resolver"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\MappedFields": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": []
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\NullabilityFilter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(?string $queryKey = NULL)",
+            "public readonly ?string $queryKey"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\OnlyInVariant": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string ...$variants)",
+            "public readonly array $variants"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\OverrideField": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $field, ?string $column = NULL, ?string $rowType = NULL, ?bool $nullable = NULL)",
+            "public readonly ?bool $nullable",
+            "public readonly ?string $column",
+            "public readonly ?string $rowType",
+            "public readonly string $field"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Pagination": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $pageKey = 'page', string $perPageKey = 'per_page', int $defaultPerPage = 25, int $maxPerPage = 250, ?string $variant = NULL)",
+            "public readonly ?string $variant",
+            "public readonly int $defaultPerPage",
+            "public readonly int $maxPerPage",
+            "public readonly string $pageKey",
+            "public readonly string $perPageKey"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\PreloadSelectFilter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $route, ?string $queryKey = NULL, string $valueFormat = 'string')",
+            "public readonly ?string $queryKey",
+            "public readonly string $route",
+            "public readonly string $valueFormat"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\PrimaryKey": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": []
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Project": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $alias, ?string $field = NULL)",
+            "public readonly ?string $field",
+            "public readonly string $alias"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\RawJoinCondition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $sql)",
+            "public readonly string $sql"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\RawRelation": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $sql, string $connection = 'default')",
+            "public readonly string $connection",
+            "public readonly string $sql"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\RawType": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $rowType, bool $nullable = false)",
+            "public readonly bool $nullable",
+            "public readonly string $rowType"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Relation": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $identifier, string $connection = 'default')",
+            "public readonly string $connection",
+            "public readonly string $identifier"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\RelationSourceProvider": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $provider)",
+            "public readonly string $provider"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\RuntimeConstraint": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $resolver, ?string $variant = NULL)",
+            "public readonly ?string $variant",
+            "public readonly string $resolver"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Search": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $queryKey = 'search', bool $enabled = true)",
+            "public readonly bool $enabled",
+            "public readonly string $queryKey"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Searchable": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": []
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Sort": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(?string $expression = NULL)",
+            "public readonly ?string $expression"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\SqlConstraint": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $sql, array $params = [], ?string $variant = NULL)",
+            "public readonly ?string $variant",
+            "public readonly array $params",
+            "public readonly string $sql"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\SqlExpression": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $expression)",
+            "public readonly string $expression"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\SqlExpressionProvider": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $provider)",
+            "public readonly string $provider"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\StaticSelectFilter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(array $options = [], ?string $queryKey = NULL, string $valueFormat = 'string')",
+            "public readonly ?string $queryKey",
+            "public readonly array $options",
+            "public readonly string $valueFormat"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Table": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $key, string $title)",
+            "public readonly string $key",
+            "public readonly string $title"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\TextFilter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(?string $queryKey = NULL, Wolfcharaa\\TableRegistry\\Attribute\\TextFilterOperator $operator = Wolfcharaa\\TableRegistry\\Attribute\\TextFilterOperator::Contains)",
+            "public readonly ?string $queryKey",
+            "public readonly Wolfcharaa\\TableRegistry\\Attribute\\TextFilterOperator $operator"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\TextFilterOperator": {
+        "kind": "enum",
+        "parent": null,
+        "interfaces": [
+            "BackedEnum",
+            "UnitEnum"
+        ],
+        "members": [
+            "public const Contains = Wolfcharaa\\TableRegistry\\Attribute\\TextFilterOperator::Contains",
+            "public const Exact = Wolfcharaa\\TableRegistry\\Attribute\\TextFilterOperator::Exact",
+            "public readonly string $name",
+            "public readonly string $value",
+            "public static function cases(): array",
+            "public static function from(string|int $value): static",
+            "public static function tryFrom(string|int $value): ?static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\TimeRangeFilter": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(?string $queryKey = NULL, ?string $fromKey = NULL, ?string $toKey = NULL)",
+            "public readonly ?string $fromKey",
+            "public readonly ?string $queryKey",
+            "public readonly ?string $toKey"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Attribute\\Variant": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $name, string $key, string $title, bool $isDefault = false)",
+            "public readonly bool $isDefault",
+            "public readonly string $key",
+            "public readonly string $name",
+            "public readonly string $title"
+        ]
+    },
     "Wolfcharaa\\TableRegistry\\Column\\ColumnRegistryDefinition": {
         "kind": "class",
         "parent": null,
@@ -393,6 +888,65 @@
             "public function fromKey(): string",
             "public function toKey(): string",
             "public static function forColumn(string $columnKey, string $title): Wolfcharaa\\TableRegistry\\Filter\\TimeRangeFilterRegistryDefinition"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Metadata\\AttributeRelationMetadataProvider": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Metadata\\RelationMetadataProviderInterface"
+        ],
+        "members": [
+            "public function __construct()",
+            "public function metadata(string $model): ?Wolfcharaa\\TableRegistry\\Metadata\\RelationMetadata"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Metadata\\RelationFieldMetadata": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $name, string $column, string $rowType, bool $nullable)",
+            "public function column(): string",
+            "public function name(): string",
+            "public function nullable(): bool",
+            "public function rowType(): string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Metadata\\RelationMetadata": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(Wolfcharaa\\TableRegistry\\Metadata\\RelationSourceMetadata $source, iterable $fields)",
+            "public function field(string $name): ?Wolfcharaa\\TableRegistry\\Metadata\\RelationFieldMetadata",
+            "public function fields(): array",
+            "public function source(): Wolfcharaa\\TableRegistry\\Metadata\\RelationSourceMetadata"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Metadata\\RelationMetadataProviderInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function metadata(string $model): ?Wolfcharaa\\TableRegistry\\Metadata\\RelationMetadata"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Metadata\\RelationSourceMetadata": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function connection(): ?string",
+            "public function isProvided(): bool",
+            "public function isRaw(): bool",
+            "public function isRelation(): bool",
+            "public function provider(): ?string",
+            "public function rawSql(): ?string",
+            "public function relationIdentifier(): ?string",
+            "public static function providedBy(string $provider): Wolfcharaa\\TableRegistry\\Metadata\\RelationSourceMetadata",
+            "public static function raw(string $sql, string $connection = 'default'): Wolfcharaa\\TableRegistry\\Metadata\\RelationSourceMetadata",
+            "public static function relation(string $identifier, string $connection = 'default'): Wolfcharaa\\TableRegistry\\Metadata\\RelationSourceMetadata"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Option\\OptionListDefinition": {
