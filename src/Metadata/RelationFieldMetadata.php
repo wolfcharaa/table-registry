@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Wolfcharaa\TableRegistry\Metadata;
 
+use Wolfcharaa\TableRegistry\Internal\Sql\Identifier;
 use Wolfcharaa\TableRegistry\Value\PrimitiveValueObjectInterface;
 
 /**
@@ -22,6 +23,11 @@ final readonly class RelationFieldMetadata
     ) {
         if (\trim($name) === '' || \trim($column) === '') {
             throw new \InvalidArgumentException('Relation field name and column must not be empty.');
+        }
+        if (!Identifier::isAlias($name) || !Identifier::isAlias($column)) {
+            throw new \InvalidArgumentException(
+                'Relation field name and physical column must be valid unqualified identifiers.'
+            );
         }
 
         if (!\is_subclass_of($rowType, PrimitiveValueObjectInterface::class)) {

@@ -73,7 +73,16 @@
 - `Wolfcharaa\TableRegistry\Column\ColumnValueLabelResolverInterface`
 - `Wolfcharaa\TableRegistry\Column\DateTimeValueLabelResolver`
 - `Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition`
+- `Wolfcharaa\TableRegistry\Compiler\AttributeCompilationIssue`
+- `Wolfcharaa\TableRegistry\Compiler\AttributeTableRegistryCompiler`
+- `Wolfcharaa\TableRegistry\Compiler\CompileTimeProviderResolverInterface`
+- `Wolfcharaa\TableRegistry\Compiler\CompiledTableDefinitionCollection`
+- `Wolfcharaa\TableRegistry\Compiler\NativeCompileTimeProviderResolver`
+- `Wolfcharaa\TableRegistry\Compiler\PsrContainerCompileTimeProviderResolver`
+- `Wolfcharaa\TableRegistry\Compiler\RelationSourceProviderInterface`
+- `Wolfcharaa\TableRegistry\Compiler\SqlExpressionProviderInterface`
 - `Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition`
+- `Wolfcharaa\TableRegistry\Exception\AttributeCompilationException`
 - `Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException`
 - `Wolfcharaa\TableRegistry\Exception\InvalidRegistryQueryException`
 - `Wolfcharaa\TableRegistry\Exception\InvalidSelectDefinitionException`

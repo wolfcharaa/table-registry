@@ -601,6 +601,94 @@
             "public function isPrimaryKey(): bool"
         ]
     },
+    "Wolfcharaa\\TableRegistry\\Compiler\\AttributeCompilationIssue": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $code, string $message, string $consumer, ?string $variant = NULL, ?string $property = NULL, ?string $attribute = NULL, ?string $provider = NULL)",
+            "public function attribute(): ?string",
+            "public function code(): string",
+            "public function consumer(): string",
+            "public function message(): string",
+            "public function property(): ?string",
+            "public function provider(): ?string",
+            "public function variant(): ?string"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Compiler\\AttributeTableRegistryCompiler": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(Wolfcharaa\\TableRegistry\\Metadata\\RelationMetadataProviderInterface $relations = Wolfcharaa\\TableRegistry\\Metadata\\AttributeRelationMetadataProvider, Wolfcharaa\\TableRegistry\\Compiler\\CompileTimeProviderResolverInterface $providers = Wolfcharaa\\TableRegistry\\Compiler\\NativeCompileTimeProviderResolver)",
+            "public function compile(string $aggregate, ?string $variant = NULL): Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition",
+            "public function compileAll(iterable $aggregates): Wolfcharaa\\TableRegistry\\Compiler\\CompiledTableDefinitionCollection",
+            "public function compileVariants(string $aggregate): Wolfcharaa\\TableRegistry\\Compiler\\CompiledTableDefinitionCollection"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Compiler\\CompileTimeProviderResolverInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function resolve(string $provider): object"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Compiler\\CompiledTableDefinitionCollection": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Countable",
+            "IteratorAggregate",
+            "Traversable"
+        ],
+        "members": [
+            "public function __construct(iterable $definitions = [])",
+            "public function all(): array",
+            "public function count(): int",
+            "public function get(string $name): ?Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition",
+            "public function getIterator(): Traversable",
+            "public function require(string $name): Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Compiler\\NativeCompileTimeProviderResolver": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Compiler\\CompileTimeProviderResolverInterface"
+        ],
+        "members": [
+            "public function resolve(string $provider): object"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Compiler\\PsrContainerCompileTimeProviderResolver": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [
+            "Wolfcharaa\\TableRegistry\\Compiler\\CompileTimeProviderResolverInterface"
+        ],
+        "members": [
+            "public function __construct(Psr\\Container\\ContainerInterface $container, Wolfcharaa\\TableRegistry\\Compiler\\CompileTimeProviderResolverInterface $fallback = Wolfcharaa\\TableRegistry\\Compiler\\NativeCompileTimeProviderResolver)",
+            "public function resolve(string $provider): object"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Compiler\\RelationSourceProviderInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function __invoke(): Wolfcharaa\\TableRegistry\\Metadata\\RelationSourceMetadata"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Compiler\\SqlExpressionProviderInterface": {
+        "kind": "interface",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public abstract function __invoke(): string"
+        ]
+    },
     "Wolfcharaa\\TableRegistry\\Definition\\TableRegistryDefinition": {
         "kind": "class",
         "parent": null,
@@ -624,6 +712,18 @@
             "public function withRowInput(Wolfcharaa\\TableRegistry\\Row\\RegistryRowInputDefinition $input): static",
             "public function withRuntimeConstraint(callable|string $resolver): static",
             "public function withSearch(Wolfcharaa\\TableRegistry\\Search\\RegistrySearchDefinitionInterface $search): static"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Exception\\AttributeCompilationException": {
+        "kind": "final class",
+        "parent": "LogicException",
+        "interfaces": [
+            "Stringable",
+            "Throwable"
+        ],
+        "members": [
+            "public function __construct(iterable $issues)",
+            "public function issues(): array"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Exception\\InvalidRegistryDefinitionException": {
