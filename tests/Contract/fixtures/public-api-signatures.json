@@ -31,8 +31,8 @@
             "public function withExportable(bool $exportable = true): static",
             "public function withFilter(?Wolfcharaa\\TableRegistry\\Filter\\RegistryFilterDefinitionInterface $filter): static",
             "public function withHint(?string $hint): static",
-            "public function withHydration(callable|string|null $resolver): static",
-            "public function withLabel(callable|string|null $label): static",
+            "public function withHydration(callable|string|null $resolver, ?array $rowKeys = NULL): static",
+            "public function withLabel(callable|string|null $label, ?array $rowKeys = NULL): static",
             "public function withOutputOnly(bool $outputOnly = true): static",
             "public function withPayloadOnly(bool $payloadOnly = true): static",
             "public function withRowTypeObject(string $rowTypeObject): static",
@@ -119,12 +119,14 @@
             "public function jsonSerialize(): array",
             "public function pagination(): Wolfcharaa\\TableRegistry\\Query\\RegistryPaginationDefinition",
             "public function registryKey(): string",
+            "public function rowInputs(): array",
             "public function runtimeConstraints(): array",
             "public function search(): Wolfcharaa\\TableRegistry\\Search\\RegistrySearchDefinitionInterface",
             "public function source(): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
             "public function title(): string",
             "public function withDefaultSort(?Wolfcharaa\\TableRegistry\\Sort\\RegistryDefaultSortDefinition $defaultSort): static",
             "public function withPagination(Wolfcharaa\\TableRegistry\\Query\\RegistryPaginationDefinition $pagination): static",
+            "public function withRowInput(Wolfcharaa\\TableRegistry\\Row\\RegistryRowInputDefinition $input): static",
             "public function withRuntimeConstraint(callable|string $resolver): static",
             "public function withSearch(Wolfcharaa\\TableRegistry\\Search\\RegistrySearchDefinitionInterface $search): static"
         ]
@@ -207,6 +209,15 @@
         "members": [
             "public static function missingAlias(string $alias, int $rowIndex): Wolfcharaa\\TableRegistry\\Exception\\SelectProjectionException"
         ]
+    },
+    "Wolfcharaa\\TableRegistry\\Exception\\UnsupportedRegistrySourceException": {
+        "kind": "final class",
+        "parent": "LogicException",
+        "interfaces": [
+            "Stringable",
+            "Throwable"
+        ],
+        "members": []
     },
     "Wolfcharaa\\TableRegistry\\Export\\RegistryExportColumnResolver": {
         "kind": "final class",
@@ -514,7 +525,18 @@
         "members": [
             "public function __construct(array $row)",
             "public function all(): array",
-            "public function get(string $key): mixed"
+            "public function get(string $key): mixed",
+            "public function only(array $keys): Wolfcharaa\\TableRegistry\\Row\\RegistryRowData"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Row\\RegistryRowInputDefinition": {
+        "kind": "final class",
+        "parent": null,
+        "interfaces": [],
+        "members": [
+            "public function __construct(string $key, ?Wolfcharaa\\TableRegistry\\Column\\ColumnSelectDefinition $select = NULL)",
+            "public function key(): string",
+            "public function select(): ?Wolfcharaa\\TableRegistry\\Column\\ColumnSelectDefinition"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Row\\RegistryRowsProjector": {
@@ -1067,15 +1089,37 @@
             "public function connection(): string",
             "public function countSource(): ?string",
             "public function dataScope(): ?Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition",
+            "public function externalKey(): ?string",
             "public function fromSql(): string",
+            "public function isExternal(): bool",
+            "public function isSql(): bool",
             "public function joins(): array",
+            "public function kind(): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceKind",
             "public function withConnection(string $connection): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
             "public function withCountSource(string $countSource): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
             "public function withDataScope(Wolfcharaa\\TableRegistry\\Source\\RegistryDataScopeDefinition $dataScope): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
             "public function withJoin(string $joinSql): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
             "public function withLeftJoin(string $relation, string $on): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
+            "public static function external(string $key): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
             "public static function from(string $from): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition",
             "public static function relation(string $from): Wolfcharaa\\TableRegistry\\Source\\RegistrySourceDefinition"
+        ]
+    },
+    "Wolfcharaa\\TableRegistry\\Source\\RegistrySourceKind": {
+        "kind": "enum",
+        "parent": null,
+        "interfaces": [
+            "BackedEnum",
+            "UnitEnum"
+        ],
+        "members": [
+            "public const External = Wolfcharaa\\TableRegistry\\Source\\RegistrySourceKind::External",
+            "public const Sql = Wolfcharaa\\TableRegistry\\Source\\RegistrySourceKind::Sql",
+            "public readonly string $name",
+            "public readonly string $value",
+            "public static function cases(): array",
+            "public static function from(string|int $value): static",
+            "public static function tryFrom(string|int $value): ?static"
         ]
     },
     "Wolfcharaa\\TableRegistry\\Sql\\CompiledRegistrySql": {

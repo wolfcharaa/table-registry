@@ -10,12 +10,14 @@ use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Column\ColumnSelectDefinition;
 use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Exception\UnsupportedRegistrySourceException;
 use Wolfcharaa\TableRegistry\Filter\DateRangeFilterRegistryDefinition;
 use Wolfcharaa\TableRegistry\Sql\PostgresRegistrySqlCompiler;
 use Wolfcharaa\TableRegistry\Sql\CompiledRegistrySql;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlCondition;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeContext;
+use Wolfcharaa\TableRegistry\Row\RegistryRowInputDefinition;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
 #[Test]
@@ -165,6 +167,51 @@ final class PostgresRegistrySqlCompilerTest extends RegistryTestCase
         Assert::string($compiled->sql())->contains('"id" AS "id"');
         Assert::string($compiled->sql())->contains('"firstName" AS "firstName"');
         Assert::string($compiled->sql())->notContains('"displayName" AS "displayName"');
+    }
+
+    public function selectsInternalRowInputsWithoutTurningThemIntoColumns(): void
+    {
+        $definition = $this->usersDefinition()->withRowInput(new RegistryRowInputDefinition(
+            'departmentTitle',
+            ColumnSelectDefinition::sqlExpression('departmentTitle', 'p.department_title')
+        ));
+
+        $rows = (new PostgresRegistrySqlCompiler())->compileRows($definition);
+        $export = (new PostgresRegistrySqlCompiler())->compileExportRows($definition);
+
+        Assert::string($rows->sql())->contains('p.department_title AS "departmentTitle"');
+        Assert::string($export->sql())->contains('p.department_title AS "departmentTitle"');
+        Assert::same(
+            \array_column($definition->jsonSerialize()['columns'], 'key'),
+            ['id', 'fullName', 'status']
+        );
+    }
+
+    public function rejectsExternalSourceForEverySqlCompilationMode(): void
+    {
+        $definition = new TableRegistryDefinition(
+            registryKey: 'history',
+            title: 'История',
+            source: RegistrySourceDefinition::external('object_history'),
+            columns: [new PrimaryKeyColumnRegistryDefinition('id')]
+        );
+        $compiler = new PostgresRegistrySqlCompiler();
+
+        foreach ([
+            static fn (): CompiledRegistrySql => $compiler->compileRows($definition),
+            static fn (): CompiledRegistrySql => $compiler->compileCount($definition),
+            static fn (): CompiledRegistrySql => $compiler->compileExportRows($definition),
+        ] as $compile) {
+            $error = null;
+
+            try {
+                $compile();
+            } catch (\Throwable $caught) {
+                $error = $caught;
+            }
+
+            Assert::true($error instanceof UnsupportedRegistrySourceException);
+        }
     }
 
     public function keepsLegacyBindingsInsideEachFiberCall(): void

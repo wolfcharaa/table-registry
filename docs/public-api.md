@@ -33,6 +33,7 @@
 - `Wolfcharaa\TableRegistry\Exception\OptionProjectionException`
 - `Wolfcharaa\TableRegistry\Exception\SelectCompilationException`
 - `Wolfcharaa\TableRegistry\Exception\SelectProjectionException`
+- `Wolfcharaa\TableRegistry\Exception\UnsupportedRegistrySourceException`
 - `Wolfcharaa\TableRegistry\Export\RegistryExportColumnResolver`
 - `Wolfcharaa\TableRegistry\Export\RegistryXlsxExportResult`
 - `Wolfcharaa\TableRegistry\Export\RegistryXlsxExporter`
@@ -57,6 +58,7 @@
 - `Wolfcharaa\TableRegistry\Query\RegistryQueryValidator`
 - `Wolfcharaa\TableRegistry\Row\RegistryProjectedRowsFlattener`
 - `Wolfcharaa\TableRegistry\Row\RegistryRowData`
+- `Wolfcharaa\TableRegistry\Row\RegistryRowInputDefinition`
 - `Wolfcharaa\TableRegistry\Row\RegistryRowsProjector`
 - `Wolfcharaa\TableRegistry\Row\RegistryRowsResult`
 - `Wolfcharaa\TableRegistry\Runtime\NativeRegistryResolverInvoker`
@@ -98,6 +100,7 @@
 - `Wolfcharaa\TableRegistry\Sort\RegistrySortDefinition`
 - `Wolfcharaa\TableRegistry\Source\RegistryDataScopeDefinition`
 - `Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition`
+- `Wolfcharaa\TableRegistry\Source\RegistrySourceKind`
 - `Wolfcharaa\TableRegistry\Sql\CompiledRegistrySql`
 - `Wolfcharaa\TableRegistry\Sql\PostgresIdentifier`
 - `Wolfcharaa\TableRegistry\Sql\PostgresLiteral`

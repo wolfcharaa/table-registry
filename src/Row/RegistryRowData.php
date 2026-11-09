@@ -28,4 +28,24 @@ final class RegistryRowData
     {
         return $this->row;
     }
+
+    /**
+     * @param list<string> $keys
+     */
+    public function only(array $keys): self
+    {
+        $selected = [];
+
+        foreach ($keys as $key) {
+            if (\trim($key) === '') {
+                throw new \InvalidArgumentException('Registry row data key must not be empty.');
+            }
+
+            if (\array_key_exists($key, $this->row)) {
+                $selected[$key] = $this->row[$key];
+            }
+        }
+
+        return new self($selected);
+    }
 }

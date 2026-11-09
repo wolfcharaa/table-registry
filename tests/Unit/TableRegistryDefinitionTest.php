@@ -8,9 +8,11 @@ use Testo\Assert;
 use Testo\Expect;
 use Testo\Test;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\ColumnSelectDefinition;
 use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
 use Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException;
+use Wolfcharaa\TableRegistry\Row\RegistryRowInputDefinition;
 use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
 
@@ -146,6 +148,62 @@ final class TableRegistryDefinitionTest extends RegistryTestCase
         Expect::exception(\InvalidArgumentException::class);
 
         $this->usersDefinition()->withDefaultSort(RegistryDefaultSortDefinition::asc('missing'));
+    }
+
+    public function addsInternalRowInputWithoutChangingFrontendContract(): void
+    {
+        $definition = $this->usersDefinition();
+        $withInput = $definition->withRowInput(new RegistryRowInputDefinition(
+            'departmentTitle',
+            ColumnSelectDefinition::sqlExpression('departmentTitle', 'p.department_title')
+        ));
+
+        Assert::same($definition->rowInputs(), []);
+        Assert::same(\array_map(
+            static fn (RegistryRowInputDefinition $input): string => $input->key(),
+            $withInput->rowInputs()
+        ), ['departmentTitle']);
+        Assert::same($withInput->jsonSerialize(), $definition->jsonSerialize());
+    }
+
+    public function rejectsInputWithoutSelectForSqlSource(): void
+    {
+        Expect::exception(InvalidRegistryDefinitionException::class);
+
+        $this->usersDefinition()->withRowInput(new RegistryRowInputDefinition('departmentTitle'));
+    }
+
+    public function rejectsSqlSelectForExternalInput(): void
+    {
+        Expect::exception(InvalidRegistryDefinitionException::class);
+
+        (new TableRegistryDefinition(
+            registryKey: 'history',
+            title: 'История',
+            source: RegistrySourceDefinition::external('object_history'),
+            columns: [new PrimaryKeyColumnRegistryDefinition('id')]
+        ))->withRowInput(new RegistryRowInputDefinition(
+            'historyType',
+            ColumnSelectDefinition::sqlExpression('historyType', 'h.type')
+        ));
+    }
+
+    public function rejectsInputThatCollidesWithColumnOrAuxiliarySelect(): void
+    {
+        Expect::exception(InvalidRegistryDefinitionException::class);
+
+        (new TableRegistryDefinition(
+            registryKey: 'users',
+            title: 'Пользователи',
+            source: RegistrySourceDefinition::from('public.users u'),
+            columns: [
+                (new PrimaryKeyColumnRegistryDefinition('id'))
+                    ->withAuxiliarySelect(ColumnSelectDefinition::sqlExpression('departmentTitle', 'd.title')),
+            ]
+        ))->withRowInput(new RegistryRowInputDefinition(
+            'departmentTitle',
+            ColumnSelectDefinition::sqlExpression('departmentTitle', 'd.name')
+        ));
     }
 
     /** @return array<array-key, mixed> */

@@ -37,6 +37,10 @@ class ColumnRegistryDefinition implements \JsonSerializable
 
     /** @var callable|class-string<ColumnValueHydratorInterface>|null */
     private mixed $hydration = null;
+    /** @var list<string>|null */
+    private ?array $labelRowKeys = null;
+    /** @var list<string>|null */
+    private ?array $hydrationRowKeys = null;
 
     public function __construct(
         private readonly string $key,
@@ -63,13 +67,15 @@ class ColumnRegistryDefinition implements \JsonSerializable
 
     /**
      * @param callable|class-string<ColumnValueLabelResolverInterface>|string|null $label
+     * @param list<string>|null $rowKeys
      */
-    public function withLabel(callable|string|null $label): static
+    public function withLabel(callable|string|null $label, ?array $rowKeys = null): static
     {
         $this->assertLabelResolver($label);
 
         $clone = clone $this;
         $clone->label = $label;
+        $clone->labelRowKeys = $this->normalizeRowKeys($rowKeys);
 
         return $clone;
     }
@@ -135,13 +141,15 @@ class ColumnRegistryDefinition implements \JsonSerializable
 
     /**
      * @param callable|class-string<ColumnValueHydratorInterface>|null $resolver
+     * @param list<string>|null $rowKeys
      */
-    public function withHydration(callable|string|null $resolver): static
+    public function withHydration(callable|string|null $resolver, ?array $rowKeys = null): static
     {
         $this->assertHydrationResolver($resolver);
 
         $clone = clone $this;
         $clone->hydration = $resolver;
+        $clone->hydrationRowKeys = $this->normalizeRowKeys($rowKeys);
 
         return $clone;
     }
@@ -272,7 +280,7 @@ class ColumnRegistryDefinition implements \JsonSerializable
 
         return $invoker->invoke($this->hydration, [
             'value' => $value,
-            'row' => $row,
+            'row' => $this->resolverRow($row, $this->hydrationRowKeys),
             'column' => $this,
         ]);
     }
@@ -297,7 +305,7 @@ class ColumnRegistryDefinition implements \JsonSerializable
 
         $label = $invoker->invoke($this->label, [
             'value' => $value,
-            'row' => $row,
+            'row' => $this->resolverRow($row, $this->labelRowKeys),
             'column' => $this,
         ]);
 
@@ -386,5 +394,39 @@ class ColumnRegistryDefinition implements \JsonSerializable
                 ColumnValueHydratorInterface::class
             ));
         }
+    }
+
+    /**
+     * @param list<string>|null $rowKeys
+     * @return list<string>|null
+     */
+    private function normalizeRowKeys(?array $rowKeys): ?array
+    {
+        if ($rowKeys === null) {
+            return null;
+        }
+
+        $normalized = [];
+        foreach ($rowKeys as $key) {
+            if (\trim($key) === '') {
+                throw new \InvalidArgumentException('Resolver row key must not be empty.');
+            }
+
+            if (\in_array($key, $normalized, true)) {
+                throw new \InvalidArgumentException(\sprintf('Duplicate resolver row key "%s".', $key));
+            }
+
+            $normalized[] = $key;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param list<string>|null $rowKeys
+     */
+    private function resolverRow(RegistryRowData $row, ?array $rowKeys): RegistryRowData
+    {
+        return $rowKeys === null ? $row : $row->only($rowKeys);
     }
 }

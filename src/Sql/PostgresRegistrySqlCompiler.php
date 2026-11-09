@@ -6,6 +6,7 @@ namespace Wolfcharaa\TableRegistry\Sql;
 
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
 use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Exception\UnsupportedRegistrySourceException;
 use Wolfcharaa\TableRegistry\Filter\DateRangeFilterRegistryDefinition;
 use Wolfcharaa\TableRegistry\Filter\RegistryFilterExpressionInterface;
 use Wolfcharaa\TableRegistry\Filter\TimeRangeFilterRegistryDefinition;
@@ -28,6 +29,7 @@ final class PostgresRegistrySqlCompiler
      */
     public function compileRows(TableRegistryDefinition $definition, RegistrySqlQueryInput|array $query = []): CompiledRegistrySql
     {
+        $this->assertSqlSource($definition, 'compile rows SQL');
         $input = $this->queryInput($definition, $query);
 
         $params = [];
@@ -54,6 +56,7 @@ final class PostgresRegistrySqlCompiler
      */
     public function compileExportRows(TableRegistryDefinition $definition, RegistrySqlQueryInput|array $query = []): CompiledRegistrySql
     {
+        $this->assertSqlSource($definition, 'compile export SQL');
         $input = $this->queryInput($definition, $query);
 
         $params = [];
@@ -78,6 +81,7 @@ final class PostgresRegistrySqlCompiler
      */
     public function compileCount(TableRegistryDefinition $definition, RegistrySqlQueryInput|array $query = []): CompiledRegistrySql
     {
+        $this->assertSqlSource($definition, 'compile count SQL');
         $input = $this->queryInput($definition, $query);
 
         $params = [];
@@ -135,6 +139,19 @@ final class PostgresRegistrySqlCompiler
                     PostgresIdentifier::value($select->alias())->quoted()
                 );
             }
+        }
+
+        foreach ($definition->rowInputs() as $input) {
+            $select = $input->select();
+            if ($select === null) {
+                throw new \LogicException('SQL registry row input was not validated.');
+            }
+
+            $parts[] = \sprintf(
+                '    %s AS %s',
+                $select->expression(),
+                PostgresIdentifier::value($input->key())->quoted()
+            );
         }
 
         return \implode(",\n", $parts);
@@ -528,5 +545,19 @@ final class PostgresRegistrySqlCompiler
         return $query instanceof RegistrySqlQueryInput
             ? $query
             : RegistrySqlQueryInput::fromArray($definition, $query);
+    }
+
+    private function assertSqlSource(TableRegistryDefinition $definition, string $operation): void
+    {
+        $source = $definition->source();
+        if ($source->isSql()) {
+            return;
+        }
+
+        throw new UnsupportedRegistrySourceException(\sprintf(
+            'External registry source "%s" cannot %s.',
+            $source->externalKey(),
+            $operation
+        ));
     }
 }

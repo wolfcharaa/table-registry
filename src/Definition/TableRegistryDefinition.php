@@ -9,6 +9,7 @@ use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinitionCollection;
 use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinitionValidator;
 use Wolfcharaa\TableRegistry\Exception\InvalidRegistryDefinitionException;
 use Wolfcharaa\TableRegistry\Query\RegistryPaginationDefinition;
+use Wolfcharaa\TableRegistry\Row\RegistryRowInputDefinition;
 use Wolfcharaa\TableRegistry\Search\RegistrySearchDefinitionInterface;
 use Wolfcharaa\TableRegistry\Search\SearchBySearchableColumnsDefinition;
 use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeConstraintInterface;
@@ -24,6 +25,8 @@ class TableRegistryDefinition implements \JsonSerializable
     private array $columns;
     /** @var list<callable|class-string<RegistrySqlRuntimeConstraintInterface>> */
     private array $runtimeConstraints = [];
+    /** @var list<RegistryRowInputDefinition> */
+    private array $rowInputs = [];
     private RegistrySearchDefinitionInterface $search;
     private RegistryPaginationDefinition $pagination;
     private ?RegistryDefaultSortDefinition $defaultSort = null;
@@ -140,6 +143,45 @@ class TableRegistryDefinition implements \JsonSerializable
         return $this->runtimeConstraints;
     }
 
+    public function withRowInput(RegistryRowInputDefinition $input): static
+    {
+        if ($this->source->isSql() && $input->select() === null) {
+            throw InvalidRegistryDefinitionException::because(\sprintf(
+                'SQL registry row input "%s" must define a select.',
+                $input->key()
+            ));
+        }
+
+        if ($this->source->isExternal() && $input->select() !== null) {
+            throw InvalidRegistryDefinitionException::because(\sprintf(
+                'External registry row input "%s" cannot define a SQL select.',
+                $input->key()
+            ));
+        }
+
+        foreach ($this->occupiedRowKeys() as $key) {
+            if ($key === $input->key()) {
+                throw InvalidRegistryDefinitionException::because(\sprintf(
+                    'Duplicate registry raw row key "%s".',
+                    $input->key()
+                ));
+            }
+        }
+
+        $clone = clone $this;
+        $clone->rowInputs[] = $input;
+
+        return $clone;
+    }
+
+    /**
+     * @return list<RegistryRowInputDefinition>
+     */
+    public function rowInputs(): array
+    {
+        return $this->rowInputs;
+    }
+
     /**
      * @return array{
      *     schemaVersion:int,
@@ -204,5 +246,27 @@ class TableRegistryDefinition implements \JsonSerializable
                 RegistrySqlRuntimeConstraintInterface::class
             ));
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function occupiedRowKeys(): array
+    {
+        $keys = [];
+
+        foreach ($this->columns as $column) {
+            $keys[] = $column->key();
+
+            foreach ($column->auxiliarySelects() as $select) {
+                $keys[] = $select->alias();
+            }
+        }
+
+        foreach ($this->rowInputs as $input) {
+            $keys[] = $input->key();
+        }
+
+        return $keys;
     }
 }
