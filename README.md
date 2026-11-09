@@ -1,68 +1,121 @@
 # TableRegistry
 
-`TableRegistry` - PHP-библиотека для явного описания табличных и самостоятельных read-моделей, сборки
-PostgreSQL-запросов, нормализации строк под frontend-контракт и выгрузки данных в XLSX.
+`TableRegistry` — framework-agnostic PHP-библиотека для описания табличных и самостоятельных read-моделей,
+компиляции PostgreSQL-запросов, нормализации строк под frontend-контракт и выгрузки XLSX.
 
-Библиотека не зависит от конкретного web-фреймворка, DI-контейнера или HTTP-слоя. Она описывает только то, что
-backend должен знать о таблице: источник данных, колонки, фильтры, сортировки, поиск, пагинацию и подготовку строк.
+Библиотека полезна, когда backend должен явно зафиксировать колонки, фильтры, поиск, сортировку, пагинацию и форму
+ответа, но выполнение SQL, HTTP, авторизация и бизнес-действия должны оставаться в приложении.
 
-## Возможности
+Документация ведётся на русском языке. Имена public API, команды и исполняемые примеры общие для всех потребителей.
 
-- описание таблицы через PHP-классы без YAML/JSON-конфигурации;
-- обязательная primary key колонка;
-- явные sortable/filterable/searchable правила на уровне колонок;
-- сериализация definition в стабильный JSON-контракт для frontend;
-- компиляция rows/count/export SQL для PostgreSQL;
-- самостоятельный `SelectDefinition` для options, списков и небольших read-моделей вне таблицы;
-- typed `OptionListDefinition`/`SelectOption` для стабильных `value`/`label` payload;
-- validation query параметров относительно definition без привязки к HTTP;
-- payload-only/action-only колонки для служебных значений строк без попадания в настройки отображения;
-- output-only/computed колонки для значений, добавленных приложением до projection;
-- export policy на уровне колонок для безопасного выбора XLSX-полей;
-- runtime constraints через callback или invokable class;
-- value object нормализация значений строк;
-- label/hydration resolvers для человекочитаемого payload;
-- serializable rows result contract для страницы таблицы;
-- flatten projected rows для export/print;
-- XLSX export через OpenSpout.
+## Что Даёт Библиотека
 
-Библиотека не управляет действиями пользователя, кнопками, layout таблицы, проверками доступа на уровне маршрута,
-CRUD-командами и HTTP-роутингом. Эти решения должны оставаться в приложении, которое использует библиотеку.
+- `TableRegistryDefinition` для таблиц с обязательным primary key и сериализуемым frontend-контрактом;
+- `SelectDefinition` для options, списков и небольших read-моделей без table metadata;
+- строгую валидацию canonical query input;
+- PostgreSQL-компиляцию rows/count/export SQL и параметров без выполнения запроса;
+- projection raw rows в стабильные table и option payload;
+- runtime constraints для actor-, tenant- и scope-зависимых условий;
+- policy выбора экспортируемых колонок и запись XLSX через OpenSpout.
 
-## Требования
+Библиотека не открывает соединение с БД, не читает HTTP request, не авторизует route, не определяет CRUD-команды и
+не управляет layout или действиями frontend. Эти обязанности принадлежат host application.
 
-- PHP 8.2 или выше;
-- `ext-json`;
-- `ext-mbstring`;
+## Требования И Установка
+
+- PHP 8.2 или новее;
+- `ext-json` и `ext-mbstring`;
+- PostgreSQL для SQL, который компилирует библиотека;
 - `psr/container` `^1.1 || ^2.0`;
-- `openspout/openspout` `^4.28 || ^5.0` для XLSX export;
-- `testo/testo` `0.10.54` и `phpstan/phpstan` `2.2.16` только для разработки и проверок.
+- `openspout/openspout` `^4.28 || ^5.0` для XLSX.
 
-PHP 8.2 является минимальной production/dev/test версией. Конкретная major/minor версия OpenSpout выбирается
-Composer-ом с учетом PHP версии окружения.
-
-## Установка
+Установите стабильную линию `v0.6.x` из Packagist:
 
 ```bash
-composer require romanfedorskij/table-registry
+composer require romanfedorskij/table-registry:^0.6
 ```
 
-Для локальной разработки:
+## Быстрый Старт
+
+Создайте `quick-start.php` рядом с `vendor/`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
+use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
+use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
+
+require __DIR__ . '/vendor/autoload.php';
+
+$definition = new TableRegistryDefinition(
+    registryKey: 'users',
+    title: 'Users',
+    source: RegistrySourceDefinition::from('public.users'),
+    columns: [
+        new PrimaryKeyColumnRegistryDefinition('id'),
+        new ColumnRegistryDefinition('email', 'Email'),
+    ]
+);
+
+$contract = $definition->jsonSerialize();
+
+echo sprintf(
+    "registry=%s primary=%s columns=%d\n",
+    $contract['registryKey'],
+    $contract['primaryKey'],
+    count($contract['columns'])
+);
+```
+
+Запустите:
 
 ```bash
-composer install
-composer check
+php quick-start.php
 ```
 
-### Скиллы Для AI-Агентов
+Ожидаемый результат:
 
-Пакет поставляет два самостоятельных скилла:
+```text
+registry=users primary=id columns=2
+```
+
+Этот результат подтверждает первый публичный контракт библиотеки без БД и web-фреймворка. Поддерживаемый исходник
+примера находится в [`docs/examples/00-quick-start.php`](docs/examples/00-quick-start.php).
+
+## Как Устроена Интеграция
+
+```text
+HTTP/CLI adapter → validate input → compile SQL + params → application executes SQL
+                 → project raw rows → serialize response / export XLSX
+```
+
+`TableRegistryDefinition` нужен, когда frontend получает описание таблицы и rows payload. `SelectDefinition` подходит
+для options и других read-моделей, которым не нужны primary key и table metadata. В обоих вариантах приложение
+владеет transport parsing, DB adapter, authorization и response envelope.
+
+## Документация
+
+Начните с [карты документации](docs/README.md) или сразу выберите задачу:
+
+- [построить table read-model от definition до response](docs/table-read-model.md);
+- [построить standalone select или typed option list](docs/select-and-options.md);
+- [запустить исполняемые примеры](docs/examples/README.md);
+- [проверить поддерживаемые public symbols](docs/public-api.md);
+- [обновиться с `v0.5.x` на `v0.6.0`](docs/migration-v0.5-to-v0.6.md);
+- [понять стратегию совместимости `v0.6.x`](docs/v0.6-bc-matrix.md).
+
+## Скиллы Для AI-Агентов
+
+Пакет поставляет два скилла:
 
 - `table-registry-install` — установка, обновление и проверка Composer-пакета;
-- `table-registry-use` — создание definition и интеграция query validation, SQL compilation, row projection и XLSX export.
+- `table-registry-use` — создание definition и интеграция validation, compilation, projection и export.
 
-Если в проекте используется Composer-плагин [`llm/skills`](https://packagist.org/packages/llm/skills), каталог
-`skills/` объявлен в `composer.json` как источник и может быть синхронизирован в `.agents/skills/`:
+С Composer-плагином [`llm/skills`](https://packagist.org/packages/llm/skills) их можно синхронизировать в проект:
 
 ```bash
 composer require --dev llm/skills
@@ -70,664 +123,26 @@ composer skills:init --quick
 composer skills:update romanfedorskij/table-registry
 ```
 
-Composer запросит разрешение на запуск плагина при первой установке. Без плагина нужные директории можно скопировать
-из `vendor/romanfedorskij/table-registry/skills/` в каталог скиллов используемого агента.
+Composer запросит отдельное разрешение на запуск плагина. Без плагина скопируйте нужный каталог из
+`vendor/romanfedorskij/table-registry/skills/` в configured skills root агента; не редактируйте копию внутри
+`vendor/`.
 
-Более подробные сценарии использования вынесены в [docs/examples](docs/examples):
+## Совместимость
 
-- описание table definition;
-- сборка PostgreSQL SQL;
-- projection rows;
-- runtime constraints;
-- PSR-container invoker;
-- XLSX export.
-- standalone select и option list вне table definition.
+Поддерживаемая поверхность `v0.6.x` перечислена в [`docs/public-api.md`](docs/public-api.md) и проверяется signature
+snapshot-ом. Наличие класса под `src/` само по себе не означает compatibility promise; consumer code должен зависеть
+только от символов с `@api` из allowlist.
 
-## Быстрый Старт
-
-```php
-<?php
-
-use Wolfcharaa\TableRegistry\Column\ColumnRegistryDefinition;
-use Wolfcharaa\TableRegistry\Column\ColumnSelectDefinition;
-use Wolfcharaa\TableRegistry\Column\PrimaryKeyColumnRegistryDefinition;
-use Wolfcharaa\TableRegistry\Definition\TableRegistryDefinition;
-use Wolfcharaa\TableRegistry\Filter\SelectFilterRegistryDefinition;
-use Wolfcharaa\TableRegistry\Filter\TextFilterRegistryDefinition;
-use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
-use Wolfcharaa\TableRegistry\Sort\RegistrySortDefinition;
-use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
-
-$definition = (new TableRegistryDefinition(
-    registryKey: 'users',
-    title: 'Пользователи',
-    source: RegistrySourceDefinition::from('public.users u')
-        ->withLeftJoin('public.user_profile p', 'p.user_id = u.id'),
-    columns: [
-        (new PrimaryKeyColumnRegistryDefinition('id'))
-            ->withSelect(ColumnSelectDefinition::sqlExpression('id', 'u.id')),
-
-        (new ColumnRegistryDefinition('fullName', 'ФИО'))
-            ->withSelect(ColumnSelectDefinition::sqlExpression(
-                'fullName',
-                "concat_ws(' ', p.last_name, p.first_name)"
-            ))
-            ->withSearchable()
-            ->withSort(RegistrySortDefinition::byExpression('fullName', 'p.last_name, p.first_name'))
-            ->withFilter(TextFilterRegistryDefinition::contains(
-                queryKey: 'filter_fullName',
-                columnKey: 'fullName',
-                title: 'ФИО'
-            )),
-
-        (new ColumnRegistryDefinition('status', 'Статус'))
-            ->withSelect(ColumnSelectDefinition::sqlExpression('status', 'u.status'))
-            ->withFilter(SelectFilterRegistryDefinition::static(
-                queryKey: 'filter_status',
-                columnKey: 'status',
-                title: 'Статус',
-                options: [
-                    ['value' => 'active', 'label' => 'Активен'],
-                    ['value' => 'blocked', 'label' => 'Заблокирован'],
-                ]
-            )),
-
-        (new ColumnRegistryDefinition('actionToken', 'Action token'))
-            ->withSelect(ColumnSelectDefinition::sqlExpression('actionToken', 'u.action_token'))
-            ->withPayloadOnly(),
-
-        (new ColumnRegistryDefinition('roleId', 'ID роли'))
-            ->withSelect(ColumnSelectDefinition::sqlExpression('roleId', 'u.role_id'))
-            ->withFilter(SelectFilterRegistryDefinition::static(
-                queryKey: 'filter_roleId',
-                columnKey: 'roleId',
-                title: 'Роль',
-                options: []
-            ))
-            ->withExportable(false),
-    ]
-))->withDefaultSort(RegistryDefaultSortDefinition::desc('id'));
-```
-
-## Standalone Select И Option Lists
-
-`SelectDefinition` описывает самостоятельную read-модель ниже table и option abstractions. Он не требует
-`TableRegistryDefinition`, primary key или frontend table metadata и подходит для preload/async options, зависимых
-списков, восстановления выбранных значений и небольших project-specific reads.
-
-```php
-use Wolfcharaa\TableRegistry\Option\OptionListDefinition;
-use Wolfcharaa\TableRegistry\Select\Definition\SelectCriterionDefinition;
-use Wolfcharaa\TableRegistry\Select\Definition\SelectDefinition;
-use Wolfcharaa\TableRegistry\Select\Definition\SelectFieldDefinition;
-use Wolfcharaa\TableRegistry\Select\Definition\SelectOrderDefinition;
-use Wolfcharaa\TableRegistry\Select\Definition\SelectPaginationDefinition;
-use Wolfcharaa\TableRegistry\Select\Definition\SelectSearchDefinition;
-use Wolfcharaa\TableRegistry\Select\Definition\SelectSourceDefinition;
-use Wolfcharaa\TableRegistry\Select\Definition\SelectValueType;
-
-$select = SelectDefinition::from(
-    SelectSourceDefinition::relation('public.organization', 'o'),
-    [
-        SelectFieldDefinition::column('o.id', 'value'),
-        SelectFieldDefinition::column('o.name', 'label'),
-        SelectFieldDefinition::column('o.code', 'code'),
-    ]
-)
-    ->withCriterion(SelectCriterionDefinition::equal(
-        'departmentId',
-        'o.department_id',
-        SelectValueType::Integer
-    ))
-    ->withSearch(SelectSearchDefinition::contains(['o.name', 'o.code']))
-    ->withOrderBy(SelectOrderDefinition::ascending('o.name'))
-    ->withOrderBy(SelectOrderDefinition::ascending('o.id'))
-    ->withPagination(SelectPaginationDefinition::limit(defaultLimit: 25, maxLimit: 100));
-
-$options = OptionListDefinition::from(
-    select: $select,
-    valueAlias: 'value',
-    labelAlias: 'label',
-    valueType: SelectValueType::Integer
-)->withCode('code');
-```
-
-Transport adapter приложения преобразует HTTP/CLI aliases и значения в canonical input. Библиотека не читает
-request и не выполняет неявное преобразование строк в числа:
-
-```php
-use Wolfcharaa\TableRegistry\Select\Query\SelectQueryInput;
-use Wolfcharaa\TableRegistry\Select\Query\SelectQueryValidator;
-use Wolfcharaa\TableRegistry\Select\Sql\PostgresSelectCompiler;
-
-$query = SelectQueryInput::from(
-    search: 'центр',
-    criteria: ['departmentId' => 10],
-    limit: 25
-);
-
-(new SelectQueryValidator())->validate($select, $query)->assertValid();
-$compiled = (new PostgresSelectCompiler())->compile($select, $query);
-
-// Приложение исполняет $compiled->sql() с $compiled->params().
-```
-
-После выполнения SQL generic projector пропускает только aliases, объявленные definition. Option projector затем
-преобразует их в стабильный typed payload:
-
-```php
-use Wolfcharaa\TableRegistry\Option\SelectOptionsProjector;
-use Wolfcharaa\TableRegistry\Select\Row\SelectRowsProjector;
-
-$rows = (new SelectRowsProjector())->project($select, $databaseRows);
-$items = (new SelectOptionsProjector())->project($options, $rows);
-
-// [{"value": 42, "label": "Центральная организация", "code": null}]
-```
-
-### Контекст И Ограничения Доступа
-
-Search, criteria, sort и limit относятся к canonical query input. Текущий actor, tenant, area и policy services не
-передаются в универсальном context bag: project constraint получает их через constructor/DI, а динамические SQL
-значения добавляет только через `SelectRuntimeContext::param()`.
-
-```php
-use Wolfcharaa\TableRegistry\Select\Runtime\SelectRuntimeContext;
-use Wolfcharaa\TableRegistry\Select\Sql\SelectCondition;
-
-$select = $select->withRuntimeConstraint(
-    static function (SelectRuntimeContext $context): SelectCondition {
-        return SelectCondition::sql('o.area_id = ' . $context->param(77));
-    }
-);
-```
-
-В отличие от legacy `RegistrySqlRuntimeContext`, generic `SelectRuntimeContext::param()` возвращает готовый
-placeholder с двоеточием (`:p0`). Runtime constraints исполняются после declarative criteria в порядке регистрации.
-Для class-string constraints используйте `Select\Runtime\PsrContainerResolverInvoker`.
-
-`OptionSourceDefinition::static()`, `preload()` и `async()` описывает только способ доставки options на frontend.
-Он намеренно не связан с backend `OptionListDefinition`: routes/controllers, авторизация, SQL execution и HTTP envelope
-остаются в приложении.
-
-Полный исполняемый сценарий находится в
-[`docs/examples/07-standalone-option-list.php`](docs/examples/07-standalone-option-list.php).
-
-## JSON-Контракт
-
-`TableRegistryDefinition` реализует `JsonSerializable`.
-
-```php
-$payload = $definition->jsonSerialize();
-```
-
-Пример payload:
-
-```json
-{
-  "schemaVersion": 2,
-  "registryKey": "users",
-  "title": "Пользователи",
-  "primaryKey": "id",
-  "columns": [
-    {
-      "key": "fullName",
-      "title": "ФИО",
-      "searchable": true,
-      "sortable": true,
-      "filterable": true,
-      "filter": {
-        "queryKey": "filter_fullName",
-        "label": "ФИО",
-        "columnKey": "fullName",
-        "valueFormat": "string",
-        "operators": ["contains"]
-      }
-    }
-  ],
-  "query": {
-    "search": {
-      "enabled": true,
-      "queryKey": "search"
-    },
-    "pagination": {
-      "type": "page",
-      "pageKey": "page",
-      "perPageKey": "per_page",
-      "defaultPerPage": 25,
-      "maxPerPage": 250
-    },
-    "defaultSort": {
-      "column": "id",
-      "direction": "desc"
-    }
-  }
-}
-```
-
-В JSON не попадают backend-only детали: `source`, joins, SQL expressions, runtime constraints, hydration callbacks и
-label resolvers.
-
-Колонки, помеченные `withPayloadOnly()`, также не попадают в `columns` JSON definition. При этом они остаются частью
-backend definition: SQL compiler выбирает их в rows-запросе, `RegistryRowsProjector` отдаёт их в `row.values`, а
-frontend может использовать эти значения для row actions, detail modal или других feature-specific сценариев без
-появления таких полей в настройках отображения таблицы.
-
-Колонки, помеченные `withExportable(false)`, остаются в JSON definition, rows payload, сортировках и фильтрах, но не
-попадают в набор колонок, доступных для XLSX export. Это удобно для технических id-полей, которые нужны frontend для
-фильтра или перехода, но не должны попадать в файл выгрузки. `withPayloadOnly()` колонки также считаются неэкспортируемыми.
-
-Output-only колонка описывает значение, которое приложение добавляет в raw row после SQL и до projection:
-
-```php
-(new ColumnRegistryDefinition('personLabel', 'ФИО'))
-    ->withOutputOnly();
-```
-
-Такая колонка попадает в JSON definition и rows payload, но `PostgresRegistrySqlCompiler` не добавляет её в `SELECT`.
-По умолчанию она не участвует в search/sort/filter/export. Если приложению нужно выгружать уже подготовленное
-output-only значение, export можно включить явно через `withExportable(true)`.
-
-## Source
-
-`RegistrySourceDefinition` описывает SQL-фрагмент после `FROM` и optional joins.
-
-```php
-$source = RegistrySourceDefinition::from('public.orders o')
-    ->withLeftJoin('public.users u', 'u.id = o.user_id')
-    ->withConnection('default')
-    ->withCountSource('public.orders o');
-```
-
-`withConnection()` хранит opaque logical scope источника данных. Библиотека не открывает connection и не проверяет
-доступность scope; приложение само решает, как сопоставить строку `default`, `warehouse` или другое имя с реальным
-PDO/DBAL connection.
-
-`from()` может быть таблицей, view, materialized view или читаемым SQL-фрагментом:
-
-```php
-RegistrySourceDefinition::from('(SELECT * FROM public.users WHERE deleted_at IS NULL) u');
-```
-
-`withCountSource()` задаёт отдельный `FROM` только для `compileCount()`. Joins, filters, search expressions и runtime
-constraints остаются теми же, поэтому count source должен сохранять alias и SQL-поля, на которые ссылается definition.
-Это полезно, когда rows читаются из view или тяжелого source, а count можно безопасно считать по более простому source.
-Если приложение исторически хранит в `countSource` opaque key для собственного snapshot/cache-счётчика, например
-`fis_export_package:active`, compiler не использует такой key как SQL `FROM` и вернётся к обычному `from()`.
-
-Не подставляйте пользовательский ввод в `source` и joins. Пользовательские значения должны проходить через filters,
-query input и параметры SQL compiler-а.
-
-## Columns
-
-Минимальная колонка знает ключ и человекочитаемый заголовок:
-
-```php
-new ColumnRegistryDefinition('email', 'Email');
-```
-
-Если `withSelect()` не указан, compiler использует quoted identifier:
-
-```sql
-"email" AS "email"
-```
-
-Для сложного выражения используйте `ColumnSelectDefinition`:
-
-```php
-(new ColumnRegistryDefinition('fullName', 'ФИО'))
-    ->withSelect(ColumnSelectDefinition::sqlExpression(
-        'fullName',
-        "concat_ws(' ', last_name, first_name, middle_name)"
-    ));
-```
-
-Primary key обязателен:
-
-```php
-new PrimaryKeyColumnRegistryDefinition('id');
-```
-
-Служебная колонка только для payload/action:
-
-```php
-(new ColumnRegistryDefinition('actionToken', 'Action token'))
-    ->withSelect(ColumnSelectDefinition::sqlExpression('actionToken', 'u.action_token'))
-    ->withPayloadOnly();
-```
-
-Primary key нельзя сделать payload-only: он всегда остаётся частью публичного contract как `primaryKey`.
-
-## Фильтры
-
-Встроенные фильтры:
-
-- `TextFilterRegistryDefinition::contains()` и `::exact()`;
-- `IntegerFilterRegistryDefinition::exact()`;
-- `BooleanFilterRegistryDefinition::exact()`;
-- `NullabilityFilterRegistryDefinition`;
-- `DateRangeFilterRegistryDefinition`;
-- `TimeRangeFilterRegistryDefinition`;
-- `SelectFilterRegistryDefinition::static()`;
-- `SelectFilterRegistryDefinition::preload()`;
-- `SelectFilterRegistryDefinition::async()`.
-
-Select filter может отдавать frontend статичные options:
-
-```php
-SelectFilterRegistryDefinition::static(
-    queryKey: 'filter_status',
-    columnKey: 'status',
-    title: 'Статус',
-    options: [
-        ['value' => 'active', 'label' => 'Активен'],
-    ]
-);
-```
-
-Для preload/async фильтров route задаётся явно:
-
-```php
-SelectFilterRegistryDefinition::preload(
-    queryKey: 'filter_koap',
-    columnKey: 'koapCode',
-    title: 'КоАП',
-    route: '/api/table/options/nsi/koap'
-);
-```
-
-## Поиск И Сортировка
-
-Колонка участвует в global search только если вызван `withSearchable()`:
-
-```php
-$column = $column->withSearchable();
-```
-
-Сортировка включается через `withSort()`:
-
-```php
-$column = $column->withSort(RegistrySortDefinition::byColumn('createdAt'));
-```
-
-Для SQL expression:
-
-```php
-$column = $column->withSort(
-    RegistrySortDefinition::byExpression('fullName', 'last_name, first_name')
-);
-```
-
-Default sort хранится на уровне таблицы:
-
-```php
-$definition = $definition->withDefaultSort(RegistryDefaultSortDefinition::desc('id'));
-```
-
-## SQL Compiler
-
-`PostgresRegistrySqlCompiler` собирает SQL и params, но не выполняет запрос.
-
-```php
-use Wolfcharaa\TableRegistry\Sql\PostgresRegistrySqlCompiler;
-
-$compiled = (new PostgresRegistrySqlCompiler())->compileRows($definition, [
-    'search' => 'иван',
-    'filter_status' => ['active', 'blocked'],
-    'sort_col' => 'fullName',
-    'sort_dir' => 'desc',
-    'page' => 1,
-    'per_page' => 25,
-]);
-
-$sql = $compiled->sql();
-$params = $compiled->params();
-```
-
-Доступные методы:
-
-- `compileRows()` - rows query с pagination;
-- `compileCount()` - count query;
-- `compileExportRows()` - rows query без pagination для export.
-
-Выполнение SQL остаётся ответственностью приложения.
-
-## Query Validation
-
-`RegistryQueryValidator` проверяет raw query параметры относительно `TableRegistryDefinition`, но не меняет поведение
-compiler-а сам по себе. Это позволяет приложению включить strict validation перед выполнением SQL и самостоятельно
-решить, как превратить ошибки в HTTP response.
-
-```php
-use Wolfcharaa\TableRegistry\Query\RegistryQueryValidator;
-
-$validation = (new RegistryQueryValidator())->validate($definition, [
-    'sort_col' => 'fullName',
-    'sort_dir' => 'desc',
-    'filter_status' => ['active', 'blocked'],
-    'page' => '1',
-    'per_page' => '25',
-]);
-
-if (!$validation->isValid()) {
-    $issues = $validation->jsonSerialize()['issues'];
-}
-```
-
-Проверяются:
-
-- неизвестные query keys;
-- неизвестные или несортируемые sort columns;
-- sort direction;
-- page/per-page значения и max per-page;
-- filter values после нормализации;
-- date/time range format;
-- отключенный search или search без searchable columns.
-
-Можно использовать `assertValid()`, если приложению удобнее работать с exception:
-
-```php
-$validation->assertValid();
-```
-
-## Runtime Constraints
-
-Runtime constraints позволяют добавить условия, зависящие от пользователя, tenant, подразделения или другого
-контекста приложения.
-
-```php
-use Wolfcharaa\TableRegistry\Sql\RegistrySqlCondition;
-use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeContext;
-
-$definition = $definition->withRuntimeConstraint(
-    static function (RegistrySqlRuntimeContext $context): RegistrySqlCondition {
-        $param = $context->param(42);
-
-        return RegistrySqlCondition::raw('u.department_id = :' . $param);
-    }
-);
-```
-
-Для интеграции с DI используйте `PsrContainerRegistryResolverInvoker`. Он получает class-string resolver из
-`Psr\Container\ContainerInterface`, а для callable и обычных invokable classes использует native fallback.
-
-```php
-use Wolfcharaa\TableRegistry\Runtime\PsrContainerRegistryResolverInvoker;
-
-$projector = new RegistryRowsProjector(
-    new PsrContainerRegistryResolverInvoker($container)
-);
-```
-
-## Rows Payload
-
-`RegistryRowsProjector` преобразует строки из БД в стабильный payload:
-
-```php
-use Wolfcharaa\TableRegistry\Row\RegistryRowsProjector;
-
-$rows = (new RegistryRowsProjector())->project($definition, [
-    ['id' => 1, 'status' => 'active'],
-]);
-```
-
-Результат:
-
-```json
-[
-  {
-    "primaryKey": "1",
-    "values": {
-      "status": {
-        "value": "active",
-        "label": "active"
-      }
-    }
-  }
-]
-```
-
-`label` всегда строка. Если label resolver не задан, label строится из hydrated value. Для `DateTimeValue`
-используется формат `d.m.Y H:i`.
-
-Если приложению нужен стабильный wrapper для страницы таблицы, используйте `RegistryRowsResult`. Он не выполняет SQL,
-а только сериализует уже спроецированные rows, total и нормализованный query input:
-
-```php
-use Wolfcharaa\TableRegistry\Row\RegistryRowsResult;
-use Wolfcharaa\TableRegistry\Sql\RegistrySqlQueryInput;
-
-$query = RegistrySqlQueryInput::fromArray($definition, $_GET);
-$projectedRows = (new RegistryRowsProjector())->project($definition, $sqlRows);
-
-$payload = new RegistryRowsResult(
-    definition: $definition,
-    query: $query,
-    total: $total,
-    rows: $projectedRows
-);
-```
-
-JSON contract:
-
-```json
-{
-  "schemaVersion": 2,
-  "registryKey": "users",
-  "rows": [],
-  "total": 123,
-  "query": {
-    "page": 1,
-    "perPage": 25,
-    "search": "",
-    "sort": {
-      "column": "",
-      "direction": "asc"
-    }
-  }
-}
-```
-
-## Value Objects И Labels
-
-Колонка может нормализовать raw value через `PrimitiveValueObjectInterface`:
-
-```php
-use Wolfcharaa\TableRegistry\Value\DateTimeValue;
-
-$column = (new ColumnRegistryDefinition('createdAt', 'Дата создания'))
-    ->withRowTypeObject(DateTimeValue::class);
-```
-
-Label можно задать строкой, callback или class-string resolver-а:
-
-```php
-$column = $column->withLabel(
-    static fn ($value, $row, $column): string => $value->getValue() === 'active' ? 'Активен' : 'Неактивен'
-);
-```
-
-Если строка является существующим классом, класс должен реализовать `ColumnValueLabelResolverInterface`.
-
-## Export
-
-Сначала выберите запрошенные колонки. Resolver сам ограничит их export policy из `TableRegistryDefinition`:
-
-```php
-use Wolfcharaa\TableRegistry\Export\RegistryExportColumnResolver;
-
-$columns = (new RegistryExportColumnResolver())->resolve(
-    definition: $definition,
-    requestedColumnKeys: ['fullName', 'status']
-);
-```
-
-Если `requestedColumnKeys` пустой, resolver вернёт все колонки, для которых `exportable() === true`.
-
-Для плоских строк из projected rows:
-
-```php
-use Wolfcharaa\TableRegistry\Row\RegistryProjectedRowsFlattener;
-
-$flatRows = RegistryProjectedRowsFlattener::flattenLabels($projectedRows);
-```
-
-XLSX:
-
-```php
-use Wolfcharaa\TableRegistry\Export\RegistryXlsxExporter;
-
-$result = (new RegistryXlsxExporter())->export(
-    definition: $definition,
-    columns: $columns,
-    rows: $flatRows,
-    fileNamePrefix: 'users'
-);
-
-$filePath = $result->filePath();
-$fileName = $result->fileName();
-```
-
-## Разработка И Проверки
-
-Единый локальный gate проверяет Composer metadata, весь Testo suite, PHPStan на максимальном уровне и каждый пример из
-`docs/examples/`:
+## Разработка
 
 ```bash
+composer install
 composer check
 ```
 
-Отдельные проверки можно запускать командами:
+`composer check` валидирует Composer metadata, запускает unit/contract/characterization suites, PHPStan и все
+примеры из `docs/examples/`.
 
-```bash
-composer test
-composer test:unit
-composer test:contract
-composer test:characterization
-composer analyse
-composer examples
-```
+## Лицензия
 
-Testo разделён на три suite:
-
-- `Unit` проверяет поведение отдельных компонентов;
-- `Contract` сверяет [поддерживаемый public API](docs/public-api.md) и reflection signature snapshot;
-- `Characterization` фиксирует совместимость наблюдаемых JSON, SQL, параметров и projected rows с линией `v0.5.x`.
-
-Направление совместимости описано в [BC matrix](docs/v0.6-bc-matrix.md), а обновление приложения с `v0.5.x` — в
-[migration guide](docs/migration-v0.5-to-v0.6.md). Документационные
-примеры являются исполняемой частью quality gate и не должны оставлять временные артефакты.
-
-Unit-тесты покрывают:
-
-- JSON-контракт definition;
-- валидацию primary key и дубликатов колонок;
-- PostgreSQL SQL compiler;
-- runtime constraint callback;
-- projection rows в `{primaryKey, values}`;
-- label resolver для строк;
-- export column resolver;
-- flatten projected rows;
-- PostgreSQL identifier/literal value objects.
-- standalone select query validation и PostgreSQL compilation;
-- strict generic rows и typed option projection.
+[MIT](LICENSE)

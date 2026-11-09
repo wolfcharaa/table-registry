@@ -2,6 +2,7 @@
 
 В этой директории лежат небольшие самодостаточные примеры работы с библиотекой.
 
+- `00-quick-start.php` - минимальный definition и первый наблюдаемый frontend-контракт.
 - `01-table-definition.php` - описание таблицы, колонок, payload-only колонок, фильтров, поиска и default sort.
 - `02-postgres-sql-compiler.php` - сборка PostgreSQL SQL для rows/count/export.
 - `03-row-projection.php` - подготовка строк в `{primaryKey, values}` payload и label resolver.
