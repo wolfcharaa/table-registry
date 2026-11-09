@@ -256,7 +256,7 @@ class TableRegistryDefinition implements \JsonSerializable
         $keys = [];
 
         foreach ($this->columns as $column) {
-            $keys[] = $column->key();
+            $keys[] = $column->rawRowKey();
 
             foreach ($column->auxiliarySelects() as $select) {
                 $keys[] = $select->alias();

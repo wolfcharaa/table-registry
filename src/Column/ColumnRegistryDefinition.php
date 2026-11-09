@@ -28,6 +28,7 @@ class ColumnRegistryDefinition implements \JsonSerializable
     private bool $payloadOnly = false;
     private bool $outputOnly = false;
     private ?bool $exportable = null;
+    private ?string $rawRowKey = null;
 
     /** @var array<string, ColumnSelectDefinition> */
     private array $auxiliarySelects = [];
@@ -189,6 +190,23 @@ class ColumnRegistryDefinition implements \JsonSerializable
         $clone->exportable = $exportable;
 
         return $clone;
+    }
+
+    public function withRawRowKey(string $rawRowKey): static
+    {
+        if (\trim($rawRowKey) === '') {
+            throw new \InvalidArgumentException('Column raw row key must not be empty.');
+        }
+
+        $clone = clone $this;
+        $clone->rawRowKey = $rawRowKey;
+
+        return $clone;
+    }
+
+    public function rawRowKey(): string
+    {
+        return $this->rawRowKey ?? $this->key;
     }
 
     public function filter(): ?RegistryFilterDefinitionInterface

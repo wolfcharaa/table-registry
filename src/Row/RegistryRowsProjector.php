@@ -26,13 +26,13 @@ final class RegistryRowsProjector
     public function project(TableRegistryDefinition $definition, array $rows): array
     {
         $columns = $definition->columns();
-        $primaryKey = $columns->primaryKey()->key();
         $projectedRows = [];
 
         foreach ($rows as $row) {
             $rowData = new RegistryRowData($row);
+            $primaryColumn = $columns->primaryKey();
             $projectedRows[] = [
-                'primaryKey' => $this->stringify($row[$primaryKey] ?? null),
+                'primaryKey' => $this->stringify($row[$primaryColumn->rawRowKey()] ?? null),
                 'values' => $this->projectValues($columns->all(), $rowData),
             ];
         }
@@ -49,7 +49,7 @@ final class RegistryRowsProjector
         $values = [];
 
         foreach ($columns as $column) {
-            $rawValue = $row->get($column->key());
+            $rawValue = $row->get($column->rawRowKey());
             $valueObject = $column->rawValueObject($rawValue);
             $value = $column->value($valueObject, $row, $this->resolverInvoker);
             $label = $column->label($valueObject, $row, $value, $this->resolverInvoker);
