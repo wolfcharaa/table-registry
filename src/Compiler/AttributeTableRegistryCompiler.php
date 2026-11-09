@@ -13,6 +13,7 @@ use Wolfcharaa\TableRegistry\Attribute\DateRangeFilter;
 use Wolfcharaa\TableRegistry\Attribute\DefaultSort;
 use Wolfcharaa\TableRegistry\Attribute\ExternalField;
 use Wolfcharaa\TableRegistry\Attribute\ExternalRows;
+use Wolfcharaa\TableRegistry\Attribute\ExcludeFromVariant;
 use Wolfcharaa\TableRegistry\Attribute\Field;
 use Wolfcharaa\TableRegistry\Attribute\From;
 use Wolfcharaa\TableRegistry\Attribute\HydrateWith;
@@ -22,12 +23,17 @@ use Wolfcharaa\TableRegistry\Attribute\Join;
 use Wolfcharaa\TableRegistry\Attribute\Label;
 use Wolfcharaa\TableRegistry\Attribute\LabelFrom;
 use Wolfcharaa\TableRegistry\Attribute\LabelWith;
+use Wolfcharaa\TableRegistry\Attribute\MappedFields;
 use Wolfcharaa\TableRegistry\Attribute\NullabilityFilter;
+use Wolfcharaa\TableRegistry\Attribute\OnlyInVariant;
 use Wolfcharaa\TableRegistry\Attribute\Pagination;
 use Wolfcharaa\TableRegistry\Attribute\PreloadSelectFilter;
 use Wolfcharaa\TableRegistry\Attribute\PrimaryKey;
 use Wolfcharaa\TableRegistry\Attribute\Project;
+use Wolfcharaa\TableRegistry\Attribute\RawRelation;
 use Wolfcharaa\TableRegistry\Attribute\RawType;
+use Wolfcharaa\TableRegistry\Attribute\Relation;
+use Wolfcharaa\TableRegistry\Attribute\RelationSourceProvider;
 use Wolfcharaa\TableRegistry\Attribute\RuntimeConstraint;
 use Wolfcharaa\TableRegistry\Attribute\Search;
 use Wolfcharaa\TableRegistry\Attribute\Searchable;
@@ -72,6 +78,7 @@ use Wolfcharaa\TableRegistry\Search\SearchBySearchableColumnsDefinition;
 use Wolfcharaa\TableRegistry\Sort\RegistryDefaultSortDefinition;
 use Wolfcharaa\TableRegistry\Sort\RegistrySortDefinition;
 use Wolfcharaa\TableRegistry\Source\RegistrySourceDefinition;
+use Wolfcharaa\TableRegistry\Sql\RegistrySqlRuntimeConstraintInterface;
 use Wolfcharaa\TableRegistry\Value\BooleanValue;
 use Wolfcharaa\TableRegistry\Value\DateTimeValue;
 use Wolfcharaa\TableRegistry\Value\IntegerValue;
@@ -107,7 +114,13 @@ final class AttributeTableRegistryCompiler
         $providerOutputCache = [];
         $relationCache = [];
 
-        return $this->compileOne($aggregate, $variant, $providerCache, $providerOutputCache, $relationCache);
+        return $this->compileValidated(
+            $aggregate,
+            $variant,
+            $providerCache,
+            $providerOutputCache,
+            $relationCache
+        );
     }
 
     /**
@@ -123,7 +136,7 @@ final class AttributeTableRegistryCompiler
 
         foreach ($aggregates as $aggregate) {
             try {
-                $definition = $this->compileOne(
+                $definition = $this->compileValidated(
                     $aggregate,
                     null,
                     $providerCache,
@@ -158,9 +171,130 @@ final class AttributeTableRegistryCompiler
      */
     public function compileVariants(string $aggregate): CompiledTableDefinitionCollection
     {
-        return new CompiledTableDefinitionCollection([
-            'default' => $this->compile($aggregate),
-        ]);
+        $providerCache = [];
+        $providerOutputCache = [];
+        $relationCache = [];
+
+        try {
+            if (!\class_exists($aggregate)) {
+                throw InvalidRegistryDefinitionException::because(\sprintf(
+                    'Aggregate "%s" must be an existing class.',
+                    $aggregate
+                ));
+            }
+
+            $reflection = new \ReflectionClass($aggregate);
+            $identity = $this->tableIdentity(
+                $aggregate,
+                $this->attributes->instances($reflection, Table::class),
+                $this->attributes->instances($reflection, Variant::class),
+                null
+            );
+        } catch (\Throwable $exception) {
+            throw $this->compilationException($aggregate, null, $exception);
+        }
+
+        if (!$identity['family']) {
+            return new CompiledTableDefinitionCollection([
+                'default' => $this->compileOne(
+                    $aggregate,
+                    null,
+                    $providerCache,
+                    $providerOutputCache,
+                    $relationCache
+                ),
+            ]);
+        }
+
+        $definitions = [];
+        $issues = [];
+        foreach ($identity['names'] as $name) {
+            try {
+                $definitions[$name] = $this->compileOne(
+                    $aggregate,
+                    $name,
+                    $providerCache,
+                    $providerOutputCache,
+                    $relationCache
+                );
+            } catch (AttributeCompilationException $exception) {
+                $issues = [...$issues, ...$exception->issues()];
+            }
+        }
+
+        if ($issues !== []) {
+            throw new AttributeCompilationException($issues);
+        }
+
+        return new CompiledTableDefinitionCollection($definitions);
+    }
+
+    /**
+     * @param class-string $aggregate
+     * @param array<class-string, object> $providerCache
+     * @param array<string, mixed> $providerOutputCache
+     * @param array<class-string, RelationMetadata> $relationCache
+     */
+    private function compileValidated(
+        string $aggregate,
+        ?string $variant,
+        array &$providerCache,
+        array &$providerOutputCache,
+        array &$relationCache
+    ): TableRegistryDefinition {
+        try {
+            if (!\class_exists($aggregate)) {
+                throw InvalidRegistryDefinitionException::because(\sprintf(
+                    'Aggregate "%s" must be an existing class.',
+                    $aggregate
+                ));
+            }
+            $reflection = new \ReflectionClass($aggregate);
+            $identity = $this->tableIdentity(
+                $aggregate,
+                $this->attributes->instances($reflection, Table::class),
+                $this->attributes->instances($reflection, Variant::class),
+                $variant
+            );
+        } catch (\Throwable $exception) {
+            throw $this->compilationException($aggregate, $variant, $exception);
+        }
+
+        if (!$identity['family']) {
+            return $this->compileOne(
+                $aggregate,
+                null,
+                $providerCache,
+                $providerOutputCache,
+                $relationCache
+            );
+        }
+
+        $definitions = [];
+        $issues = [];
+        foreach ($identity['names'] as $name) {
+            try {
+                $definitions[$name] = $this->compileOne(
+                    $aggregate,
+                    $name,
+                    $providerCache,
+                    $providerOutputCache,
+                    $relationCache
+                );
+            } catch (AttributeCompilationException $exception) {
+                $issues = [...$issues, ...$exception->issues()];
+            }
+        }
+        if ($issues !== []) {
+            throw new AttributeCompilationException($issues);
+        }
+
+        $selected = $identity['variant'];
+        if ($selected === null || !isset($definitions[$selected])) {
+            throw new \LogicException('Selected aggregate variant was not compiled.');
+        }
+
+        return $definitions[$selected];
     }
 
     /**
@@ -187,14 +321,7 @@ final class AttributeTableRegistryCompiler
         } catch (AttributeCompilationException $exception) {
             throw $exception;
         } catch (\Throwable $exception) {
-            throw new AttributeCompilationException([
-                new AttributeCompilationIssue(
-                    'definition.invalid',
-                    $exception->getMessage(),
-                    $aggregate,
-                    $variant
-                ),
-            ]);
+            throw $this->compilationException($aggregate, $variant, $exception);
         }
     }
 
@@ -221,17 +348,20 @@ final class AttributeTableRegistryCompiler
         $reflection = new \ReflectionClass($aggregate);
         $tables = $this->attributes->instances($reflection, Table::class);
         $variants = $this->attributes->instances($reflection, Variant::class);
-        if ($variant !== null || $variants !== []) {
-            throw InvalidRegistryDefinitionException::because('Named aggregate variants are introduced in compiler Slice 5.');
-        }
-
-        if (\count($tables) !== 1 || !$tables[0] instanceof Table) {
+        $identity = $this->tableIdentity($aggregate, $tables, $variants, $variant);
+        $selectedVariant = $identity['variant'];
+        $variantNames = $identity['names'];
+        if (
+            $this->attributes->has($reflection, Relation::class)
+            || $this->attributes->has($reflection, RawRelation::class)
+            || $this->attributes->has($reflection, RelationSourceProvider::class)
+            || $this->attributes->has($reflection, MappedFields::class)
+        ) {
             throw InvalidRegistryDefinitionException::because(\sprintf(
-                'Aggregate "%s" must declare exactly one Table Attribute.',
+                'Aggregate "%s" has a conflicting TableRegistry class role.',
                 $aggregate
             ));
         }
-        $table = $tables[0];
 
         $fromAttributes = $this->attributes->instances($reflection, From::class);
         $externalAttributes = $this->attributes->instances($reflection, ExternalRows::class);
@@ -257,7 +387,14 @@ final class AttributeTableRegistryCompiler
                 throw new \LogicException('SQL aggregate source was not normalized.');
             }
             $this->assertAlias($from->alias, 'root participant');
-            $root = $this->relation($from->model, $providerCache, $providerOutputCache, $relationCache);
+            $root = $this->relation(
+                $from->model,
+                $providerCache,
+                $providerOutputCache,
+                $relationCache,
+                $aggregate,
+                $selectedVariant
+            );
             $participants[$from->alias] = $root;
 
             foreach ($joins as $join) {
@@ -273,7 +410,9 @@ final class AttributeTableRegistryCompiler
                     $join->model,
                     $providerCache,
                     $providerOutputCache,
-                    $relationCache
+                    $relationCache,
+                    $aggregate,
+                    $selectedVariant
                 );
                 if ($relation->source()->connection() !== $root->source()->connection()) {
                     throw InvalidRegistryDefinitionException::because(\sprintf(
@@ -294,7 +433,12 @@ final class AttributeTableRegistryCompiler
             }
         }
 
-        $countSource = $this->optionalAttribute($reflection, CountSource::class);
+        $countSource = $this->variantAttribute(
+            $reflection,
+            CountSource::class,
+            $selectedVariant,
+            $variantNames
+        );
         if ($countSource instanceof CountSource) {
             if ($isExternal) {
                 throw InvalidRegistryDefinitionException::because('ExternalRows aggregate cannot declare CountSource.');
@@ -302,22 +446,26 @@ final class AttributeTableRegistryCompiler
             $source = $source->withCountSource($countSource->source);
         }
 
-        $rowKeys = $this->propertyRowKeys($reflection, $isExternal);
+        $rowKeys = $this->propertyRowKeys($reflection, $isExternal, $selectedVariant, $variantNames);
         $columns = $this->columns(
             $reflection,
             $participants,
             $providerCache,
             $providerOutputCache,
             $isExternal,
-            $rowKeys
+            $rowKeys,
+            $selectedVariant,
+            $variantNames
         );
-        $definition = new TableRegistryDefinition($table->key, $table->title, $source, $columns);
+        $definition = new TableRegistryDefinition($identity['key'], $identity['title'], $source, $columns);
         foreach ($this->internalInputs(
             $reflection,
             $participants,
             $providerCache,
             $providerOutputCache,
-            $isExternal
+            $isExternal,
+            $selectedVariant,
+            $variantNames
         ) as $input) {
             $definition = $definition->withRowInput($input);
         }
@@ -330,7 +478,12 @@ final class AttributeTableRegistryCompiler
             ));
         }
 
-        $pagination = $this->optionalAttribute($reflection, Pagination::class);
+        $pagination = $this->variantAttribute(
+            $reflection,
+            Pagination::class,
+            $selectedVariant,
+            $variantNames
+        );
         if ($pagination instanceof Pagination) {
             $definition = $definition->withPagination(new RegistryPaginationDefinition(
                 $pagination->pageKey,
@@ -340,7 +493,12 @@ final class AttributeTableRegistryCompiler
             ));
         }
 
-        $defaultSort = $this->optionalAttribute($reflection, DefaultSort::class);
+        $defaultSort = $this->variantAttribute(
+            $reflection,
+            DefaultSort::class,
+            $selectedVariant,
+            $variantNames
+        );
         if ($defaultSort instanceof DefaultSort) {
             $definition = $definition->withDefaultSort(new RegistryDefaultSortDefinition(
                 $defaultSort->column,
@@ -348,16 +506,16 @@ final class AttributeTableRegistryCompiler
             ));
         }
 
-        foreach ($this->attributes->instances($reflection, SqlConstraint::class) as $constraint) {
+        foreach ($this->variantAttributeList(
+            $reflection,
+            SqlConstraint::class,
+            $selectedVariant,
+            $variantNames
+        ) as $constraint) {
             if ($constraint instanceof SqlConstraint) {
                 if ($isExternal) {
                     throw InvalidRegistryDefinitionException::because(
                         'ExternalRows aggregate cannot declare SQL constraints.'
-                    );
-                }
-                if ($constraint->variant !== null) {
-                    throw InvalidRegistryDefinitionException::because(
-                        'Variant-scoped SQL constraints require a named aggregate variant.'
                     );
                 }
                 $definition = $definition->withRuntimeConstraint(
@@ -366,17 +524,27 @@ final class AttributeTableRegistryCompiler
             }
         }
 
-        foreach ($this->attributes->instances($reflection, RuntimeConstraint::class) as $constraint) {
+        foreach ($this->variantAttributeList(
+            $reflection,
+            RuntimeConstraint::class,
+            $selectedVariant,
+            $variantNames
+        ) as $constraint) {
             if ($constraint instanceof RuntimeConstraint) {
                 if ($isExternal) {
                     throw InvalidRegistryDefinitionException::because(
                         'ExternalRows aggregate cannot declare runtime SQL constraints.'
                     );
                 }
-                if ($constraint->variant !== null) {
-                    throw InvalidRegistryDefinitionException::because(
-                        'Variant-scoped runtime constraints require a named aggregate variant.'
-                    );
+                if (!\class_exists($constraint->resolver) || !\is_subclass_of(
+                    $constraint->resolver,
+                    RegistrySqlRuntimeConstraintInterface::class
+                )) {
+                    throw InvalidRegistryDefinitionException::because(\sprintf(
+                        'Runtime constraint resolver "%s" must implement %s.',
+                        $constraint->resolver,
+                        RegistrySqlRuntimeConstraintInterface::class
+                    ));
                 }
                 $definition = $definition->withRuntimeConstraint($constraint->resolver);
             }
@@ -420,15 +588,23 @@ final class AttributeTableRegistryCompiler
 
     /**
      * @param \ReflectionClass<object> $aggregate
+     * @param list<string> $variantNames
      * @return array<string, string>
      */
-    private function propertyRowKeys(\ReflectionClass $aggregate, bool $external): array
-    {
+    private function propertyRowKeys(
+        \ReflectionClass $aggregate,
+        bool $external,
+        ?string $variant,
+        array $variantNames
+    ): array {
         $keys = [];
         $occupied = [];
 
         foreach ($aggregate->getProperties() as $property) {
             if ($property->getDeclaringClass()->getName() !== $aggregate->getName()) {
+                continue;
+            }
+            if (!$this->propertyIncluded($property, $variant, $variantNames)) {
                 continue;
             }
 
@@ -473,6 +649,7 @@ final class AttributeTableRegistryCompiler
      * @param array<string, RelationMetadata> $participants
      * @param array<class-string, object> $providerCache
      * @param array<string, mixed> $providerOutputCache
+     * @param list<string> $variantNames
      * @return list<RegistryRowInputDefinition>
      */
     private function internalInputs(
@@ -480,7 +657,9 @@ final class AttributeTableRegistryCompiler
         array $participants,
         array &$providerCache,
         array &$providerOutputCache,
-        bool $external
+        bool $external,
+        ?string $variant,
+        array $variantNames
     ): array {
         $inputs = [];
 
@@ -489,6 +668,9 @@ final class AttributeTableRegistryCompiler
                 $property->getDeclaringClass()->getName() !== $aggregate->getName()
                 || !$this->attributes->has($property, Internal::class)
             ) {
+                continue;
+            }
+            if (!$this->propertyIncluded($property, $variant, $variantNames)) {
                 continue;
             }
             if ($property->isStatic()) {
@@ -506,7 +688,8 @@ final class AttributeTableRegistryCompiler
                 $participants,
                 $providerCache,
                 $providerOutputCache,
-                $external
+                $external,
+                $variant
             );
             if (!$hasInput) {
                 throw InvalidRegistryDefinitionException::because(\sprintf(
@@ -559,6 +742,7 @@ final class AttributeTableRegistryCompiler
      * @param array<class-string, object> $providerCache
      * @param array<string, mixed> $providerOutputCache
      * @param array<string, string> $rowKeys
+     * @param list<string> $variantNames
      * @return list<ColumnRegistryDefinition>
      */
     private function columns(
@@ -567,7 +751,9 @@ final class AttributeTableRegistryCompiler
         array &$providerCache,
         array &$providerOutputCache,
         bool $external,
-        array $rowKeys
+        array $rowKeys,
+        ?string $variant,
+        array $variantNames
     ): array {
         $columns = [];
         $positions = [];
@@ -575,6 +761,9 @@ final class AttributeTableRegistryCompiler
 
         foreach ($aggregate->getProperties() as $property) {
             if ($property->getDeclaringClass()->getName() !== $aggregate->getName()) {
+                continue;
+            }
+            if (!$this->propertyIncluded($property, $variant, $variantNames)) {
                 continue;
             }
 
@@ -615,7 +804,8 @@ final class AttributeTableRegistryCompiler
                     $providerCache,
                     $providerOutputCache,
                     $external,
-                    $rowKeys
+                    $rowKeys,
+                    $variant
                 ),
             ];
         }
@@ -642,7 +832,8 @@ final class AttributeTableRegistryCompiler
         array &$providerCache,
         array &$providerOutputCache,
         bool $external,
-        array $rowKeys
+        array $rowKeys,
+        ?string $variant
     ): ColumnRegistryDefinition {
         $primary = $this->attributes->has($property, PrimaryKey::class);
         $column = $primary
@@ -655,7 +846,8 @@ final class AttributeTableRegistryCompiler
             $participants,
             $providerCache,
             $providerOutputCache,
-            $external
+            $external,
+            $variant
         );
         if (!$hasInput && $metadata->mode !== ColumnMode::Output) {
             throw InvalidRegistryDefinitionException::because(\sprintf(
@@ -731,7 +923,8 @@ final class AttributeTableRegistryCompiler
         array $participants,
         array &$providerCache,
         array &$providerOutputCache,
-        bool $external
+        bool $external,
+        ?string $variant
     ): array {
         $project = $this->attributes->first($property, Project::class);
         $expression = $this->attributes->first($property, SqlExpression::class);
@@ -816,21 +1009,42 @@ final class AttributeTableRegistryCompiler
 
         $sql = $expression instanceof SqlExpression ? $expression->expression : null;
         if ($expressionProvider instanceof SqlExpressionProvider) {
-            $provider = $this->provider($expressionProvider->provider, $providerCache);
-            if (!$provider instanceof SqlExpressionProviderInterface) {
-                throw InvalidRegistryDefinitionException::because(\sprintf(
-                    'SQL expression provider "%s" must implement %s.',
-                    $expressionProvider->provider,
-                    SqlExpressionProviderInterface::class
-                ));
-            }
-            $outputKey = 'expression:' . $expressionProvider->provider;
-            if (!\array_key_exists($outputKey, $providerOutputCache)) {
-                $providerOutputCache[$outputKey] = $provider();
-            }
-            $sql = $providerOutputCache[$outputKey];
-            if (!\is_string($sql)) {
-                throw new \LogicException('SQL expression provider returned a non-string value.');
+            try {
+                $provider = $this->provider($expressionProvider->provider, $providerCache);
+                if (!$provider instanceof SqlExpressionProviderInterface) {
+                    throw InvalidRegistryDefinitionException::because(\sprintf(
+                        'SQL expression provider "%s" must implement %s.',
+                        $expressionProvider->provider,
+                        SqlExpressionProviderInterface::class
+                    ));
+                }
+                $outputKey = 'expression:' . $expressionProvider->provider;
+                if (!\array_key_exists($outputKey, $providerOutputCache)) {
+                    try {
+                        $providerOutputCache[$outputKey] = $provider();
+                    } catch (\Throwable $exception) {
+                        $providerOutputCache[$outputKey] = $exception;
+                    }
+                }
+                $sql = $providerOutputCache[$outputKey];
+                if ($sql instanceof \Throwable) {
+                    throw $sql;
+                }
+                if (!\is_string($sql)) {
+                    throw new \LogicException('SQL expression provider returned a non-string value.');
+                }
+            } catch (\Throwable $exception) {
+                throw new AttributeCompilationException([
+                    new AttributeCompilationIssue(
+                        'projection.provider',
+                        $exception->getMessage(),
+                        $property->getDeclaringClass()->getName(),
+                        $variant,
+                        $property->getName(),
+                        SqlExpressionProvider::class,
+                        $expressionProvider->provider
+                    ),
+                ]);
             }
         }
         if ($sql === null || \trim($sql) === '') {
@@ -1242,12 +1456,15 @@ final class AttributeTableRegistryCompiler
      * @param array<class-string, object> $providerCache
      * @param array<string, mixed> $providerOutputCache
      * @param array<class-string, RelationMetadata> $relationCache
+     * @param class-string $consumer
      */
     private function relation(
         string $model,
         array &$providerCache,
         array &$providerOutputCache,
-        array &$relationCache
+        array &$relationCache,
+        string $consumer,
+        ?string $variant
     ): RelationMetadata {
         if (isset($relationCache[$model])) {
             return $relationCache[$model];
@@ -1267,24 +1484,47 @@ final class AttributeTableRegistryCompiler
             if ($providerClass === null) {
                 throw new \LogicException('Provider-backed source has no provider class.');
             }
-            $provider = $this->provider($providerClass, $providerCache);
-            if (!$provider instanceof RelationSourceProviderInterface) {
-                throw InvalidRegistryDefinitionException::because(\sprintf(
-                    'Relation source provider "%s" must implement %s.',
-                    $providerClass,
-                    RelationSourceProviderInterface::class
-                ));
-            }
-            $outputKey = 'source:' . $providerClass;
-            if (!\array_key_exists($outputKey, $providerOutputCache)) {
-                $providerOutputCache[$outputKey] = $provider();
-            }
-            $source = $providerOutputCache[$outputKey];
-            if (!$source instanceof \Wolfcharaa\TableRegistry\Metadata\RelationSourceMetadata) {
-                throw new \LogicException('Relation source provider returned invalid metadata.');
-            }
-            if ($source->isProvided()) {
-                throw InvalidRegistryDefinitionException::because('Relation source provider must return a resolved source.');
+            try {
+                $provider = $this->provider($providerClass, $providerCache);
+                if (!$provider instanceof RelationSourceProviderInterface) {
+                    throw InvalidRegistryDefinitionException::because(\sprintf(
+                        'Relation source provider "%s" must implement %s.',
+                        $providerClass,
+                        RelationSourceProviderInterface::class
+                    ));
+                }
+                $outputKey = 'source:' . $providerClass;
+                if (!\array_key_exists($outputKey, $providerOutputCache)) {
+                    try {
+                        $providerOutputCache[$outputKey] = $provider();
+                    } catch (\Throwable $exception) {
+                        $providerOutputCache[$outputKey] = $exception;
+                    }
+                }
+                $source = $providerOutputCache[$outputKey];
+                if ($source instanceof \Throwable) {
+                    throw $source;
+                }
+                if (!$source instanceof \Wolfcharaa\TableRegistry\Metadata\RelationSourceMetadata) {
+                    throw new \LogicException('Relation source provider returned invalid metadata.');
+                }
+                if ($source->isProvided()) {
+                    throw InvalidRegistryDefinitionException::because(
+                        'Relation source provider must return a resolved source.'
+                    );
+                }
+            } catch (\Throwable $exception) {
+                throw new AttributeCompilationException([
+                    new AttributeCompilationIssue(
+                        'source.provider',
+                        $exception->getMessage(),
+                        $consumer,
+                        $variant,
+                        null,
+                        RelationSourceProvider::class,
+                        $providerClass
+                    ),
+                ]);
             }
             $metadata = new RelationMetadata($source, $metadata->fields());
         }
@@ -1299,6 +1539,273 @@ final class AttributeTableRegistryCompiler
     private function provider(string $provider, array &$providerCache): object
     {
         return $providerCache[$provider] ??= $this->providers->resolve($provider);
+    }
+
+    /**
+     * @param class-string $aggregate
+     * @param list<object> $tables
+     * @param list<object> $variants
+     * @return array{key:string,title:string,variant:?string,names:list<string>,family:bool}
+     */
+    private function tableIdentity(string $aggregate, array $tables, array $variants, ?string $requested): array
+    {
+        if ($variants === []) {
+            if (\count($tables) !== 1 || !$tables[0] instanceof Table) {
+                throw InvalidRegistryDefinitionException::because(\sprintf(
+                    'Aggregate "%s" must declare exactly one Table Attribute or a Variant family.',
+                    $aggregate
+                ));
+            }
+            if ($requested !== null) {
+                throw InvalidRegistryDefinitionException::because(\sprintf(
+                    'Aggregate "%s" has no named variant "%s".',
+                    $aggregate,
+                    $requested
+                ));
+            }
+
+            return [
+                'key' => $tables[0]->key,
+                'title' => $tables[0]->title,
+                'variant' => null,
+                'names' => [],
+                'family' => false,
+            ];
+        }
+
+        if ($tables !== []) {
+            throw InvalidRegistryDefinitionException::because(\sprintf(
+                'Aggregate "%s" cannot combine Table and Variant Attributes.',
+                $aggregate
+            ));
+        }
+
+        $byName = [];
+        $default = null;
+        foreach ($variants as $metadata) {
+            if (!$metadata instanceof Variant) {
+                throw new \LogicException('Variant metadata was not normalized.');
+            }
+            $this->assertAlias($metadata->name, 'Variant name');
+            if (isset($byName[$metadata->name])) {
+                throw InvalidRegistryDefinitionException::because(\sprintf(
+                    'Duplicate aggregate variant "%s".',
+                    $metadata->name
+                ));
+            }
+            $byName[$metadata->name] = $metadata;
+            if ($metadata->isDefault) {
+                if ($default !== null) {
+                    throw InvalidRegistryDefinitionException::because(
+                        'Variant family must declare exactly one default variant.'
+                    );
+                }
+                $default = $metadata->name;
+            }
+        }
+
+        if ($default === null) {
+            throw InvalidRegistryDefinitionException::because(
+                'Variant family must declare exactly one default variant.'
+            );
+        }
+
+        $selected = $requested ?? $default;
+        $metadata = $byName[$selected] ?? null;
+        if (!$metadata instanceof Variant) {
+            throw InvalidRegistryDefinitionException::because(\sprintf(
+                'Aggregate "%s" has no named variant "%s".',
+                $aggregate,
+                $selected
+            ));
+        }
+
+        return [
+            'key' => $metadata->key,
+            'title' => $metadata->title,
+            'variant' => $selected,
+            'names' => \array_keys($byName),
+            'family' => true,
+        ];
+    }
+
+    /**
+     * @param list<string> $variantNames
+     */
+    private function propertyIncluded(
+        \ReflectionProperty $property,
+        ?string $variant,
+        array $variantNames
+    ): bool {
+        $only = $this->attributes->first($property, OnlyInVariant::class);
+        $exclude = $this->attributes->first($property, ExcludeFromVariant::class);
+        if ($only instanceof OnlyInVariant && $exclude instanceof ExcludeFromVariant) {
+            throw InvalidRegistryDefinitionException::because(\sprintf(
+                'Aggregate property %s::$%s cannot combine OnlyInVariant and ExcludeFromVariant.',
+                $property->getDeclaringClass()->getName(),
+                $property->getName()
+            ));
+        }
+
+        $membership = $only instanceof OnlyInVariant
+            ? $only->variants
+            : ($exclude instanceof ExcludeFromVariant ? $exclude->variants : []);
+        if ($membership !== [] && $variantNames === []) {
+            throw InvalidRegistryDefinitionException::because(\sprintf(
+                'Aggregate property %s::$%s declares variant membership outside a Variant family.',
+                $property->getDeclaringClass()->getName(),
+                $property->getName()
+            ));
+        }
+        foreach ($membership as $name) {
+            if (!\in_array($name, $variantNames, true)) {
+                throw InvalidRegistryDefinitionException::because(\sprintf(
+                    'Aggregate property %s::$%s references unknown variant "%s".',
+                    $property->getDeclaringClass()->getName(),
+                    $property->getName(),
+                    $name
+                ));
+            }
+        }
+
+        if ($only instanceof OnlyInVariant) {
+            return $variant !== null && \in_array($variant, $only->variants, true);
+        }
+        if ($exclude instanceof ExcludeFromVariant) {
+            return $variant === null || !\in_array($variant, $exclude->variants, true);
+        }
+
+        return true;
+    }
+
+    /**
+     * @param \ReflectionClass<object> $reflection
+     * @param class-string $attribute
+     * @param list<string> $variantNames
+     */
+    private function variantAttribute(
+        \ReflectionClass $reflection,
+        string $attribute,
+        ?string $variant,
+        array $variantNames
+    ): ?object {
+        $grouped = $this->groupVariantAttributes($reflection, $attribute, $variantNames);
+        foreach ($grouped as $scope => $attributes) {
+            if (\count($attributes) > 1) {
+                throw InvalidRegistryDefinitionException::because(\sprintf(
+                    'Aggregate must not declare multiple %s Attributes for %s.',
+                    $attribute,
+                    $scope === '' ? 'the common scope' : 'variant "' . $scope . '"'
+                ));
+            }
+        }
+
+        return $grouped[$variant ?? ''][0] ?? $grouped[''][0] ?? null;
+    }
+
+    /**
+     * @param \ReflectionClass<object> $reflection
+     * @param class-string $attribute
+     * @param list<string> $variantNames
+     * @return list<object>
+     */
+    private function variantAttributeList(
+        \ReflectionClass $reflection,
+        string $attribute,
+        ?string $variant,
+        array $variantNames
+    ): array {
+        $grouped = $this->groupVariantAttributes($reflection, $attribute, $variantNames);
+        $specific = $grouped[$variant ?? ''] ?? [];
+
+        return $specific !== [] ? $specific : ($grouped[''] ?? []);
+    }
+
+    /**
+     * @param \ReflectionClass<object> $reflection
+     * @param class-string $attribute
+     * @param list<string> $variantNames
+     * @return array<string, list<object>>
+     */
+    private function groupVariantAttributes(
+        \ReflectionClass $reflection,
+        string $attribute,
+        array $variantNames
+    ): array {
+        $grouped = [];
+        foreach ($this->attributes->instances($reflection, $attribute) as $metadata) {
+            $scope = $this->attributeVariant($metadata);
+            if ($scope !== null && !\in_array($scope, $variantNames, true)) {
+                throw InvalidRegistryDefinitionException::because(\sprintf(
+                    '%s Attribute references unknown variant "%s".',
+                    $attribute,
+                    $scope
+                ));
+            }
+            $grouped[$scope ?? ''][] = $metadata;
+        }
+
+        return $grouped;
+    }
+
+    private function attributeVariant(object $attribute): ?string
+    {
+        return match (true) {
+            $attribute instanceof CountSource => $attribute->variant,
+            $attribute instanceof Pagination => $attribute->variant,
+            $attribute instanceof DefaultSort => $attribute->variant,
+            $attribute instanceof SqlConstraint => $attribute->variant,
+            $attribute instanceof RuntimeConstraint => $attribute->variant,
+            default => throw new \LogicException('Attribute does not support variant scoping.'),
+        };
+    }
+
+    /** @param class-string $aggregate */
+    private function compilationException(
+        string $aggregate,
+        ?string $variant,
+        \Throwable $exception
+    ): AttributeCompilationException {
+        if ($exception instanceof AttributeCompilationException) {
+            return $exception;
+        }
+
+        return new AttributeCompilationException([
+            new AttributeCompilationIssue(
+                $this->issueCode($exception->getMessage()),
+                $exception->getMessage(),
+                $aggregate,
+                $variant
+            ),
+        ]);
+    }
+
+    private function issueCode(string $message): string
+    {
+        $message = \strtolower($message);
+
+        return match (true) {
+            \str_contains($message, 'must declare exactly one table') => 'definition.invalid',
+            \str_contains($message, 'class role') => 'role.conflict',
+            \str_contains($message, 'variant') => 'variant.invalid',
+            \str_contains($message, 'mapped'), \str_contains($message, 'imported') => 'inheritance.invalid',
+            \str_contains($message, 'join') => 'join.invalid',
+            \str_contains($message, 'alias') => 'alias.invalid',
+            \str_contains($message, 'position') => 'position.invalid',
+            \str_contains($message, 'field') => 'field.invalid',
+            \str_contains($message, 'participant'), \str_contains($message, 'projection') => 'projection.invalid',
+            \str_contains($message, 'hydrator'), \str_contains($message, 'resolver') => 'resolver.invalid',
+            \str_contains($message, 'type'), \str_contains($message, 'assignable') => 'type.invalid',
+            \str_contains($message, 'internal'),
+            \str_contains($message, 'capabilit'),
+            \str_contains($message, 'primary key'),
+            \str_contains($message, 'sort') => 'capability.invalid',
+            \str_contains($message, 'source'),
+            \str_contains($message, 'relation'),
+            \str_contains($message, 'connection') => 'source.invalid',
+            \str_contains($message, 'attribute') => 'attribute.invalid',
+            default => 'definition.invalid',
+        };
     }
 
     /**

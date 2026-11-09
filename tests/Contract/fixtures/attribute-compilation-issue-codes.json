@@ -1,0 +1,19 @@
+[
+    "alias.invalid",
+    "attribute.invalid",
+    "capability.invalid",
+    "catalog.duplicate_key",
+    "definition.invalid",
+    "field.invalid",
+    "inheritance.invalid",
+    "join.invalid",
+    "position.invalid",
+    "projection.invalid",
+    "projection.provider",
+    "resolver.invalid",
+    "role.conflict",
+    "source.invalid",
+    "source.provider",
+    "type.invalid",
+    "variant.invalid"
+]
