@@ -7,18 +7,12 @@
 
 ## Обновление пакета
 
-Перед final tag используйте точный release candidate; после project pilot перейдите на minor line:
-
-```bash
-composer require romanfedorskij/table-registry:"0.7.0-rc.1" --with-all-dependencies
-composer show romanfedorskij/table-registry
-composer check-platform-reqs
-```
-
-После публикации final:
+Обновите только TableRegistry и необходимые ему зависимости:
 
 ```bash
 composer require romanfedorskij/table-registry:"^0.7.0" --with-all-dependencies
+composer show romanfedorskij/table-registry
+composer check-platform-reqs
 ```
 
 Минимальная версия PHP остаётся `8.2`. Не используйте `--ignore-platform-reqs`. Если проект синхронизирует bundled
@@ -46,6 +40,18 @@ deprecated.
 
 Минимальный Attribute path находится в [`examples/08-attribute-table.php`](examples/08-attribute-table.php), JOIN —
 в [`examples/09-attribute-join.php`](examples/09-attribute-join.php).
+
+Serialized JSON, params, projection и export keys сравнивайте точно. SQL compiler может добавить безопасное quoting
+identifiers и `AS`, поэтому SQL parity проверяйте после нормализации этих различий и, для важного запроса, через
+PostgreSQL `EXPLAIN`. Это не заменяет сравнение predicate, JOIN topology, rows/count/export scope и bindings.
+
+Compiler читает metadata через reflection и не создаёт relation/aggregate objects. Если PHPStan проекта требует
+инициализации metadata-only properties, задайте безопасные defaults либо используйте реальный constructor/promoted
+properties модели; suppressions для compiler-а не нужны. Static annotated properties не поддерживаются.
+
+Компилируйте aggregate при application composition/bootstrap, сохраните immutable `TableRegistryDefinition` в
+обычном shared provider/factory приложения и переиспользуйте его между запросами. Compile-time providers не должны
+выполнять request-dependent I/O. Библиотека не вводит global cache и не требует отдельного cache invalidation.
 
 ## Соответствие object API
 

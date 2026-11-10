@@ -16,6 +16,7 @@ These shared executable examples cover the supported library paths:
 - `09-attribute-join.php` — reusable relation models and a structured `LEFT JOIN`;
 - `10-attribute-variants.php` — default/archive family and a variant-only column;
 - `11-attribute-external-rows.php` — external projection and expected SQL rejection.
+- `12-attribute-providers.php` — compile-time source/expression providers through a PSR container.
 
 The examples do not execute SQL. The host application's DB adapter executes generated SQL with bound params.
 

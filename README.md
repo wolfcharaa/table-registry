@@ -9,7 +9,7 @@
 ответа, но выполнение SQL, HTTP, авторизация и бизнес-действия должны оставаться в приложении.
 
 Русский — основной язык документации; English edition поддерживается рядом. Имена public API, команды и исполняемые
-примеры общие для всех потребителей. Документация ветки `main` описывает готовящуюся линию `v0.7`.
+примеры общие для всех потребителей. Документация ветки `main` описывает линию `v0.7`.
 
 ## Что Даёт Библиотека
 
@@ -33,14 +33,14 @@
 - `psr/container` `^1.1 || ^2.0`;
 - `openspout/openspout` `^4.28 || ^5.0` для XLSX.
 
-После публикации `v0.7.0` установите minor line из Packagist:
+Установите minor line из Packagist:
 
 ```bash
 composer require romanfedorskij/table-registry:^0.7
 ```
 
-До final tag используйте только явно опубликованный exact RC. Инструкции для текущей стабильной `v0.6.x` остаются в
-[`docs/migration-v0.5-to-v0.6.md`](docs/migration-v0.5-to-v0.6.md).
+Обновление существующего consumer-а с `v0.6.x` описано в
+[`docs/migration-v0.6-to-v0.7.md`](docs/migration-v0.6-to-v0.7.md).
 
 ## Быстрый Старт
 
@@ -115,6 +115,7 @@ HTTP/CLI adapter → validate input → compile SQL + params → application exe
 - [построить table read-model от definition до response](docs/table-read-model.md);
 - [описать relation/aggregate через Attributes](docs/attributes.md);
 - [сверить точную Attribute semantics](docs/attribute-reference.md);
+- [подключить provider, resolver или другой extension port](docs/extensions.md);
 - [построить standalone select или typed option list](docs/select-and-options.md);
 - [запустить исполняемые примеры](docs/examples/README.md);
 - [проверить поддерживаемые public symbols](docs/public-api.md);

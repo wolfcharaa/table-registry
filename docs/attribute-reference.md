@@ -61,6 +61,19 @@ filter. `ColumnMode::Visible` — обычная колонка, `Payload` ск�
 PHP visibility, constructor, methods, initialized/promoted/readonly properties не влияют на compilation. Static
 annotated properties запрещены.
 
+## Важные Defaults
+
+- `Column::key`, `Project::field`, `Field::column` и `ExternalField::key` по умолчанию равны имени property.
+- `Field::rowType` и nullability выводятся из PHP property type; explicit metadata нужна, когда тип вывести нельзя.
+- Filter query key по умолчанию равен column key; range keys — `<key>_from` и `<key>_to`.
+- `Search` использует `search`; `Pagination` — `page`/`per_page`, `25` по умолчанию и максимум `250`.
+- `Sort` без expression сортирует по select expression колонки.
+- `Column::exportable = null` сохраняет default policy режима; payload/output не экспортируются по умолчанию.
+- `LabelFrom` fallback-ит к исходному value, если связанное значение равно `null`; это отключается
+  `fallbackToValue: false`.
+
+Exact constructor signatures и enum cases зафиксированы в [`public-api.md`](public-api.md) и signature snapshot.
+
 ## Providers и resolvers
 
 `AttributeTableRegistryCompiler` по умолчанию использует `NativeCompileTimeProviderResolver`, который создаёт только
@@ -74,6 +87,10 @@ Provider object и его результат вычисляются один р�
 `LabelWith` и `HydrateWith` получают scoped `RegistryRowData`, содержащий только перечисленные aggregate properties.
 `LabelFrom` — короткий путь для одного значения. DI-managed runtime class strings разрешаются уже при SQL/projection
 через `RegistryResolverInvokerInterface`, а не compile-time provider resolver.
+
+Рекомендуемый host lifecycle — compile once при composition/bootstrap и reuse immutable definitions. Compiler не
+хранит global cache; «один раз» для providers означает одну compilation operation. Полный composition и failure
+contract extension ports находится в [`extensions.md`](extensions.md).
 
 ## Trusted SQL boundary
 

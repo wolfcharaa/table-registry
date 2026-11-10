@@ -33,9 +33,14 @@ For non-SQL rows use `ExternalRows` and `ExternalField`; project normally, but d
 PostgreSQL compiler. Compile-time providers receive no request context and are resolved once per compiler operation.
 Keep actor/tenant/request restrictions as immutable post-compilation runtime constraints.
 
-Read the installed package's `docs/attributes.md`, `docs/attribute-reference.md`, and executable examples `08`–`11`
-before inventing metadata conventions. Keep the object authoring API for genuinely runtime-dependent shapes and as a
-parity oracle during migration.
+Compile static aggregates once during application composition/bootstrap and retain the immutable definitions in the
+consumer's normal shared provider/factory. The library does not provide a global definition cache. If strict static
+analysis rejects uninitialized metadata-only properties, initialize them safely or use the model's real constructor;
+the compiler never instantiates annotated classes.
+
+Read the installed package's `docs/attributes.md`, `docs/attribute-reference.md`, and executable examples `08`–`12`
+before inventing metadata conventions. Read `docs/extensions.md` before implementing a public provider/resolver port.
+Keep the object authoring API for genuinely runtime-dependent shapes and as a parity oracle during migration.
 
 ## Build A Standalone Select Or Option List
 

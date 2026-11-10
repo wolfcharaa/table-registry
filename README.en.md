@@ -7,7 +7,7 @@ compilation, stable frontend row payloads, and XLSX export.
 
 Use it when the backend must explicitly define columns, filters, search, sorting, pagination, and response shape while
 SQL execution, HTTP, authorization, and business actions remain in the host application. The `main` documentation
-targets the upcoming `v0.7` line.
+targets the `v0.7` line.
 
 ## Capabilities
 
@@ -30,14 +30,14 @@ own frontend layout/actions. Those responsibilities stay with the host applicati
 - `psr/container` `^1.1 || ^2.0`;
 - `openspout/openspout` `^4.28 || ^5.0` for XLSX.
 
-After the `v0.7.0` final tag is published:
+Install the minor line from Packagist:
 
 ```bash
 composer require romanfedorskij/table-registry:^0.7
 ```
 
-Before the final tag, use an explicitly published exact RC only. The current stable `v0.6.x` migration material is
-kept in [`docs/migration-v0.5-to-v0.6.md`](docs/migration-v0.5-to-v0.6.md).
+Existing `v0.6.x` consumers should follow
+[`docs/en/migration-v0.6-to-v0.7.md`](docs/en/migration-v0.6-to-v0.7.md).
 
 ## Quick start
 
@@ -100,7 +100,9 @@ The application owns transport parsing, DB adapters, authorization, and response
 - [Documentation map](docs/en/README.md)
 - [Attribute authoring guide](docs/en/attributes.md)
 - [Attribute reference](docs/en/attribute-reference.md)
+- [Extension ports](docs/en/extensions.md)
 - [Table read-model](docs/en/table-read-model.md)
+- [Standalone select and option lists](docs/en/select-and-options.md)
 - [Executable examples](docs/en/examples/README.md)
 - [`v0.6.x` → `v0.7.0` migration](docs/en/migration-v0.6-to-v0.7.md)
 - [Public API allowlist](docs/public-api.md)

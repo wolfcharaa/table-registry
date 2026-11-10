@@ -61,6 +61,19 @@ Filter Attributes are `TextFilter`, `IntegerFilter`, `BooleanFilter`, `Nullabili
 PHP visibility, constructors, methods, initialized/promoted/readonly properties do not affect compilation. Annotated
 static properties are rejected.
 
+## Important defaults
+
+- `Column::key`, `Project::field`, `Field::column`, and `ExternalField::key` default to the property name.
+- `Field::rowType` and nullability are inferred from the PHP property type when omitted.
+- A filter query key defaults to its column key; range keys default to `<key>_from` and `<key>_to`.
+- `Search` uses `search`; `Pagination` uses `page`/`per_page`, default `25`, maximum `250`.
+- `Sort` without an expression uses the column select expression.
+- `Column::exportable = null` preserves mode policy; payload/output modes are not exportable by default.
+- `LabelFrom` falls back to the original value when its input is `null`; set `fallbackToValue: false` to disable it.
+
+Exact constructor signatures and enum cases are frozen in [`../public-api.md`](../public-api.md) and its signature
+snapshot.
+
 ## Providers and resolvers
 
 `AttributeTableRegistryCompiler` uses `NativeCompileTimeProviderResolver` by default; it constructs zero-argument
@@ -74,6 +87,10 @@ output is memoized for that operation and returned as a location-bound `Attribut
 `LabelWith` and `HydrateWith` receive scoped `RegistryRowData` containing explicitly listed aggregate properties only.
 `LabelFrom` is the one-value shortcut. DI-managed runtime class strings are resolved during SQL/projection through
 `RegistryResolverInvokerInterface`, not by the compile-time provider resolver.
+
+Compile once during host composition/bootstrap and reuse immutable definitions. The compiler has no global cache;
+provider “once” means once per compilation operation. See [`extensions.md`](extensions.md) for full composition and
+failure contracts.
 
 ## Trusted SQL boundary
 

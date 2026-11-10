@@ -48,6 +48,11 @@ $definition = (new AttributeTableRegistryCompiler())->compile(UsersTable::class)
 Relation model можно переиспользовать под разными aliases и в разных aggregates. Добавление `Field` само по себе
 никогда не расширяет frontend-контракт: наружу попадают только properties с `Column` в конкретном aggregate.
 
+Annotated class может быть существующей domain/read моделью: compiler игнорирует методы, constructor, visibility и
+runtime values properties. Он читает только class/property metadata через reflection и не создаёт object. Для
+отдельных metadata-only классов можно инициализировать typed properties безопасными defaults, если этого требует
+PHPStan проекта; static annotated properties запрещены.
+
 ## JOIN нескольких моделей
 
 Aggregate владеет topology. Обычный `INNER`/`LEFT JOIN` описывается `Join` и одним или несколькими `FieldMatch`;
@@ -55,6 +60,11 @@ Aggregate владеет topology. Обычный `INNER`/`LEFT JOIN` описы
 aliases и fields в памяти — он не читает schema БД и не открывает connection.
 
 Запускаемый пример: [`examples/09-attribute-join.php`](examples/09-attribute-join.php).
+
+Используйте `FieldMatch` для обычного равенства полей. `RawJoinCondition` оставляйте для casts, compound predicates и
+других условий, которые нельзя выразить структурно: его SQL считается trusted developer input. Наличие таблиц и
+колонок проверит PostgreSQL при выполнении/`EXPLAIN`; Attribute compiler намеренно не делает дополнительные schema
+queries.
 
 ## Computed, internal и external values
 
@@ -90,6 +100,59 @@ $family = $compiler->compileVariants(OrdersTable::class);
 заканчивается `UnsupportedRegistrySourceException`.
 
 Запускаемый пример: [`examples/11-attribute-external-rows.php`](examples/11-attribute-external-rows.php).
+
+## Composition И Lifecycle
+
+Компилируйте static aggregate при composition/bootstrap приложения, а не в каждом controller call. Сохраните
+immutable `TableRegistryDefinition` в обычном shared provider/factory приложения и передавайте его endpoint-ам,
+export и frontend-definition handler-ам. Библиотека не создаёт global cache и не навязывает cache invalidation.
+
+```php
+final class UsersTableDefinitionProvider
+{
+    private ?TableRegistryDefinition $definition = null;
+
+    public function __construct(private AttributeTableRegistryCompiler $compiler)
+    {
+    }
+
+    public function definition(): TableRegistryDefinition
+    {
+        return $this->definition ??= $this->compiler->compile(UsersTable::class);
+    }
+}
+```
+
+Compile-time providers вычисляются один раз на одну операцию `compile()`, `compileAll()` или `compileVariants()`.
+PSR-container composition и contracts providers подробно описаны в
+[`extensions.md`](extensions.md); запускаемый вариант —
+[`examples/12-attribute-providers.php`](examples/12-attribute-providers.php).
+
+## Диагностика Compilation
+
+Compilation либо возвращает полный result, либо выбрасывает один `AttributeCompilationException` с ordered issues.
+Логируйте stable `code` и location fields отдельно от human-readable message:
+
+```php
+try {
+    $definition = $compiler->compile(UsersTable::class);
+} catch (AttributeCompilationException $exception) {
+    foreach ($exception->issues() as $issue) {
+        $logger->error($issue->message(), [
+            'code' => $issue->code(),
+            'consumer' => $issue->consumer(),
+            'variant' => $issue->variant(),
+            'property' => $issue->property(),
+            'attribute' => $issue->attribute(),
+            'provider' => $issue->provider(),
+        ]);
+    }
+
+    throw $exception;
+}
+```
+
+Исправляйте metadata до запуска приложения; не преобразуйте compile errors в пустую table definition.
 
 ## Граница приложения
 

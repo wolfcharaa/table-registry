@@ -203,5 +203,6 @@ Reference is shared by the Russian and English editions because symbol names and
 Новые interfaces добавляются только для доказанного project extension use case. Простое желание заменить immutable
 value object не является основанием создавать для него interface.
 
-Attribute compiler, public Attributes, lifecycle и validation limits описаны в
+Назначение, composition, lifecycle, failures и consumer examples всех портов описаны в
+[`extensions.md`](extensions.md). Attribute compiler, public Attributes и validation limits — в
 [`attributes.md`](attributes.md) и [`attribute-reference.md`](attribute-reference.md).

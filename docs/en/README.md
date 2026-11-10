@@ -2,7 +2,7 @@
 
 [Русский](../README.md)
 
-The `main` documentation targets the upcoming `v0.7` line. English and Russian are reviewed editions; PHP symbols,
+The `main` documentation targets the `v0.7` line. English and Russian are reviewed editions; PHP symbols,
 commands, and executable examples are shared.
 
 ## Recommended path
@@ -21,6 +21,7 @@ commands, and executable examples are shared.
 | Evaluate purpose, requirements, and boundaries | [README](../../README.en.md) |
 | Describe a relation/JOIN aggregate with Attributes | [Attribute authoring](attributes.md) |
 | Check exact Attribute semantics and errors | [Attribute reference](attribute-reference.md) |
+| Wire a provider, resolver, or another extension port | [Extending TableRegistry](extensions.md) |
 | Build a table endpoint | [Table read-model](table-read-model.md) |
 | Build an options/list endpoint | [Standalone select and option lists](select-and-options.md) |
 | Find a complete runnable scenario | [Examples](examples/README.md) |

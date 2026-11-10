@@ -16,6 +16,7 @@
 - `09-attribute-join.php` - две reusable relation models, structured `LEFT JOIN` и SQL compilation.
 - `10-attribute-variants.php` - default/archive family и variant-only column.
 - `11-attribute-external-rows.php` - projection внешних строк и ожидаемый отказ SQL compiler-а.
+- `12-attribute-providers.php` - compile-time source/expression providers через PSR container.
 
 Примеры не выполняют SQL-запросы. Библиотека возвращает SQL и параметры, а выполнение остаётся ответственностью
 приложения и его DB-адаптера.

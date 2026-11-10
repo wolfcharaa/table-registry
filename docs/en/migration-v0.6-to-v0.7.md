@@ -7,18 +7,12 @@ does not require rewriting existing tables: both paths emit one `TableRegistryDe
 
 ## Update the package
 
-Use an exact release candidate before the final tag, then move to the minor line after a project pilot:
-
-```bash
-composer require romanfedorskij/table-registry:"0.7.0-rc.1" --with-all-dependencies
-composer show romanfedorskij/table-registry
-composer check-platform-reqs
-```
-
-After the final release:
+Update TableRegistry and only the dependencies it requires:
 
 ```bash
 composer require romanfedorskij/table-registry:"^0.7.0" --with-all-dependencies
+composer show romanfedorskij/table-registry
+composer check-platform-reqs
 ```
 
 The minimum PHP version remains `8.2`. Do not use `--ignore-platform-reqs`. If the project synchronizes bundled
@@ -46,6 +40,18 @@ or deprecated.
 
 The minimal Attribute path is in [`../examples/08-attribute-table.php`](../examples/08-attribute-table.php), with a
 JOIN in [`../examples/09-attribute-join.php`](../examples/09-attribute-join.php).
+
+Compare serialized JSON, params, projection, and export keys exactly. The SQL compiler may add safe identifier
+quoting and `AS`, so compare SQL after normalizing those differences and run PostgreSQL `EXPLAIN` for important
+queries. Still verify predicates, JOIN topology, rows/count/export scope, and bindings.
+
+The compiler reflects metadata and never instantiates relation/aggregate objects. If consumer PHPStan rules require
+metadata-only properties to be initialized, give them safe defaults or use the model's real constructor/promoted
+properties; no compiler suppression is required. Annotated static properties are unsupported.
+
+Compile aggregates during application composition/bootstrap, retain immutable `TableRegistryDefinition` instances in
+the application's normal shared provider/factory, and reuse them across requests. Compile-time providers must not do
+request-dependent I/O. The library adds no global cache or cache-invalidation protocol.
 
 ## Object API mapping
 

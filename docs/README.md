@@ -2,7 +2,7 @@
 
 [English](en/README.md)
 
-Документация ветки `main` относится к готовящейся линии `v0.7`. Русский — primary locale; PHP symbols, команды и
+Документация ветки `main` относится к линии `v0.7`. Русский — primary locale; PHP symbols, команды и
 примеры общие для обеих локалей.
 
 ## Рекомендуемый Порядок
@@ -21,6 +21,7 @@
 | Оценить назначение, требования и границы | [README](../README.md) |
 | Описать relation/JOIN aggregate через Attributes | [Attribute authoring](attributes.md) |
 | Проверить exact Attribute semantics и ошибки | [Attribute reference](attribute-reference.md) |
+| Подключить provider, resolver или другой extension port | [Расширение TableRegistry](extensions.md) |
 | Собрать table endpoint | [Table read-model](table-read-model.md) |
 | Собрать options/list endpoint | [Select и option lists](select-and-options.md) |
 | Найти полный запускаемый сценарий | [Examples](examples/README.md) |
