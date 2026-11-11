@@ -124,5 +124,5 @@ columns. Use the same validated query and runtime scope as the screen so export 
 | Resolver class is not invoked | Supply the PSR-container invoker and implement the matching interface |
 | Export contains the wrong fields | Apply `RegistryExportColumnResolver`, not raw requested keys |
 
-Runnable evidence is indexed in [`examples/README.md`](examples/README.md); exact supported symbols are in the shared
-[`../public-api.md`](../public-api.md).
+Runnable evidence is indexed in [`examples/README.md`](examples/README.md); exact supported symbols are in
+[`public-api.md`](public-api.md).

@@ -11,7 +11,7 @@ commands, and executable examples are shared.
 2. Use [Attribute authoring](attributes.md) for a new static table definition.
 3. Follow the [table read-model](table-read-model.md) for the complete runtime pipeline.
 4. Use the [standalone select guide](select-and-options.md) for options and small read models.
-5. Verify symbols in the shared [public API allowlist](../public-api.md) and behavior in
+5. Verify symbols in the [public API allowlist](public-api.md) and behavior in
    [executable examples](examples/README.md).
 
 ## By task
@@ -25,8 +25,10 @@ commands, and executable examples are shared.
 | Build a table endpoint | [Table read-model](table-read-model.md) |
 | Build an options/list endpoint | [Standalone select and option lists](select-and-options.md) |
 | Find a complete runnable scenario | [Examples](examples/README.md) |
-| Check a symbol's compatibility promise | [Public API](../public-api.md) |
+| Check a symbol's compatibility promise | [Public API](public-api.md) |
+| Upgrade a consumer from `v0.5.x` | [Migration `v0.5.x` → `v0.6.0`](migration-v0.5-to-v0.6.md) |
 | Adopt the Attribute frontend | [Migration `v0.6.x` → `v0.7.0`](migration-v0.6-to-v0.7.md) |
+| Understand legacy/generic API status | [`v0.6.0` compatibility matrix](v0.6-bc-matrix.md) |
 
 ## Host application boundary
 

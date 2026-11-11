@@ -20,9 +20,10 @@ these cases:
 - An update was requested: update only `romanfedorskij/table-registry` and the dependencies Composer proves must move;
   do not run an unrestricted project-wide update.
 
-For migration from `v0.5.x`, inspect the installed package's `docs/migration-v0.5-to-v0.6.md`. Use an exact
-`0.6.0-rc.N` constraint for a project pilot and switch to `^0.6.0` only after its integration tests pass. Preserve a
-rollback command for `0.5.2`, and keep the endpoint migration and Composer change in the same reviewable unit.
+For migration from `v0.5.x`, inspect the installed package's `docs/migration-v0.5-to-v0.6.md`. Move first to the
+published stable `^0.6.0` line, preserve a rollback command for `0.5.2`, and keep the endpoint migration and Composer
+change in the same reviewable unit. If the target is `v0.7.x`, establish legacy API parity on `v0.6.x` before following
+`docs/migration-v0.6-to-v0.7.md`; do not install a historical release candidate for a new migration.
 
 For migration from `v0.6.x` to the Attribute-capable `v0.7` line, read
 `docs/migration-v0.6-to-v0.7.md`. Update to `^0.7.0`, keep object-authored definitions as the parity oracle, and switch

@@ -6,7 +6,7 @@ This guide documents the supported application extension points in `v0.7`: their
 composition, invocation lifecycle, and failure behavior. Prefer built-in Attributes and definitions for ordinary
 integrations; implement an interface only when the project needs to change behavior.
 
-Exact signatures and the compatibility promise live in the shared [`../public-api.md`](../public-api.md).
+Exact signatures and the compatibility promise live in [`public-api.md`](public-api.md).
 
 ## Extension map
 
@@ -234,5 +234,5 @@ A consumer contract test should cover:
 7. compiled-definition reuse without repeated compile-time I/O.
 
 Do not depend on `@internal` symbols. Before upgrading, compare interface signatures with
-[`../public-api.md`](../public-api.md) and run the consumer integration suite against the actually resolved Composer
+[`public-api.md`](public-api.md) and run the consumer integration suite against the actually resolved Composer
 version.

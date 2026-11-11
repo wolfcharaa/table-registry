@@ -1,5 +1,7 @@
 # Public API
 
+[English](en/public-api.md)
+
 Reference is shared by the Russian and English editions because symbol names and signatures are language-neutral.
 
 Этот документ задаёт поддерживаемую public API surface библиотеки. Наличие PHP-файла под `src/` и доступность

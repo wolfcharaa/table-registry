@@ -104,12 +104,19 @@ The application owns transport parsing, DB adapters, authorization, and response
 - [Table read-model](docs/en/table-read-model.md)
 - [Standalone select and option lists](docs/en/select-and-options.md)
 - [Executable examples](docs/en/examples/README.md)
+- [`v0.5.x` → `v0.6.0` migration](docs/en/migration-v0.5-to-v0.6.md)
 - [`v0.6.x` → `v0.7.0` migration](docs/en/migration-v0.6-to-v0.7.md)
-- [Public API allowlist](docs/public-api.md)
+- [Public API allowlist](docs/en/public-api.md)
+- [`v0.6.0` compatibility matrix](docs/en/v0.6-bc-matrix.md)
 
 ## AI agent skills
 
-The package ships `table-registry-install` and `table-registry-use`. With the optional `llm/skills` Composer plugin:
+The package ships two skills:
+
+- `table-registry-install` — install, upgrade, and verify the Composer package;
+- `table-registry-use` — author definitions and integrate validation, compilation, projection, and export.
+
+Synchronize them with the optional `llm/skills` Composer plugin:
 
 ```bash
 composer require --dev llm/skills
@@ -122,7 +129,7 @@ Composer asks separately before allowing the plugin. Without it, copy the desire
 
 ## Compatibility
 
-The supported `v0.7.x` surface is listed in [`docs/public-api.md`](docs/public-api.md) and checked by a signature
+The supported `v0.7.x` surface is listed in [`docs/en/public-api.md`](docs/en/public-api.md) and checked by a signature
 snapshot. An autoloadable class under `src/` is not automatically a compatibility promise; consumers should depend on
 allowlisted `@api` symbols only.
 

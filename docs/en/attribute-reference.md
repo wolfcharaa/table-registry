@@ -3,7 +3,7 @@
 [Русский](../attribute-reference.md)
 
 This reference targets the `v0.7` line. Start with [`attributes.md`](attributes.md) for the first workflow and use
-[`../public-api.md`](../public-api.md) for exact public signatures.
+[`public-api.md`](public-api.md) for exact public signatures.
 
 ## Roles and sources
 
@@ -71,7 +71,7 @@ static properties are rejected.
 - `Column::exportable = null` preserves mode policy; payload/output modes are not exportable by default.
 - `LabelFrom` falls back to the original value when its input is `null`; set `fallbackToValue: false` to disable it.
 
-Exact constructor signatures and enum cases are frozen in [`../public-api.md`](../public-api.md) and its signature
+Exact constructor signatures and enum cases are frozen in [`public-api.md`](public-api.md) and its signature
 snapshot.
 
 ## Providers and resolvers

@@ -1,26 +1,24 @@
 # Migration `v0.5.x` → `v0.6.0`
 
+[English](en/migration-v0.5-to-v0.6.md)
+
 `v0.6.0` добавляет standalone select/option API и сохраняет существующий table registry API. Миграцию можно проводить
 по одному endpoint-у: обновление зависимости само по себе не требует немедленно переписывать действующие таблицы.
 
 ## Версии И Порядок Обновления
 
-Исходная release baseline — `v0.5.2`. Первый project pilot должен использовать точный release candidate, чтобы
-Composer не поменял библиотеку во время проверки:
-
-```bash
-composer require romanfedorskij/table-registry:"0.6.0-rc.1" --with-all-dependencies
-composer show romanfedorskij/table-registry
-composer check-platform-reqs
-```
-
-После завершения pilot и публикации final tag замените exact RC constraint на minor line:
+Исходная release baseline — `v0.5.2`. Final release `v0.6.0` уже опубликован, поэтому новый project pilot
+должен устанавливать stable minor line, а не исторический release candidate:
 
 ```bash
 composer require romanfedorskij/table-registry:"^0.6.0" --with-all-dependencies
 composer show romanfedorskij/table-registry
 composer check-platform-reqs
 ```
+
+Если целевая версия — `v0.7.x`, сначала завершите эту проверку legacy table API, затем пройдите
+[миграцию `v0.6.x` → `v0.7.0`](migration-v0.6-to-v0.7.md). Так разделяются dependency/API regression и перевод
+конкретных definitions на Attributes.
 
 Минимальная версия PHP для `v0.6.x` — `8.2`. Не используйте `--ignore-platform-reqs` и не редактируйте
 `composer.lock` вручную. Если приложение синхронизирует bundled skills через `llm/skills`, после Composer update
@@ -132,7 +130,9 @@ container или services в `SelectQueryInput`: input содержит толь
 
 ## Transport Adapter И Выполнение
 
-Application adapter отвечает за aliases и строгую нормализацию transport values:
+Application adapter отвечает за aliases и строгую нормализацию transport values. Этот частичный
+фрагмент начинается после того, как adapter получил typed values, а приложение собрало reader/compiler
+services:
 
 ```php
 $criteria = ['departmentId' => $departmentId];
@@ -181,7 +181,7 @@ generic `param()` создаст ошибочный `::p0`.
 ## Verification Checklist Для `change-version-migrate`
 
 - [ ] Зафиксирована исходная версия `v0.5.2` и сохранён rollback command.
-- [ ] RC установлен exact constraint-ом; final — `^0.6.0` только после pilot.
+- [ ] Stable line `^0.6.0` установлена без `--ignore-platform-reqs`.
 - [ ] `composer show` и `composer check-platform-reqs` подтверждают PHP 8.2+ и разрешённые зависимости.
 - [ ] Bundled `table-registry-install` и `table-registry-use` skills синхронизированы.
 - [ ] Transport aliases/coercion остаются в application adapter.
@@ -193,7 +193,7 @@ generic `param()` создаст ошибочный `::p0`.
 - [ ] Async endpoint сохраняет search alias, limits, deterministic order и authorization/scope.
 - [ ] Выбранные IDs можно гидратировать отдельным declared `oneOf` criterion.
 - [ ] Старые table JSON/rows/count/export regression tests остаются зелёными.
-- [ ] Project test suite и статический анализ проходят до смены RC на final.
+- [ ] Project test suite и статический анализ проходят до перевода остальных endpoints.
 
 ## Rollback
 

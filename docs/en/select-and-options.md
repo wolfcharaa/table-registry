@@ -115,4 +115,4 @@ create a backend route/controller or replace `OptionListDefinition`.
 | Scope predicate contains a raw value | Use the full placeholder returned by `SelectRuntimeContext::param()` |
 
 Complete executable scenario: [`../examples/07-standalone-option-list.php`](../examples/07-standalone-option-list.php).
-Supported symbols are listed in the shared [`../public-api.md`](../public-api.md).
+Supported symbols are listed in [`public-api.md`](public-api.md).
